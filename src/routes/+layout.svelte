@@ -24,25 +24,26 @@
 	});
 </script>
 
-{#key drawerposition}
-	<Drawer position={drawerposition} width={drawerposition === 'right' ? 'w-96' : ''}>
-		{#if $drawerStore.id === 'drawer1'}
-			<h1>this is example 1</h1>
-		{:else if $drawerStore.id === 'drawer2'}
-			<h1>this is example 2</h1>
-		{:else}
-			<h1>default</h1>
-		{/if}
-	</Drawer>
-{/key}
-<AppBar gridColumns="grid-cols-3" slotDefault="place-self-center" slotTrail="place-content-end">
-	<svelte:fragment slot="lead">(icon)</svelte:fragment>
-	<h1>hello there</h1>
-	<svelte:fragment slot="trail"
-		><Avatar initials="JD" background="bg-primary-500" /></svelte:fragment
-	>
-</AppBar>
-<main></main>
+<main class="lg:mr-20">
+	{#key drawerposition}
+		<Drawer position={drawerposition} width={drawerposition === 'right' ? 'w-96' : ''}>
+			{#if $drawerStore.id === 'drawer1'}
+				<h1>this is example 1</h1>
+			{:else if $drawerStore.id === 'drawer2'}
+				<h1>this is example 2</h1>
+			{:else}
+				<h1>default</h1>
+			{/if}
+		</Drawer>
+	{/key}
+	<AppBar gridColumns="grid-cols-3" slotDefault="place-self-center" slotTrail="place-content-end">
+		<svelte:fragment slot="lead">(icon)</svelte:fragment>
+		<h1>hello there</h1>
+		<svelte:fragment slot="trail"
+			><Avatar initials="JD" background="bg-primary-500" /></svelte:fragment
+		>
+	</AppBar><slot />
+</main>
 <TabGroup
 	justify="justify-center"
 	active="variant-filled-primary"
