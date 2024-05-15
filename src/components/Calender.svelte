@@ -42,11 +42,3 @@
 		/>
 	{/each}
 </div>
-
-<!-- <style>
-	@media only screen and (max-width: 1024px) {
-		:global(body) {
-			width: 200vw;
-		}
-	}
-</style> -->

@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+	import { TabGroup, TabAnchor } from '@skeletonlabs/skeleton';
 	import { AppBar } from '@skeletonlabs/skeleton';
 	import { Avatar } from '@skeletonlabs/skeleton';
-	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { initializeStores, Drawer } from '@skeletonlabs/skeleton';
 	let drawerState = 'closed';
