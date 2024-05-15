@@ -24,7 +24,7 @@
 	});
 </script>
 
-<main class="lg:mr-20">
+<main class="relative overflow-hidden lg:mr-20">
 	{#key drawerposition}
 		<Drawer position={drawerposition} width={drawerposition === 'right' ? 'w-96' : ''}>
 			{#if $drawerStore.id === 'drawer1'}
@@ -36,13 +36,19 @@
 			{/if}
 		</Drawer>
 	{/key}
-	<AppBar gridColumns="grid-cols-3" slotDefault="place-self-center" slotTrail="place-content-end">
+	<AppBar
+		gridColumns="grid-cols-3"
+		slotDefault="place-self-center"
+		slotTrail="place-content-end"
+		class="sticky left-0 top-0 z-30"
+	>
 		<svelte:fragment slot="lead">(icon)</svelte:fragment>
 		<h1>hello there</h1>
 		<svelte:fragment slot="trail"
 			><Avatar initials="JD" background="bg-primary-500" /></svelte:fragment
 		>
-	</AppBar><slot />
+	</AppBar>
+	<slot />
 </main>
 <TabGroup
 	justify="justify-center"
@@ -52,7 +58,7 @@
 	rounded=""
 	border=""
 	regionList="lg:flex lg:flex-col"
-	class="bg-surface-100-800-token fixed bottom-0 z-50 w-full lg:bottom-0 lg:right-0 lg:top-0 lg:z-50 lg:h-full lg:w-20"
+	class="bg-surface-100-800-token fixed bottom-0 left-0 right-0 z-50 w-screen lg:bottom-0 lg:left-[unset] lg:top-0 lg:z-50 lg:h-full lg:w-20"
 >
 	<TabAnchor
 		on:click={() => {
