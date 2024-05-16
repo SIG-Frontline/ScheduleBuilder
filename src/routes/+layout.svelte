@@ -43,9 +43,7 @@
 	>
 		<svelte:fragment slot="lead">(icon)</svelte:fragment>
 		<h1>hello there</h1>
-		<svelte:fragment slot="trail"
-			><Avatar initials="JD" background="bg-primary-500" /></svelte:fragment
-		>
+		<svelte:fragment slot="trail"><h1>test</h1></svelte:fragment>
 	</AppBar>
 	<slot />
 </main>
