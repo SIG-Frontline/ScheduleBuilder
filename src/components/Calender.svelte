@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 
 	// Initialize start and end dates
@@ -33,8 +34,30 @@
 	$: hourHeight =
 		(secondRowDivMarker?.getBoundingClientRect().y - firstRowDivMarker?.getBoundingClientRect().y) *
 		2;
+	let updateCourses: number;
+	function resiseGrid(event: WheelEvent) {
+		clearTimeout(updateCourses);
+		if (event.deltaY > 0) {
+			gridheight += 100;
+		} else {
+			gridheight -= 100;
+		}
+		updateCourses = setTimeout(() => {
+			hourHeight =
+				(secondRowDivMarker?.getBoundingClientRect().y -
+					firstRowDivMarker?.getBoundingClientRect().y) *
+				2;
+		}, 0) as unknown as number;
+	}
+
+	let gridheight = 1000;
 </script>
 
+<svelte:window
+	on:wheel|passive|capture|stopPropagation={(e) => {
+		if (e.shiftKey) resiseGrid(e);
+	}}
+/>
 <!-- Display the days of the week -->
 <div
 	class="align-center bg-surface-50-900-token sticky top-0 z-30 flex w-[200vw] flex-row pt-5 lg:w-full"
@@ -49,7 +72,7 @@
 <div
 	class="relative mt-5 flex w-[200vw] flex-col justify-between lg:w-full"
 	bind:this={timeCol}
-	style:height={'105em'}
+	style:height={gridheight + 'px'}
 >
 	{#each dates as date, i}
 		<span class="relative flex h-0 justify-center">
@@ -83,7 +106,7 @@
 	<CourseSection
 		top={hourHeight}
 		left={timeColWidth + dayWidth * 2}
-		width={dayWidth}
+		width={dayWidth - 10}
 		height={hourHeight}
 		color="!bg-red-300"
 	>
@@ -92,7 +115,7 @@
 	<CourseSection
 		top={hourHeight}
 		left={timeColWidth + dayWidth * 4}
-		width={dayWidth}
+		width={dayWidth - 10}
 		height={hourHeight}
 		color="!bg-red-300"
 	>
@@ -101,7 +124,7 @@
 	<CourseSection
 		top={hourHeight}
 		left={timeColWidth + dayWidth * 3}
-		width={dayWidth}
+		width={dayWidth - 10}
 		height={hourHeight}
 		color="!bg-blue-300"
 	>

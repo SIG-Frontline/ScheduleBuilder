@@ -19,7 +19,6 @@
 	<button
 		class="card card-hover absolute inline-block !rounded-md {color} py-2"
 		style="top: {top}px; left: {left}px; width: {width}px; height: {height}px;"
-		in:fade={{ duration: 333 }}
 	>
 		<slot></slot>
 	</button>
