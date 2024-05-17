@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  material-symbols:
+    specifier: ^0.18.0
+    version: 0.18.0
+
 devDependencies:
   '@skeletonlabs/skeleton':
     specifier: ^2.10.0
@@ -1697,6 +1702,10 @@ packages:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
+
+  /material-symbols@0.18.0:
+    resolution: {integrity: sha512-U+b96KpXsN+sA9Y3b/50t6Z1rJPfh2UvHCvwsZRJtB6IlbYMhZw6E6kvfelhlOhm32qX43SSlVIemqDFkPjh/Q==}
+    dev: false
 
   /mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}

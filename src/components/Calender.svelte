@@ -43,11 +43,9 @@
 
 <!-- Display the days of the week -->
 <div
-	class="align-center sticky top-0 z-30 flex w-[200vw] flex-row justify-evenly bg-surface-50 pt-5 lg:w-full"
+	class="align-center bg-surface-50-900-token sticky top-0 z-30 flex w-[200vw] flex-row justify-evenly pt-5 lg:w-full"
 >
-	<p class="sticky left-0 z-30 flex-[.5] bg-surface-50 text-center" bind:clientWidth={timeColWidth}>
-		Time
-	</p>
+	<p class="sticky left-0 z-30 flex-[.5] text-center" bind:clientWidth={timeColWidth}>Time</p>
 	{#each daysOfWeek as day}
 		<p class="flex-1 text-center" bind:clientWidth={dayWidth}>{day}</p>
 	{/each}
@@ -58,7 +56,7 @@
 	{#each dates as date, i}
 		{#if i % 2 === 0}
 			<p
-				class="sticky left-0 z-20 ml-1 mr-1 flex h-10 translate-y-1/2 transform items-center justify-center bg-surface-50 text-center"
+				class="card sticky left-0 z-20 ml-1 mr-1 flex h-10 translate-y-1/2 transform items-center justify-center text-center"
 				style:width={timeColWidth + 'px'}
 			>
 				{date.toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' })}
@@ -68,9 +66,9 @@
 			<p class="h-10"></p>
 		{/if}
 		<hr
-			class="ml-[5%] h-[2px] w-[95%] bg-black md:ml-[4%] md:w-[95%] {i % 2 === 0
-				? ''
-				: 'opacity-25'}"
+			class="] {i % 2 === 0
+				? 'md:w-[95% ml-[5%] w-[95%] !border-t-2 !border-solid md:ml-[4%]'
+				: 'md:w-[95% ml-[5%] w-[95%] !border-t-2 !border-dashed md:ml-[4%]'}"
 		/>
 	{/each}
 	<CourseSection
@@ -78,6 +76,7 @@
 		left={timeColWidth + dayWidth * 2}
 		width={dayWidth}
 		height={heightOfOneHour * 1.4}
+		color="!bg-red-300"
 	>
 		<p class="text-center">Course 1</p>
 	</CourseSection>
@@ -86,6 +85,7 @@
 		left={timeColWidth + dayWidth * 4}
 		width={dayWidth}
 		height={heightOfOneHour * 1.4}
+		color="!bg-red-300"
 	>
 		<p class="text-center">Course 1</p>
 	</CourseSection>
@@ -94,7 +94,7 @@
 		left={timeColWidth + dayWidth * 3}
 		width={dayWidth}
 		height={heightOfOneHour * 2.9}
-		color="!bg-blue-200"
+		color="!bg-blue-300"
 	>
 		<p class="text-center">Course 2</p>
 	</CourseSection>
