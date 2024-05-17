@@ -11,7 +11,7 @@
 <!-- this promise is used to wait for the top, and height to be defined before rendering the button so it doesn't jump around -->
 <!-- its only top and height to prevent it from flickering when resizing -->
 {#await new Promise((resolve) => {
-	if (top && height) {
+	if (top !== null && height !== null) {
 		//@ts-ignore (cant do ts in svelte markup to my knowledge)
 		resolve();
 	}

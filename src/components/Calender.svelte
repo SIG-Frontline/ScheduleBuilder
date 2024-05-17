@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 
 	// Initialize start and end dates
@@ -29,21 +28,16 @@
 	let dayWidth = 0;
 	let timeColWidth = 0;
 	let timeCol: HTMLDivElement;
-	let heightOfOneHour = 0;
-	onMount(() => {
-		function getHeightofOneHour() {
-			let numHours = (endDate.getTime() - startDate.getTime()) / 1000 / 60 / 60;
-			console.log(timeCol);
-			let height = timeCol?.clientHeight / numHours;
-			return height;
-		}
-		heightOfOneHour = getHeightofOneHour();
-	});
+	let firstRowDivMarker: HTMLDivElement;
+	let secondRowDivMarker: HTMLDivElement;
+	$: hourHeight =
+		(secondRowDivMarker?.getBoundingClientRect().y - firstRowDivMarker?.getBoundingClientRect().y) *
+		2;
 </script>
 
 <!-- Display the days of the week -->
 <div
-	class="align-center bg-surface-50-900-token sticky top-0 z-30 flex w-[200vw] flex-row justify-evenly pt-5 lg:w-full"
+	class="align-center bg-surface-50-900-token sticky top-0 z-30 flex w-[200vw] flex-row pt-5 lg:w-full"
 >
 	<p class="sticky left-0 z-30 flex-[.5] text-center" bind:clientWidth={timeColWidth}>Time</p>
 	{#each daysOfWeek as day}
@@ -52,48 +46,63 @@
 </div>
 
 <!-- Display the generated dates -->
-<div class="flex w-[200vw] flex-col lg:w-full" bind:this={timeCol}>
+<div
+	class="relative mt-5 flex w-[200vw] flex-col justify-between lg:w-full"
+	bind:this={timeCol}
+	style:height={'105em'}
+>
 	{#each dates as date, i}
-		{#if i % 2 === 0}
-			<p
-				class="card sticky left-0 z-20 ml-1 mr-1 flex h-10 translate-y-1/2 transform items-center justify-center text-center"
-				style:width={timeColWidth + 'px'}
-			>
-				{date.toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' })}
-				<!-- format the date as a time like 6:00am -->
-			</p>
-		{:else}
-			<p class="h-10"></p>
-		{/if}
-		<hr
-			class="] {i % 2 === 0
-				? 'md:w-[95% ml-[5%] w-[95%] !border-t-2 !border-solid md:ml-[4%]'
-				: 'md:w-[95% ml-[5%] w-[95%] !border-t-2 !border-dashed md:ml-[4%]'}"
-		/>
+		<span class="relative flex h-0 justify-center">
+			{#if i % 2 === 0}
+				<p
+					class="card sticky left-0 z-20 ml-1 mr-1 flex translate-y-1/2 transform items-center justify-center text-center"
+					style:width={timeColWidth + 'px'}
+				>
+					{date.toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' })}
+					<!-- format the date as a time like 6:00am -->
+				</p>
+			{/if}
+			{#if i === 0}
+				<div
+					class="absolute left-0 top-0 h-0 w-0 bg-transparent"
+					bind:this={firstRowDivMarker}
+				></div>
+			{:else if i === 1}
+				<div
+					class="absolute left-0 top-0 h-0 w-0 bg-transparent"
+					bind:this={secondRowDivMarker}
+				></div>
+			{/if}
+			<hr
+				class={i % 2 === 0
+					? 'md:w-[95% ml-[5%] w-[95%] !border-t-2 !border-solid md:ml-[4%]'
+					: 'md:w-[95% ml-[5%] w-[95%] !border-t-2 !border-dashed md:ml-[4%]'}
+			/>
+		</span>
 	{/each}
 	<CourseSection
-		top={heightOfOneHour * 8.5}
+		top={hourHeight}
 		left={timeColWidth + dayWidth * 2}
 		width={dayWidth}
-		height={heightOfOneHour * 1.4}
+		height={hourHeight}
 		color="!bg-red-300"
 	>
 		<p class="text-center">Course 1</p>
 	</CourseSection>
 	<CourseSection
-		top={heightOfOneHour * 8.5}
+		top={hourHeight}
 		left={timeColWidth + dayWidth * 4}
 		width={dayWidth}
-		height={heightOfOneHour * 1.4}
+		height={hourHeight}
 		color="!bg-red-300"
 	>
 		<p class="text-center">Course 1</p>
 	</CourseSection>
 	<CourseSection
-		top={heightOfOneHour * 12}
+		top={hourHeight}
 		left={timeColWidth + dayWidth * 3}
 		width={dayWidth}
-		height={heightOfOneHour * 2.9}
+		height={hourHeight}
 		color="!bg-blue-300"
 	>
 		<p class="text-center">Course 2</p>
