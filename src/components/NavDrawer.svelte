@@ -25,7 +25,7 @@
 		position={drawerposition}
 		width={drawerposition === 'right' ? 'w-96' : ''}
 		regionBackdrop="invisible"
-		regionDrawer="!visible"
+		regionDrawer="!visible lg:pr-20"
 	>
 		{#each TABS as tab}
 			{#if $drawerState === tab.id}

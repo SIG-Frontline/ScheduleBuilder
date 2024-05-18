@@ -41,7 +41,7 @@
 	class="sticky left-0 top-0 z-30"
 >
 	<svelte:fragment slot="lead">
-		<select class="select !w-48 md:block" bind:value={currentSemester}>
+		<select class="select md:w-48" bind:value={currentSemester}>
 			{#each SemesterYearArray as semesterYear}
 				<option value={semesterYear}>{semesterYear}</option>
 			{/each}

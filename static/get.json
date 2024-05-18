@@ -1,0 +1,176 @@
+{
+	"courses": [
+		{
+			"_id": "FIN 410",
+			"prereq_str": "( MATH 111 | MTH 121 | R640 135 | MATH 135 | MTH 127 ) & FIN 310 & FIN 320",
+			"description": "Prerequisites: MATH 111 or MATH 135, FIN 310 and FIN 320. FIN 410 provides an in-depth study of data mining and machine learning, with a focus on finance applications. This course is practice-oriented and develops the required skills to apply contemporary analysis tools of data mining & machine learning tools in financial data and facilitate decision making in stock market. Coverage includes data mining and machine learning concepts, processes, methods, and techniques; tools and metrics; and integration with Big Data.",
+			"subject": "FIN",
+			"course_number": "410",
+			"tree": [
+				"&",
+				"FIN 320",
+				"FIN 310",
+				["|", "MTH 127", "MATH 135", "R640 135", "MTH 121", "MATH 111"]
+			]
+		},
+		{
+			"_id": "BIOL 382",
+			"prereq_str": "( BIOL 201 | BIOL 201 | R120 201 | R120 201 ) & ( BIOL 202 | BIOL 202 | R120 202 | R120 202 ) & ( BIOL 205 | BIOL 205 | R120 205 | R120 205 ) & ( BIOL 206 | BIOL 206 | R120 206 | R120 206 )",
+			"description": "Prerequisites: (BIOL 205 and BIOL 206 or R120 205 and R120 206) and  (BIOL 201 and BIOL 202 or R120 201 and R120 202). The objective of this course is to expose students to the broad field of animal behavior.  The course will include the historical underpinnings of the field as well as the contemporary theories for a wide variety of behaviors.  Behavioral ecology and the evolution of animal behaviors as adaptations will be intertwined throughout the course, as well potential applications of knowledge about animal behavior. Students will be able to analyze existing evidence and investigate modern practices in order to evaluate existing theories and consider potential future directions of animal behavior.  Using current scientific literature, as well as case-studies, students will be able to come up with their own hypotheses and determine how different hypotheses related to animal behavior can be tested experimentally.  Students will also gain hands-on experience in trying out some of the fundamental techniques.    ",
+			"subject": "BIOL",
+			"course_number": "382",
+			"tree": [
+				"&",
+				["|", "R120 206", "R120 206", "BIOL 206", "BIOL 206"],
+				["|", "R120 205", "R120 205", "BIOL 205", "BIOL 205"],
+				["|", "R120 202", "R120 202", "BIOL 202", "BIOL 202"],
+				["|", "R120 201", "R120 201", "BIOL 201", "BIOL 201"]
+			]
+		},
+		{
+			"_id": "IS 117",
+			"prereq_str": "",
+			"description": "This course discusses the concepts and skills required to plan, design and build websites. It will be taught in a lab to ensure hands-on experience with each of these tasks. The course begins with an overview of web technologies. Students learn to plan websites, which includes determining the business and end-user requirements for the site. Design includes learning to develop 'mockups' of how the site will look and how people will use it. The major tools for building websites will be industry standard HTML and XHTML to describe webpage content, and Cascading Style Sheets (CSS) for flexibly formatting the content. Using XHTML and CSS makes it relatively simple to change formats across the entire site, as well as 'future-proofs' a website, allowing it to be viewed on every major web browser (such as Firefox or Chrome) and easily adapt to changes in future browser technology. The course features substantial hands-on projects comprising websites of several interlinked pages and images, enabling students to thoroughly learn the course's important concepts and skills.  ",
+			"subject": "IS",
+			"course_number": "117",
+			"tree": null
+		},
+		{
+			"_id": "R112 705",
+			"prereq_str": "",
+			"description": "",
+			"subject": "R112",
+			"course_number": "705",
+			"tree": null
+		},
+		{
+			"_id": "CHE 411",
+			"prereq_str": "",
+			"description": "",
+			"subject": "CHE",
+			"course_number": "411",
+			"tree": null
+		},
+		{
+			"_id": "R010 577",
+			"prereq_str": "",
+			"description": "",
+			"subject": "R010",
+			"course_number": "577",
+			"tree": null
+		},
+		{
+			"_id": "R940 417",
+			"prereq_str": "",
+			"description": "For more details go to <a href='http://catalogs.rutgers.edu/'>Rutgers Catalog</a>.",
+			"subject": "R940",
+			"course_number": "417",
+			"tree": null
+		},
+		{
+			"_id": "FIN 611",
+			"prereq_str": "",
+			"description": "Prerequisites: Students must have taken an introductory programming course prior to enrolling in FIN 611 that concentrated on learning at least one of Python, Java, MATLAB, C/C++, or R. The financial services industry is presently undergoing dramatic changes as recent technological advances have enabled the automation of former workflows. This course will survey current trends in the Financial Technology (FinTech) industry. Students will have the opportunity to develop their own software related to FinTech ideas discussed during this course.",
+			"subject": "FIN",
+			"course_number": "611",
+			"tree": null
+		},
+		{
+			"_id": "ARCH 510",
+			"prereq_str": "",
+			"description": "Restriction: Approval of the school and permission of the Office of Cooperative Education and Internships. Students gain major-related work experience and reinforcement of their academic program. Students are required to complete and present miterm and final projects and/or reports.  A designated faculty member monitors and evaluates the student's work and project.",
+			"subject": "ARCH",
+			"course_number": "510",
+			"tree": null
+		},
+		{
+			"_id": "MATH 631",
+			"prereq_str": "",
+			"description": "Prerequisites: MATH 222, MATH 337, and experience writing proofs, or departmental approval. Similar in aim and content to MATH 630 but with more emphasis on mathematical rigor. Linear systems of equations, matrix algebra, linear spaces, orthogonality, eigenvalues and eigenvectors, diagonalization, and matrix decomposition. Applications.",
+			"subject": "MATH",
+			"course_number": "631",
+			"tree": null
+		},
+		{
+			"_id": "CHE 792",
+			"prereq_str": "CHE 791 | CHE 791",
+			"description": "Co-requisite for full time students: CHE 791. Approval of the dissertation advisor is required for registration. Preliminary experimental and/or theoretical investigation of a relevant topic in chemical engineering. For students who have not passed the dissertation proposal. Permission is needed of the academic advisor for students who have completed the required coursework but have not passed the qualifying examination.",
+			"subject": "CHE",
+			"course_number": "792",
+			"tree": ["|", "CHE 791", "CHE 791"]
+		},
+		{
+			"_id": "R830 385",
+			"prereq_str": "",
+			"description": "",
+			"subject": "R830",
+			"course_number": "385",
+			"tree": null
+		},
+		{
+			"_id": "PHYS 102",
+			"prereq_str": "PHYS 102A",
+			"description": "Corequisite: PHYS 102A. Intended for students in architecture, computer science (B.A. only), STS and other disciplines requiring laboratory science electives. Elementary statics and dynamics. Subjects discussed are kinematics, Newton's laws of motion, energy, momentum, conservation principles, and mechanical properties of matter. Lab must be taken concurrently.",
+			"subject": "PHYS",
+			"course_number": "102",
+			"tree": "PHYS 102A"
+		},
+		{
+			"_id": "ME 636",
+			"prereq_str": "ME 616",
+			"description": "Prerequisites: undergraduate kinematics, dynamics and demonstrated competence in computer programming and ME 616. (May be taken concurrently.) Kinematic principles combined with computer-assisted methods for designing mechanisms; complex polar notation; and dynamic and kinetostatic analysis of mechanisms. Kinematic synthesis of planar mechanisms; graphical Burmester theory for plane linkage synthesis; and planar linkage synthesis for function and path generation.",
+			"subject": "ME",
+			"course_number": "636",
+			"tree": "ME 616"
+		},
+		{
+			"_id": "ME 794",
+			"prereq_str": "",
+			"description": "Regular attendance required of all students in the Mechanical Engineering PhD program. Each PhD student is required to make a 15 minute presentation on a topic related to the student's research with an additional 10 minutes to address audience questions. The seminar participants evaluate each speaker.",
+			"subject": "ME",
+			"course_number": "794",
+			"tree": null
+		},
+		{
+			"_id": "R390 693",
+			"prereq_str": "",
+			"description": "",
+			"subject": "R390",
+			"course_number": "693",
+			"tree": null
+		},
+		{
+			"_id": "R960 563",
+			"prereq_str": "",
+			"description": "",
+			"subject": "R960",
+			"course_number": "563",
+			"tree": null
+		},
+		{
+			"_id": "ENE 702",
+			"prereq_str": "",
+			"description": "Restriction: advisor's approval. Topics of special current interest in environmental engineering.",
+			"subject": "ENE",
+			"course_number": "702",
+			"tree": null
+		},
+		{
+			"_id": "ARCH 684",
+			"prereq_str": "",
+			"description": "Cities are growing at an unprecedented speed. Cities currently account for about 70 percent of global carbon emissions and over 60 percent of resource use. We have to develop a vision for more sustainable cities and new protocols and processes to implement more sustainable visions for urban areas. This course will provide an inside into the challenges we face (growing number of slum dwellers, inadequate infrastructure and services); it will provide an overview of goals and existing frameworks and speculate on solutions to address sustainability urban issues.",
+			"subject": "ARCH",
+			"course_number": "684",
+			"tree": null
+		},
+		{
+			"_id": "BME 760",
+			"prereq_str": "",
+			"description": "Prerequisites: Although no prerequisites are required, BME 310, ECE 640 or other undergraduate and graduate courses covering knowledge on signals and systems in discrete time domain are suggested to prepare for this course. This course will focus on introducing biomedical computing techniques needed for functional MRI data pre-processing, and individual-level and group-level analyses. Several projects will be assigned for hands-on training in implementing the introduced knowledge.",
+			"subject": "BME",
+			"course_number": "760",
+			"tree": null
+		}
+	],
+	"filters": {}
+}

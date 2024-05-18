@@ -65,7 +65,12 @@
 <div
 	class="align-center bg-surface-50-900-token sticky top-0 z-30 flex w-[200vw] flex-row pt-5 lg:w-full"
 >
-	<p class="sticky left-0 z-30 flex-[.5] text-center" bind:clientWidth={timeColWidth}>Time</p>
+	<p
+		class="bg-surface-50-900-token sticky left-0 z-30 flex-[.5] text-center"
+		bind:clientWidth={timeColWidth}
+	>
+		Time
+	</p>
 	{#each daysOfWeek as day}
 		<p class="flex-1 text-center" bind:clientWidth={dayWidth}>{day}</p>
 	{/each}
