@@ -27,6 +27,11 @@
 		};
 		modalStore.trigger(modal);
 	}
+	//get the semesters from the server in the future
+	let semesters = ['Summer', 'Fall', 'Winter', 'Spring'];
+	let year = new Date().getFullYear();
+	let SemesterYearArray = semesters.map((semester) => `${semester} ${year}`);
+	let currentSemester = SemesterYearArray[0];
 </script>
 
 <AppBar
@@ -35,8 +40,14 @@
 	slotTrail="place-content-end"
 	class="sticky left-0 top-0 z-30"
 >
-	<svelte:fragment slot="lead">(icon)</svelte:fragment>
-	<h1>hello there</h1>
+	<svelte:fragment slot="lead">
+		<select class="select !w-48 md:block" bind:value={currentSemester}>
+			{#each SemesterYearArray as semesterYear}
+				<option value={semesterYear}>{semesterYear}</option>
+			{/each}
+		</select>
+	</svelte:fragment>
+	<h1 class="text-center text-2xl font-semibold">Schedule Builder</h1>
 	<svelte:fragment slot="trail"
 		><LightSwitch class="hidden md:block" />
 		<select class="select hidden !w-48 md:block" bind:value={$themeState}>

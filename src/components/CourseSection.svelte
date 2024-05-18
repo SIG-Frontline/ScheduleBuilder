@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
-
 	export let top: Number | null = null;
 	export let left: Number | null = null;
 	export let width: Number | null = null;
@@ -17,7 +15,8 @@
 	}
 }) then}
 	<button
-		class="card card-hover absolute inline-block !rounded-md {color} py-2"
+		title="Course"
+		class=" card card-hover absolute inline-block !rounded-md {color} py-2"
 		style="top: {top}px; left: {left}px; width: {width}px; height: {height}px;"
 	>
 		<slot></slot>

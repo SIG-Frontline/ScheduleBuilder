@@ -21,7 +21,12 @@
 </script>
 
 {#key drawerposition}
-	<Drawer position={drawerposition} width={drawerposition === 'right' ? 'w-96' : ''}>
+	<Drawer
+		position={drawerposition}
+		width={drawerposition === 'right' ? 'w-96' : ''}
+		regionBackdrop="invisible"
+		regionDrawer="!visible"
+	>
 		{#each TABS as tab}
 			{#if $drawerState === tab.id}
 				<svelte:component this={tab.component} />
@@ -29,3 +34,10 @@
 		{/each}
 	</Drawer>
 {/key}
+<svelte:window
+	on:keydown|stopPropagation={(e) => {
+		if (e.key === 'Escape') {
+			drawerState.set('closed');
+		}
+	}}
+/>

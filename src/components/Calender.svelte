@@ -31,9 +31,13 @@
 	let timeCol: HTMLDivElement;
 	let firstRowDivMarker: HTMLDivElement;
 	let secondRowDivMarker: HTMLDivElement;
-	$: hourHeight =
-		(secondRowDivMarker?.getBoundingClientRect().y - firstRowDivMarker?.getBoundingClientRect().y) *
-		2;
+	let hourHeight = 0;
+	onMount(() => {
+		hourHeight =
+			(secondRowDivMarker?.getBoundingClientRect().y -
+				firstRowDivMarker?.getBoundingClientRect().y) *
+			2;
+	});
 	let updateCourses: number;
 	function resiseGrid(event: WheelEvent) {
 		clearTimeout(updateCourses);
@@ -49,7 +53,6 @@
 				2;
 		}, 0) as unknown as number;
 	}
-
 	let gridheight = 1000;
 </script>
 
@@ -75,10 +78,10 @@
 	style:height={gridheight + 'px'}
 >
 	{#each dates as date, i}
-		<span class="relative flex h-0 justify-center">
+		<span class="relative flex h-0 items-center justify-center">
 			{#if i % 2 === 0}
 				<p
-					class="card sticky left-0 z-20 ml-1 mr-1 flex translate-y-1/2 transform items-center justify-center text-center"
+					class="md:text-md card sticky left-0 z-20 ml-1 mr-1 flex h-fit !w-20 items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap text-center text-xs"
 					style:width={timeColWidth + 'px'}
 				>
 					{date.toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' })}
@@ -110,7 +113,7 @@
 		height={hourHeight}
 		color="!bg-red-300"
 	>
-		<p class="text-center">Course 1</p>
+		<p class="text-center !text-gray-700">Course 1</p>
 	</CourseSection>
 	<CourseSection
 		top={hourHeight}
@@ -119,7 +122,7 @@
 		height={hourHeight}
 		color="!bg-red-300"
 	>
-		<p class="text-center">Course 1</p>
+		<p class="text-center !text-gray-700">Course 1</p>
 	</CourseSection>
 	<CourseSection
 		top={hourHeight}
@@ -128,6 +131,15 @@
 		height={hourHeight}
 		color="!bg-blue-300"
 	>
-		<p class="text-center">Course 2</p>
+		<p class="text-center !text-gray-700">Course 2</p>
+	</CourseSection>
+	<CourseSection
+		top={hourHeight}
+		left={timeColWidth + dayWidth * 5}
+		width={dayWidth - 10}
+		height={hourHeight}
+		color="!bg-blue-300"
+	>
+		<p class="text-center !text-gray-700">Course 2</p>
 	</CourseSection>
 </div>
