@@ -65,8 +65,8 @@ function addSubstrSearch(query: any, key: string, value: string) {
 }
 
 function addBooleanSearch(query: any, key: string, value: string) {
-	query[key] = Boolean(value);
+	query[key] = { $eq: value === 'true' };
 }
 function addIntSearch(query: any, key: string, value: string) {
-	query[key] = parseInt(value);
+	query[key] = { $eq: value };
 }

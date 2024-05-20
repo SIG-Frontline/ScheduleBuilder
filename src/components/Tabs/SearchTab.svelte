@@ -1,16 +1,23 @@
 <script lang="ts">
+	import { termStore } from '$lib/termStore';
+
 	let search = '';
 	$: jsondata = [];
 	async function searchCourses(search) {
-		// const response = await fetch('/get.json');
-		//http://localhost:5000/courses
-		console.log(search);
-		let query = search.replace(/\s/g, '').toUpperCase();
+		let query = search.replace(/\s/g, '');
 		// add a space between the course letters and numbers
 		query = query.replace(/([a-zA-Z])([0-9])/g, '$1 $2');
-		const response = await fetch('http://localhost:5000/courses?id=' + query);
+		const response = await fetch('http://localhost:5173/api/courses?id=' + query);
 		jsondata = await response.json();
-		console.log(jsondata);
+	}
+	async function getSections(course) {
+		let query = course;
+		if ($termStore !== -1) {
+			query += '&term=' + $termStore;
+		}
+		const response = await fetch('http://localhost:5173/api/sections?course=' + query);
+		let resdata = await response.json();
+		console.log(resdata);
 	}
 </script>
 
@@ -27,11 +34,14 @@
 {#if jsondata?.courses?.length > 0}
 	<div class="row mt-[2px]">
 		{#each jsondata?.courses as course}
-			<div class="card card-hover mx-3 max-h-8 overflow-x-scroll rounded-md px-3 py-1">
+			<button
+				class="card card-hover mx-3 max-h-8 w-10/12 overflow-x-scroll rounded-md px-3 py-1"
+				on:click={() => getSections(course._id)}
+			>
 				<h5 class="card-title h5">
 					{course._id}
 				</h5>
-			</div>
+			</button>
 		{/each}
 	</div>
 {/if}
