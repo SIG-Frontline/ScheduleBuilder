@@ -8,7 +8,7 @@
 
 <span class=" flex flex-col justify-center gap-4 text-2xl font-bold">
 	<h1 class="align-center text-primary-900-50-token">Select your theme</h1>
-	<select class="select block !w-96" bind:value={$themeState}>
+	<select class="select block !w-96 !max-w-[80vw]" bind:value={$themeState}>
 		{#each THEMES as theme}
 			<option value={theme.id}>{theme.label}</option>
 		{/each}
