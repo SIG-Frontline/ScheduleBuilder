@@ -1,14 +1,21 @@
+// Import the sectionsCollection from the mongoClient
 import { sectionsCollection } from '$lib/mongoClient';
 
+// Define an asynchronous GET function that takes a request object as a parameter
 export async function GET({ url }) {
+	// Initialize an empty query object
 	const query = {};
+	// Extract the search parameters from the url
 	const searchParams = url.searchParams;
+	// Initialize page and sectionsPerPage variables
 	let page = 0;
 	let sectionsPerPage = 20;
 
+	// Check if the search parameters include 'term' and add it to the query
 	if (searchParams.has('term')) {
 		addIntSearch(query, 'TERM', searchParams.get('term') as string);
 	}
+	// Repeat the process for other potential search parameters
 	if (searchParams.has('course')) {
 		addSubstrSearch(query, 'COURSE', searchParams.get('course') as string);
 	}
@@ -39,20 +46,25 @@ export async function GET({ url }) {
 	if (searchParams.has('method')) {
 		addSubstrSearch(query, 'INSTRUCTION_METHOD', searchParams.get('method') as string);
 	}
-
+	// Initialize cursor and totalNumCourses variables
 	let cursor, totalNumCourses;
 	try {
+		// Attempt to get the sections from the sectionsCollection using the query
+		// Limit the results to sectionsPerPage and skip the sections for the previous pages
 		cursor = await sectionsCollection
 			.find(query)
 			.limit(sectionsPerPage)
 			.skip(sectionsPerPage * page)
 			.toArray();
+		// Get the total number of documents that match the query
 		totalNumCourses = await sectionsCollection.countDocuments(query);
 	} catch (e) {
+		// Log the error and return a 500 response if there is an error querying the database
 		console.error(e);
 		return new Response('Error querying database', { status: 500 });
 	}
 
+	// Return a response with the courses and totalNumCourses in JSON format
 	return new Response(JSON.stringify({ courses: cursor, totalNumCourses }), {
 		headers: {
 			'Content-Type': 'application/json'
@@ -60,13 +72,17 @@ export async function GET({ url }) {
 	});
 }
 
+// Define a function to add a substring search to the query
 function addSubstrSearch(query: any, key: string, value: string) {
 	query[key] = { $regex: `.*${value}.*`, $options: 'i' };
 }
 
+// Define a function to add a boolean search to the query
 function addBooleanSearch(query: any, key: string, value: string) {
 	query[key] = { $eq: value === 'true' };
 }
+
+// Define a function to add an integer search to the query
 function addIntSearch(query: any, key: string, value: string) {
 	query[key] = { $eq: value };
 }

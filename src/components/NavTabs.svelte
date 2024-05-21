@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AppRail, AppRailTile, Tab, TabGroup } from '@skeletonlabs/skeleton';
+	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { TABS } from '$lib/constants';
 	import { drawerState } from '$lib/drawerStateStore';

@@ -6,3 +6,4 @@ themeState.subscribe((value) => {
 		localStorage.setItem('theme', value ?? 'rocket');
 	}
 });
+// https://svelte.dev/docs/svelte-store

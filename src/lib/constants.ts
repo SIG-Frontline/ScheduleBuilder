@@ -1,7 +1,5 @@
-import type { ModalComponent } from '@skeletonlabs/skeleton';
 import PlansTab from '../components/Tabs/PlansTab.svelte';
 import SearchTab from '../components/Tabs/SearchTab.svelte';
-import SmallScreenThemeModal from '../components/Modals/SmallScreenThemeModal.svelte';
 
 export const THEMES = [
 	{

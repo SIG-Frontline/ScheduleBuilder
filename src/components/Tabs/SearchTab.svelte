@@ -4,25 +4,23 @@
 	let search = '';
 	$: jsondata = [];
 	async function searchCourses(search) {
-		let query = search.replace(/\s/g, '');
-		// add a space between the course letters and numbers
-		query = query.replace(/([a-zA-Z])([0-9])/g, '$1 $2');
+		let query = search.replace(/\s/g, ''); // remove spaces from the query
+		query = query.replace(/([a-zA-Z])([0-9])/g, '$1 $2'); // add a space between the course letters and numbers
 		const response = await fetch('http://localhost:5173/api/courses?id=' + query);
 		jsondata = await response.json();
 	}
 	async function getSections(course) {
 		let query = course;
 		if ($termStore !== -1) {
+			// if the term is set, add it to the query
 			query += '&term=' + $termStore;
 		}
 		const response = await fetch('http://localhost:5173/api/sections?course=' + query);
 		let resdata = await response.json();
-		console.log(resdata);
 	}
 </script>
 
 <h3 class="h3 mt-3 text-center">Search</h3>
-<!-- http://localhost:5000/courses -->
 <input
 	class="input"
 	title="Search (courses)"

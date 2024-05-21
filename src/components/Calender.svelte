@@ -1,15 +1,16 @@
 <script lang="ts">
+	// Importing necessary modules and components
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 
-	// Initialize start and end dates
+	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
 	let endDate = new Date(2000, 0, 1, 22, 0, 0); // 10:00pm
 
 	// Array to store generated dates
 	let dates: Date[] = [];
 
-	// Function to generate dates every 30 minutes between start and end dates
+	// Function to generate dates every 30 minutes between start and end times
 	function generateDates() {
 		let currentDate = new Date(startDate);
 		while (currentDate < endDate) {
@@ -26,18 +27,24 @@
 		let date = new Date(2000, 0, i + 2);
 		return date.toLocaleDateString('en-us', { weekday: 'long' });
 	});
+
+	// Variables for layout calculation
 	let dayWidth = 0;
 	let timeColWidth = 0;
 	let timeCol: HTMLDivElement;
 	let firstRowDivMarker: HTMLDivElement;
 	let secondRowDivMarker: HTMLDivElement;
 	let hourHeight = 0;
+
+	// Calculate the height of an hour on the calendar grid
 	onMount(() => {
 		hourHeight =
 			(secondRowDivMarker?.getBoundingClientRect().y -
 				firstRowDivMarker?.getBoundingClientRect().y) *
 			2;
 	});
+
+	// Variables for grid resizing
 	let updateCourses: number;
 	function resiseGrid(event: WheelEvent) {
 		clearTimeout(updateCourses);
@@ -56,11 +63,13 @@
 	let gridheight = 1000;
 </script>
 
+<!-- Handle wheel event for grid resizing -->
 <svelte:window
 	on:wheel|passive|capture|stopPropagation={(e) => {
 		if (e.shiftKey) resiseGrid(e);
 	}}
 />
+
 <!-- Display the days of the week -->
 <div
 	class="align-center bg-surface-50-900-token sticky top-0 z-30 flex w-[200vw] flex-row pt-5 lg:w-full"
@@ -111,6 +120,8 @@
 			/>
 		</span>
 	{/each}
+
+	<!-- Display course sections -->
 	<CourseSection
 		top={hourHeight}
 		left={timeColWidth + dayWidth * 2}
