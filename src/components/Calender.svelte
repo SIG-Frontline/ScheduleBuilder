@@ -2,6 +2,7 @@
 	// Importing necessary modules and components
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
+	import { planStore } from '$lib/planStore';
 
 	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
@@ -122,7 +123,7 @@
 	{/each}
 
 	<!-- Display course sections -->
-	<CourseSection
+	<!-- <CourseSection
 		top={hourHeight}
 		left={timeColWidth + dayWidth * 2}
 		width={dayWidth - 10}
@@ -157,5 +158,37 @@
 		color="!bg-blue-300"
 	>
 		<p class="text-center !text-gray-700">Course 2</p>
-	</CourseSection>
+	</CourseSection> -->
+	{#if $planStore.length > 0}
+		{@const activePlan = $planStore.find((p) => p.active)}
+		{#if activePlan}
+			{#each activePlan.courses as course}
+				{#each course.sections as section}
+					{#if section.selected}
+						{#each section.TIMES as meeting}
+							<CourseSection
+								top={hourHeight *
+									(new Date(meeting.start).getHours() - new Date(startDate).getHours() + 5) +
+									(new Date(meeting.start).getMinutes() / 60) * hourHeight}
+								left={timeColWidth +
+									dayWidth * ['U', 'M', 'T', 'W', 'R', 'F', 'S'].indexOf(meeting.day)}
+								width={dayWidth - 10}
+								height={(hourHeight *
+									(new Date(meeting.end).getTime() - new Date(meeting.start).getTime())) /
+									(1000 * 60 * 60)}
+								color="!bg-red-300"
+							>
+								<p class="text-center !text-gray-700">
+									{section.COURSE}
+									<br />
+									{meeting.building}
+									{meeting.room}
+								</p>
+							</CourseSection>
+						{/each}
+					{/if}
+				{/each}
+			{/each}
+		{/if}
+	{/if}
 </div>
