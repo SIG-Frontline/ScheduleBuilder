@@ -62,6 +62,27 @@
 		}, 0) as unknown as number;
 	}
 	let gridheight = 1000;
+	function gencolor(i) {
+		let colorarr = [
+			'!bg-red-300',
+			'!bg-blue-300',
+			'!bg-green-300',
+			'!bg-yellow-300',
+			'!bg-purple-300',
+			'!bg-pink-300',
+			'!bg-indigo-300',
+			'!bg-cyan-300',
+			'!bg-teal-300',
+			'!bg-lime-300',
+			'!bg-amber-300',
+			'!bg-orange-300'
+		];
+		if (i >= colorarr.length) {
+			i = i - colorarr.length;
+		}
+		let returnval = colorarr[i % colorarr.length];
+		return returnval;
+	}
 </script>
 
 <!-- Handle wheel event for grid resizing -->
@@ -162,7 +183,7 @@
 	{#if $planStore.length > 0}
 		{@const activePlan = $planStore.find((p) => p.active)}
 		{#if activePlan}
-			{#each activePlan.courses as course}
+			{#each activePlan.courses as course, i}
 				{#each course.sections as section}
 					{#if section.selected}
 						{#each section.TIMES as meeting}
@@ -176,7 +197,7 @@
 								height={(hourHeight *
 									(new Date(meeting.end).getTime() - new Date(meeting.start).getTime())) /
 									(1000 * 60 * 60)}
-								color="!bg-red-300"
+								color={gencolor(i)}
 							>
 								<p class="text-center !text-gray-700">
 									{section.COURSE}
