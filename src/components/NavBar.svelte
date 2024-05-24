@@ -102,7 +102,6 @@
 				<option value={theme.id}>{theme.label}</option>
 			{/each}
 		</select>
-		{$termStore}
 		<button type="button" class="variant-ghost btn-icon md:hidden" on:click={openModal}>
 			<span class="material-symbols-outlined">palette</span>
 		</button>
