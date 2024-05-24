@@ -65,19 +65,21 @@
 	<ul class="list">
 		{#each $planStore as plan, i}
 			<li
-				class="m-3 list-item !rounded-lg p-3 hover:bg-surface-300-600-token {plan.active
+				class="m-3 list-item !rounded-lg hover:bg-surface-300-600-token {plan.active
 					? 'bg-surface-200-700-token'
 					: ''}
                     transition-colors duration-200 ease-in-out"
 			>
-				<button on:click={() => selectPlan(plan.id)} class="flex !w-full items-center">
+				<button on:click={() => selectPlan(plan.id)} class="flex !w-full items-center p-3">
 					<span class="variant-soft-primary badge-icon p-4">{i + 1}</span>
 					<span class="flex-auto">{plan.name}</span>
-					<button class="material-symbols-outlined" on:click={() => renamePlan(plan.id)}
-						>edit</button
+					<button
+						class="material-symbols-outlined btn-icon hover:variant-ghost-success"
+						on:click={() => renamePlan(plan.id)}>edit</button
 					>
-					<button on:click={() => removePlan(plan.id)} class="material-symbols-outlined"
-						>delete</button
+					<button
+						on:click={() => removePlan(plan.id)}
+						class="material-symbols-outlined btn-icon hover:variant-ghost-error">delete</button
 					>
 				</button>
 			</li>

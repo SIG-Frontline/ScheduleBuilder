@@ -5,13 +5,12 @@
 		Accordion,
 		AccordionItem,
 		Autocomplete,
-		ProgressBar,
 		type AutocompleteOption
 	} from '@skeletonlabs/skeleton';
 
 	let search = '';
-	$: jsondata = [];
-	async function searchCourses(searchval) {
+	$: jsondata = [] as Array<any>;
+	async function searchCourses(searchval: string) {
 		let query = searchval.replace(/\s/g, ''); // remove spaces from the query
 		query = query.replace(/([a-zA-Z])([0-9])/gi, '$1 $2'); // add a space between the course letters and numbers
 		autocompleteOptions = await fetch(
@@ -21,7 +20,7 @@
 			.then((data) => {
 				console.log(data);
 
-				return data.courses.map((course) => {
+				return data.courses.map((course: { _id: string; description: string }) => {
 					return {
 						label: course._id,
 						value: course._id,
@@ -31,8 +30,8 @@
 				});
 			});
 	}
-	async function getSections(course) {
-		let query = course;
+	async function getSections(courseid: string) {
+		let query = courseid;
 		if ($termStore !== -1) {
 			// if the term is set, add it to the query
 			query += '&term=' + $termStore;
@@ -43,11 +42,11 @@
 			let activePlan = plans.find((p) => p.active);
 			//if course is already in the plan,remove it
 			if (activePlan) {
-				let courseIndex = activePlan.courses.findIndex((c) => c.course === course);
+				let courseIndex = activePlan.courses.findIndex((c) => c.course === courseid);
 				if (courseIndex !== -1) {
-					activePlan.courses = activePlan.courses.filter((c) => c.course !== course);
+					activePlan.courses = activePlan.courses.filter((c) => c.course !== courseid);
 				}
-				activePlan.courses.push({ course: course, sections: resdata.courses });
+				activePlan.courses.push({ course: courseid, sections: resdata.courses });
 			}
 
 			return plans;
@@ -57,7 +56,7 @@
 	}
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
-	function selectSection(course, section) {
+	function selectSection(course: string, section: string) {
 		planStore.update((plans) => {
 			//mark the section as selected and unselect all other sections in that course
 			let activePlan = plans.find((p) => p.active);
@@ -74,37 +73,29 @@
 		});
 	}
 
-	async function onFlavorSelection(event: CustomEvent<AutocompleteOption<string>>): void {
+	async function onFlavorSelection(event: CustomEvent<AutocompleteOption<string>>): Promise<void> {
 		search = event.detail.label;
 		console.log(event.detail.meta);
-
-		getSections(event.detail.meta._id);
+		let courseid: string = event.detail.meta as string;
+		getSections(courseid);
 	}
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
+	function onInput(e: { target: { value: string } } | InputEvent): void {
+		e.target.value = e?.target?.value.toUpperCase().replace(/\s/g, '');
+		e.target.value = e?.target?.value.replace(/([a-zA-Z])([0-9])/gi, '$1 $2');
+		searchCourses(search);
+	}
 </script>
 
 <h3 class="h3 mt-3 text-center">Search</h3>
-<!-- <input
-	class="input"
-	title="Search (courses)"
-	type="text"
-	placeholder="Search (courses)"
-	bind:value={search}
-	on:input={() => searchCourses(search)}
-/> -->
-
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
 	<div class="input-group-shim"><span class="material-symbols-outlined">search</span></div>
 	<input
 		type="search"
 		name="demo"
 		class="input !max-w-1"
-		on:input={(e) => {
-			e.target.value = e.target.value.toUpperCase().replace(/\s/g, '');
-			e.target.value = e.target.value.replace(/([a-zA-Z])([0-9])/gi, '$1 $2');
-			searchCourses(search);
-		}}
+		on:input={onInput}
 		bind:value={search}
 		placeholder="Search..."
 	/>

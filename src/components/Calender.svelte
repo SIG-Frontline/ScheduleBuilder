@@ -142,44 +142,6 @@
 			/>
 		</span>
 	{/each}
-
-	<!-- Display course sections -->
-	<!-- <CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 2}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-red-300"
-	>
-		<p class="text-center !text-gray-700">Course 1</p>
-	</CourseSection>
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 4}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-red-300"
-	>
-		<p class="text-center !text-gray-700">Course 1</p>
-	</CourseSection>
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 3}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-blue-300"
-	>
-		<p class="text-center !text-gray-700">Course 2</p>
-	</CourseSection>
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 5}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-blue-300"
-	>
-		<p class="text-center !text-gray-700">Course 2</p>
-	</CourseSection> -->
 	{#if $planStore.length > 0}
 		{@const activePlan = $planStore.find((p) => p.active)}
 		{#if activePlan}
