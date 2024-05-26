@@ -16,7 +16,7 @@
 		let query = searchval.replace(/\s/g, ''); // remove spaces from the query
 		query = query.replace(/([a-zA-Z])([0-9])/gi, '$1 $2'); // add a space between the course letters and numbers
 		autocompleteOptions = await fetch(
-			'http://localhost:5173/api/courses2?course=' + query + '&term=' + $termStore
+			'http://localhost:5173/api/courses?course=' + query + '&term=' + $termStore
 		)
 			.then((res) => res.json())
 			.then((data) => {
@@ -95,7 +95,6 @@
 		{#each jsondata?.courses as course}
 			<button
 				class="card card-hover mx-3 max-h-8 w-10/12 overflow-x-scroll rounded-md px-3 py-1"
-				on:click={() => getSections(course._id)}
 			>
 				<h5 class="card-title h5">
 					{course._id}
