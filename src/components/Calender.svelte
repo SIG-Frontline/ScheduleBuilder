@@ -62,7 +62,7 @@
 		}, 0) as unknown as number;
 	}
 	let gridheight = 1000;
-	function gencolor(i) {
+	function gencolor(i: number) {
 		let colorarr = [
 			'!bg-red-300',
 			'!bg-blue-300',

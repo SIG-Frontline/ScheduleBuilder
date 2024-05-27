@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { planStore } from '$lib/planStore';
 	import { termStore, humanReadableTerm } from '$lib/termStore';
 	import { uuidv4 } from '$lib/uuidv4';
@@ -8,7 +8,7 @@
 		if (name === '') return;
 		//remove active from all other plans
 		planStore.update((plans) => {
-			plans.forEach((p) => (p.active = false));
+			plans.forEach((p: { active: boolean }) => (p.active = false));
 			return plans;
 		});
 
@@ -19,22 +19,22 @@
 		});
 		name = '';
 	}
-	function removePlan(id) {
+	function removePlan(id: string) {
 		if (confirm('Are you sure you want to delete this plan?')) {
-			planStore.update((plans) => plans.filter((p) => p.id !== id));
+			planStore.update((plans) => plans.filter((p: { id: string }) => p.id !== id));
 		}
 	}
-	function renamePlan(id) {
+	function renamePlan(id: string) {
 		let newName = prompt('Enter new name for the plan', name);
 		planStore.update((plans) => {
-			const plan = plans.find((p) => p.id === id);
+			const plan = plans.find((p: { id: string }) => p.id === id);
 			plan.name = newName;
 			return plans;
 		});
 	}
-	function selectPlan(id) {
+	function selectPlan(id: string) {
 		planStore.update((plans) => {
-			plans.forEach((p) => (p.active = p.id === id));
+			plans.forEach((p: { active: boolean; id: string }) => (p.active = p.id === id));
 			return plans;
 		});
 	}

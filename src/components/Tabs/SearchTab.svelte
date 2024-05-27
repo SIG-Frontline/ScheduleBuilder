@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { planStore } from '$lib/planStore';
 	import { termStore } from '$lib/termStore';
+	import { uuidv4 } from '$lib/uuidv4';
 	import {
 		Accordion,
 		AccordionItem,
@@ -9,7 +10,21 @@
 	} from '@skeletonlabs/skeleton';
 
 	let search = '';
-	$: jsondata = [] as Array<any>;
+	interface Course {
+		_id: string;
+		sections: { section: string; selected: boolean }[];
+	}
+	interface Plan {
+		active: boolean;
+		courses: Course[];
+		term: string;
+		id: string;
+		name: string;
+	}
+	interface PlanStore {
+		plans: Plan[];
+	}
+	$: jsondata = {} as Plan;
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
 	async function searchCourses(searchval: string) {
@@ -34,13 +49,33 @@
 	function selectSection(course: string, section: string) {
 		planStore.update((plans) => {
 			//mark the section as selected and unselect all other sections in that course
-			let activePlan = plans.find((p) => p.active);
-			console.log(activePlan);
-			if (activePlan) {
-				let courseIndex = activePlan.courses.findIndex((c) => c.course === course);
+			let activePlan = plans.find((p: { active: boolean }) => p.active);
+			if (!activePlan) {
+				plans.push({
+					active: true,
+					courses: [
+						{
+							course: course,
+							sections: [{ section: section, selected: true }],
+							id: uuidv4(),
+							name: `Plan ${plans.length + 1}`
+						}
+					],
+					term: $termStore
+				});
+				console.log(plans);
+			} else {
+				let courseIndex = activePlan.courses.findIndex(
+					(c: { course: string; sections: { section: string; selected: boolean }[] }) =>
+						c.course === course
+				);
 				console.log(courseIndex);
-				activePlan.courses[courseIndex].sections.forEach((s) => (s.selected = false));
-				let sectionIndex = activePlan.courses[courseIndex].sections.findIndex((s) => s === section);
+				activePlan.courses[courseIndex].sections.forEach(
+					(s: { selected: boolean }) => (s.selected = false)
+				);
+				let sectionIndex = activePlan.courses[courseIndex].sections.findIndex(
+					(s: string) => s === section
+				);
 				console.log(sectionIndex);
 				activePlan.courses[courseIndex].sections[sectionIndex].selected = true;
 			}
@@ -51,11 +86,23 @@
 		const sections = event.detail.meta;
 		const course = event.detail.value;
 		planStore.update((plans) => {
-			let activePlan = plans.find((p) => p.active);
-			if (activePlan) {
-				let courseIndex = activePlan.courses.findIndex((c) => c.course === course);
+			let activePlan = plans.find((p: { active: boolean }) => p.active);
+			if (!activePlan) {
+				plans.push({
+					active: true,
+					courses: [{ course: course, sections: sections }],
+					term: $termStore,
+					id: uuidv4(),
+					name: `Plan ${plans.length + 1}`
+				});
+			} else {
+				let courseIndex = activePlan.courses.findIndex(
+					(c: { course: string; sections: any[] }) => c.course === course
+				);
 				if (courseIndex !== -1) {
-					activePlan.courses = activePlan.courses.filter((c) => c.course !== course);
+					activePlan.courses = activePlan.courses.filter(
+						(c: { course: string }) => c.course !== course
+					);
 				}
 				activePlan.courses.push({ course: course, sections: sections });
 			}
@@ -66,7 +113,7 @@
 	}
 
 	let autocompleteOptions: AutocompleteOption<string>[] = [];
-	function onInput(e: { target: { value: string } } | InputEvent): void {
+	function onInput(e: any) {
 		e.target.value = e?.target?.value.toUpperCase().replace(/\s/g, '');
 		e.target.value = e?.target?.value.replace(/([a-zA-Z])([0-9])/gi, '$1 $2');
 		searchCourses(search);
@@ -93,9 +140,7 @@
 {#if jsondata?.courses?.length > 0}
 	<div class="row mt-[2px]">
 		{#each jsondata?.courses as course}
-			<button
-				class="card card-hover mx-3 max-h-8 w-10/12 overflow-x-scroll rounded-md px-3 py-1"
-			>
+			<button class="card card-hover mx-3 max-h-8 w-10/12 overflow-x-scroll rounded-md px-3 py-1">
 				<h5 class="card-title h5">
 					{course._id}
 				</h5>
