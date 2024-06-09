@@ -2,6 +2,7 @@
 	// Importing necessary modules and components
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
+	import { planStore } from '$lib/planStore';
 
 	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
@@ -61,6 +62,27 @@
 		}, 0) as unknown as number;
 	}
 	let gridheight = 1000;
+	function gencolor(i: number) {
+		let colorarr = [
+			'!bg-red-300',
+			'!bg-blue-300',
+			'!bg-green-300',
+			'!bg-yellow-300',
+			'!bg-purple-300',
+			'!bg-pink-300',
+			'!bg-indigo-300',
+			'!bg-cyan-300',
+			'!bg-teal-300',
+			'!bg-lime-300',
+			'!bg-amber-300',
+			'!bg-orange-300'
+		];
+		if (i >= colorarr.length) {
+			i = i - colorarr.length;
+		}
+		let returnval = colorarr[i % colorarr.length];
+		return returnval;
+	}
 </script>
 
 <!-- Handle wheel event for grid resizing -->
@@ -120,42 +142,36 @@
 			/>
 		</span>
 	{/each}
-
-	<!-- Display course sections -->
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 2}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-red-300"
-	>
-		<p class="text-center !text-gray-700">Course 1</p>
-	</CourseSection>
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 4}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-red-300"
-	>
-		<p class="text-center !text-gray-700">Course 1</p>
-	</CourseSection>
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 3}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-blue-300"
-	>
-		<p class="text-center !text-gray-700">Course 2</p>
-	</CourseSection>
-	<CourseSection
-		top={hourHeight}
-		left={timeColWidth + dayWidth * 5}
-		width={dayWidth - 10}
-		height={hourHeight}
-		color="!bg-blue-300"
-	>
-		<p class="text-center !text-gray-700">Course 2</p>
-	</CourseSection>
+	{#if $planStore.length > 0}
+		{@const activePlan = $planStore.find((p) => p.active)}
+		{#if activePlan}
+			{#each activePlan.courses as course, i}
+				{#each course.sections as section}
+					{#if section.selected}
+						{#each section.TIMES as meeting}
+							<CourseSection
+								top={hourHeight *
+									(new Date(meeting.start).getHours() - new Date(startDate).getHours() + 5) +
+									(new Date(meeting.start).getMinutes() / 60) * hourHeight}
+								left={timeColWidth +
+									dayWidth * ['U', 'M', 'T', 'W', 'R', 'F', 'S'].indexOf(meeting.day)}
+								width={dayWidth - 10}
+								height={(hourHeight *
+									(new Date(meeting.end).getTime() - new Date(meeting.start).getTime())) /
+									(1000 * 60 * 60)}
+								color={gencolor(i)}
+							>
+								<p class="text-center !text-gray-700">
+									{section.COURSE}
+									<br />
+									{meeting.building}
+									{meeting.room}
+								</p>
+							</CourseSection>
+						{/each}
+					{/if}
+				{/each}
+			{/each}
+		{/if}
+	{/if}
 </div>

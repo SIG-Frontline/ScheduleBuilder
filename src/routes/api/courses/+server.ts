@@ -1,55 +1,82 @@
-// Import the courses collection from the MongoDB client
-import { coursesCollection } from '$lib/mongoClient';
+// Import the sectionsCollection from the mongoClient
+import { sectionsCollection } from '$lib/mongoClient';
 
 // Define an asynchronous GET function that takes a request object as a parameter
 export async function GET({ url }) {
 	// Initialize an empty query object
 	const query = {};
-	// Extract the search parameters from the URL
+	// Extract the search parameters from the url
 	const searchParams = url.searchParams;
-	// Initialize the page number to 0
+	// Initialize page and sectionsPerPage variables
 	let page = 0;
-	// Define the number of courses to display per page
-	const coursesPerPage = 20;
-	// If the search parameters include an 'id', add it to the query
-	if (searchParams.has('id')) {
-		addSubstrSearch(query, '_id', searchParams.get('id') as string);
-	}
-	// If the search parameters include a 'subject', add it to the query
-	if (searchParams.has('subject')) {
-		addSubstrSearch(query, 'subject', searchParams.get('subject') as string);
-	}
-	// If the search parameters include a 'number', add it to the query
-	if (searchParams.has('number')) {
-		addSubstrSearch(query, 'course_number', searchParams.get('number') as string);
-	}
-	// If the search parameters include a 'prereq', add it to the query
-	if (searchParams.has('prereq')) {
-		addSubstrSearch(query, 'prereq_str', searchParams.get('prereq') as string);
-	}
-	// If the search parameters include a 'page', update the page number
-	if (searchParams.has('page')) {
-		page = parseInt(searchParams.get('page') as string);
-	}
+	let sectionsPerPage = 20;
 
-	// Initialize variables for the cursor and the total number of courses
+	// Check if the search parameters include 'term' and add it to the query
+	if (searchParams.has('term')) {
+		addIntSearch(query, 'TERM', searchParams.get('term') as string);
+	}
+	// Repeat the process for other potential search parameters
+	if (searchParams.has('course')) {
+		addSubstrSearch(query, 'COURSE', searchParams.get('course') as string);
+	}
+	if (searchParams.has('title')) {
+		addSubstrSearch(query, 'TITLE', searchParams.get('title') as string);
+	}
+	if (searchParams.has('subject')) {
+		addSubstrSearch(query, 'SUBJECT', searchParams.get('subject') as string);
+	}
+	if (searchParams.has('instructor')) {
+		addSubstrSearch(query, 'INSTRUCTOR', searchParams.get('instructor') as string);
+	}
+	if (searchParams.has('honors')) {
+		addBooleanSearch(query, 'IS_HONORS', searchParams.get('honors') as string);
+	}
+	if (searchParams.has('async')) {
+		addBooleanSearch(query, 'IS_ASYNC', searchParams.get('async') as string);
+	}
+	if (searchParams.has('credits')) {
+		addIntSearch(query, 'CREDITS', searchParams.get('credits') as string);
+	}
+	if (searchParams.has('level')) {
+		addIntSearch(query, 'COURSE_LEVEL', searchParams.get('level') as string);
+	}
+	if (searchParams.has('summer')) {
+		addIntSearch(query, 'SUMMER_PERIOD', searchParams.get('summer') as string);
+	}
+	if (searchParams.has('method')) {
+		addSubstrSearch(query, 'INSTRUCTION_METHOD', searchParams.get('method') as string);
+	}
+	// Initialize cursor and totalNumCourses variables
 	let cursor, totalNumCourses;
+	const pipeline = [
+		// aggregate the sections collection
+		{ $match: query },
+		{ $sort: { COURSE: 1 } },
+		{
+			$group: {
+				_id: '$COURSE',
+				sections: { $push: '$$ROOT' }
+			}
+		}
+	];
 	try {
-		// Query the database with the constructed query, limit the results to the number of courses per page, and skip the courses of the previous pages
-		cursor = await coursesCollection
-			.find(query)
-			.limit(coursesPerPage)
-			.skip(coursesPerPage * page)
+		// Attempt to get the sections from the sectionsCollection using the query
+		// Limit the results to sectionsPerPage and skip the sections for the previous pages
+		cursor = await sectionsCollection
+			.aggregate(pipeline)
+			.limit(sectionsPerPage)
+			.skip(sectionsPerPage * page)
 			.toArray();
-		// Count the total number of documents that match the query
-		totalNumCourses = await coursesCollection.countDocuments(query);
+
+		// Get the total number of documents that match the query
+		totalNumCourses = await sectionsCollection.countDocuments(query);
 	} catch (e) {
-		// If an error occurs, log it and return a 500 response
+		// Log the error and return a 500 response if there is an error querying the database
 		console.error(e);
 		return new Response('Error querying database', { status: 500 });
 	}
 
-	// Return a response with the courses and the total number of courses, and set the content type to 'application/json'
+	// Return a response with the courses and totalNumCourses in JSON format
 	return new Response(JSON.stringify({ courses: cursor, totalNumCourses }), {
 		headers: {
 			'Content-Type': 'application/json'
@@ -59,6 +86,15 @@ export async function GET({ url }) {
 
 // Define a function to add a substring search to the query
 function addSubstrSearch(query: any, key: string, value: string) {
-	// Add a regex search to the query for the given key and value, ignoring case
 	query[key] = { $regex: `.*${value}.*`, $options: 'i' };
+}
+
+// Define a function to add a boolean search to the query
+function addBooleanSearch(query: any, key: string, value: string) {
+	query[key] = { $eq: value === 'true' };
+}
+
+// Define a function to add an integer search to the query
+function addIntSearch(query: any, key: string, value: string) {
+	query[key] = { $eq: value };
 }
