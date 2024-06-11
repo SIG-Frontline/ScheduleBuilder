@@ -83,6 +83,21 @@
 		let returnval = colorarr[i % colorarr.length];
 		return returnval;
 	}
+
+	// Function used to get radial degree
+	function roundPercent(now: number, max: number) {
+		const temp = Math.ceil(((now / max) * 100) / 5) * 5;
+		console.log(temp);
+		if (temp >= 100) return 100;
+		return temp;
+	}
+
+	// Function to convert time to localTime
+	function getLocal(time: any) {
+		return new Date(time).getHours() + 5 > 12
+			? `${(new Date(time).getHours() + 5) % 12}:${new Date(time).getMinutes().toString().padStart(2, '0')} PM`
+			: `${new Date(time).getHours() + 5}:${new Date(time).getMinutes().toString().padStart(2, '0')} AM`;
+	}
 </script>
 
 <!-- Handle wheel event for grid resizing -->
@@ -149,6 +164,8 @@
 				{#each course.sections as section}
 					{#if section.selected}
 						{#each section.TIMES as meeting}
+							{console.log(section)}
+							{@const tempPercent = roundPercent(section.NOW, section.MAX)}
 							<CourseSection
 								top={hourHeight *
 									(new Date(meeting.start).getHours() - new Date(startDate).getHours() + 5) +
@@ -160,13 +177,48 @@
 									(new Date(meeting.end).getTime() - new Date(meeting.start).getTime())) /
 									(1000 * 60 * 60)}
 								color={gencolor(i)}
+								course={`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
 							>
-								<p class="text-center !text-gray-700">
-									{section.COURSE}
-									<br />
-									{meeting.building}
-									{meeting.room}
-								</p>
+								<div class="relative mx-1.5 flex-col">
+									<div>
+										<p
+											class="truncate rounded-lg border border-slate-400 bg-slate-200 p-0.5 text-left text-xs !text-gray-700"
+										>
+											{`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
+										</p>
+									</div>
+									<div class="flex">
+										<p class="flex-1 shrink text-left text-xs !text-gray-700">
+											{getLocal(meeting.start)}
+											-
+											{getLocal(meeting.end)}
+										</p>
+										<p class="flex-0.5 text-left text-xs !text-gray-700">
+											{`${meeting.building} ${meeting.room}`}
+										</p>
+									</div>
+									<p class=" text-left text-xs !text-gray-700">
+										{section.INSTRUCTOR}
+									</p>
+									<p class=" text-left text-xs !text-gray-700">
+										{section.CRN}
+									</p>
+
+									<div
+										class="absolute bottom-0 right-0 rounded-3xl p-0.5"
+										style="background-image: conic-gradient({tempPercent < 75
+											? 'LimeGreen'
+											: tempPercent < 85
+												? 'Orange'
+												: 'Red'} {tempPercent}%, gray {tempPercent}%, gray);"
+									>
+										<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
+											<p class="text-xs !text-gray-700">
+												{`${section.NOW}/${section.MAX}`}
+											</p>
+										</div>
+									</div>
+								</div>
 							</CourseSection>
 						{/each}
 					{/if}
