@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 	import { planStore } from '$lib/planStore';
+	import 'material-symbols';
 
 	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
@@ -179,7 +180,8 @@
 								color={gencolor(i)}
 								course={`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
 							>
-								<div class="relative mx-1.5 flex-col">
+								<div class="relative mx-1.5 h-full flex-col">
+									<!-- Course Name -->
 									<div>
 										<p
 											class="truncate rounded-lg border border-slate-400 bg-slate-200 p-0.5 text-left text-xs !text-gray-700"
@@ -187,22 +189,51 @@
 											{`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
 										</p>
 									</div>
+									<!-- Timing/Location -->
 									<div class="flex">
-										<p class="flex-1 shrink text-left text-xs !text-gray-700">
-											{getLocal(meeting.start)}
-											-
-											{getLocal(meeting.end)}
-										</p>
-										<p class="flex-0.5 text-left text-xs !text-gray-700">
-											{`${meeting.building} ${meeting.room}`}
+										<!-- Timing -->
+										<div class="flex flex-1 shrink">
+											<span
+												class="material-symbols-outlined !text-gray-700"
+												style="font-size: medium;">nest_clock_farsight_analog</span
+											>
+											<p class="flex-1 shrink text-left text-xs !text-gray-700">
+												{getLocal(meeting.start)} - {getLocal(meeting.end)}
+											</p>
+										</div>
+										<!-- Location -->
+										<div class="flex shrink">
+											<span
+												class="material-symbols-outlined !text-gray-700"
+												style="font-size: medium;"
+											>
+												location_on
+											</span>
+											<p class="flex-0.5 text-left text-xs !text-gray-700">
+												{`${meeting.building} ${meeting.room}`}
+											</p>
+										</div>
+									</div>
+									<!-- Instructor -->
+									<div class="flex flex-1 shrink">
+										<span
+											class="material-symbols-outlined align-middle !text-gray-700"
+											style="font-size: medium;">person</span
+										>
+										<p class="text-left text-xs !text-gray-700">
+											{section.INSTRUCTOR}
 										</p>
 									</div>
-									<p class=" text-left text-xs !text-gray-700">
-										{section.INSTRUCTOR}
-									</p>
-									<p class=" text-left text-xs !text-gray-700">
-										{section.CRN}
-									</p>
+									<!-- CRN -->
+									<div class="flex shrink">
+										<span
+											class="material-symbols-outlined !text-gray-700"
+											style="font-size: medium;">numbers</span
+										>
+										<p class=" text-left text-xs !text-gray-700">
+											{section.CRN}
+										</p>
+									</div>
 
 									<div
 										class="absolute bottom-0 right-0 rounded-3xl p-0.5"
