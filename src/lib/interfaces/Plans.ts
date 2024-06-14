@@ -1,31 +1,31 @@
-interface Course {
+interface ICourse {
 	_id: string;
-	sections: Section[];
+	sections: ISection[];
 	course: string;
 }
-interface Section {
+interface ISection {
 	SECTION: string;
 	COURSE: string;
 	INSTRUCTOR: string;
-	TIMES: Meeting[];
+	TIMES: IMeeting[];
 	selected: boolean;
 }
-interface Plan {
+interface IPlan {
 	active: boolean;
-	courses: Course[];
+	courses: ICourse[];
 	term: string;
 	id: string;
 	name: string;
 }
-interface Meeting {
+interface IMeeting {
 	start: string;
 	end: string;
 	day: string;
 	building: string;
 	room: string;
 }
-interface PlanStore {
-	plans: Plan[];
-	find: (value: (p: Plan) => boolean) => Plan;
+interface IPlanStore {
+	plans: IPlan[];
+	find: (value: (p: IPlan) => boolean) => IPlan;
 }
-export type { Plan, PlanStore, Section, Course, Meeting };
+export type { IPlan, IPlanStore, ISection, ICourse, IMeeting };

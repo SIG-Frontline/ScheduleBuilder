@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getActivePlan } from '$lib/getActivePlan';
-	import type { Section, Plan } from '$lib/interfaces/Plans';
+	import type { ISection, IPlan } from '$lib/interfaces/Plans';
 	import { planStore } from '$lib/planStore';
 	import { termStore } from '$lib/termStore';
 	import { uuidv4 } from '$lib/uuidv4';
@@ -13,7 +13,7 @@
 
 	let search = '';
 
-	$: jsondata = {} as Plan;
+	$: jsondata = {} as IPlan;
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
 	async function searchCourses(searchval: string) {
@@ -35,7 +35,7 @@
 				});
 			});
 	}
-	function selectSection(course: string, section: Section) {
+	function selectSection(course: string, section: ISection) {
 		planStore.update((plans) => {
 			//mark the section as selected and unselect all other sections in that course
 			let activePlan = plans.find((p: { active: boolean }) => p.active);
@@ -63,7 +63,7 @@
 					(s: { selected: boolean }) => (s.selected = false)
 				);
 				let sectionIndex = activePlan.courses[courseIndex].sections.findIndex(
-					(s: Section) => s === section
+					(s: ISection) => s === section
 				);
 				console.log(sectionIndex);
 				activePlan.courses[courseIndex].sections[sectionIndex].selected = true;
