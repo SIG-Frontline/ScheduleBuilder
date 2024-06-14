@@ -16,7 +16,7 @@
 
 	// Initializing variables
 	let isMounted = false;
-	let SemesterYearArray: any = [];
+	let SemesterYearArray: { label: string; code: number }[] = [];
 	// Watching for changes in isMounted variable and setting theme when it changes
 	$: if (isMounted) setTheme($themeState);
 	onMount(() => {
@@ -84,7 +84,7 @@
 		<!-- Await block to wait for the termStore to be not -1 and then render the select element with the SemesterYearArray -->
 		{#await new Promise((resolve) => ($termStore !== -1 ? resolve(SemesterYearArray) : null))}
 			<select class="select !placeholder min-h-10 md:w-48" disabled> </select>
-		{:then SemesterYearArray}
+		{:then _}
 			<select class="select md:w-48" bind:value={$termStore}>
 				{#each SemesterYearArray as { label: semesterYear, code: semesterCode }}
 					<option value={semesterCode}>{semesterYear}</option>

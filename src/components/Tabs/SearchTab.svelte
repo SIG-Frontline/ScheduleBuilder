@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { getActivePlan } from '$lib/getActivePlan';
+	import type { Section, Plan } from '$lib/interfaces/Plans';
 	import { planStore } from '$lib/planStore';
 	import { termStore } from '$lib/termStore';
 	import { uuidv4 } from '$lib/uuidv4';
@@ -10,20 +12,7 @@
 	} from '@skeletonlabs/skeleton';
 
 	let search = '';
-	interface Course {
-		_id: string;
-		sections: { section: string; selected: boolean }[];
-	}
-	interface Plan {
-		active: boolean;
-		courses: Course[];
-		term: string;
-		id: string;
-		name: string;
-	}
-	interface PlanStore {
-		plans: Plan[];
-	}
+
 	$: jsondata = {} as Plan;
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
@@ -46,7 +35,7 @@
 				});
 			});
 	}
-	function selectSection(course: string, section: string) {
+	function selectSection(course: string, section: Section) {
 		planStore.update((plans) => {
 			//mark the section as selected and unselect all other sections in that course
 			let activePlan = plans.find((p: { active: boolean }) => p.active);
@@ -74,7 +63,7 @@
 					(s: { selected: boolean }) => (s.selected = false)
 				);
 				let sectionIndex = activePlan.courses[courseIndex].sections.findIndex(
-					(s: string) => s === section
+					(s: Section) => s === section
 				);
 				console.log(sectionIndex);
 				activePlan.courses[courseIndex].sections[sectionIndex].selected = true;
@@ -150,7 +139,7 @@
 {/if}
 
 {#if $planStore.length > 0}
-	{@const activePlan = $planStore.find((p) => p.active)}
+	{@const activePlan = getActivePlan($planStore)}
 	{#if activePlan}
 		<Accordion>
 			{#each activePlan.courses as course}
