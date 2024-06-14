@@ -61,9 +61,12 @@
 	//sync up the store with the active plan when it changes
 	$: {
 		planStore.update((plans) => {
-			plans.forEach((p: { active: boolean }) => (p.active = p.name === activePlan));
+			plans.forEach((p: { active: boolean; name: string }) => (p.active = p.name === activePlan));
 			return plans;
 		});
+	}
+	function setActivePlan(event: Event) {
+		activePlan = (event.target as HTMLInputElement).value;
 	}
 </script>
 
@@ -92,13 +95,13 @@
 	<ListBox>
 		{#each $planStore as plan, i}
 			<ListBoxItem
-				on:change={(event) => (activePlan = event.target?.value)}
+				on:change={setActivePlan}
 				bind:group={activePlan}
 				value={plan.name}
 				name={'plan'}
-				active={'bg-surface-200-700-token'}
+				active={'bg-surface-200-700-token shadow-md border-solid border-[1px] border-surface-200-700-token'}
 				regionDefault="flex flex-row justify-between"
-				class="m-3 !rounded-lg hover:bg-surface-300-600-token "
+				class="m-3 !rounded-lg transition-colors duration-200 ease-in-out hover:bg-surface-300-600-token"
 			>
 				<svelte:fragment slot="lead">
 					<span class="variant-soft-primary badge-icon p-4">{i + 1}</span>
