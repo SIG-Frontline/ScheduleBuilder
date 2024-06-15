@@ -25,10 +25,7 @@
 	bind:this={async_container}
 	class="async-div async-div-open align-center fixed bottom-0 z-30 flex w-[200vw] flex-row border-surface-500 bg-surface-700 pt-5 lg:w-full"
 >
-	<button
-		class="async-button absolute z-30 border border-surface-500 bg-surface-700 rounded-token"
-		on:click={toggleAsync}
-	>
+	<button class="async-button absolute z-30" on:click={toggleAsync}>
 		<span class="material-symbols-rounded">keyboard_arrow_down</span>
 		<!-- Rounded -->
 		<p>Async Courses</p>
@@ -80,6 +77,7 @@
 		border-width: var(--theme-border-base);
 		background-color: rgb(var(--color-surface-200));
 		border-color: rgb(var(--color-surface-400));
+		border-radius: var(--theme-rounded-container);
 		padding: 8px;
 		transition-property:
 			color,
