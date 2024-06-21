@@ -163,7 +163,7 @@
 		{#if activePlan}
 			{#each activePlan.courses as course, i}
 				{#each course.sections as section}
-					{#if section.selected}
+					{#if section.SECTION === course.selectedSection}
 						{#each section.TIMES as meeting}
 							{console.log(section)}
 							{@const tempPercent = roundPercent(section.NOW, section.MAX)}
