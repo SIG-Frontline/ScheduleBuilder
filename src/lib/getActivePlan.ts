@@ -1,5 +1,5 @@
-import type { Plan, PlanStore } from './interfaces/Plans';
+import type { IPlan, IPlanStore } from './interfaces/Plans';
 
-export function getActivePlan(planStoreval: PlanStore): Plan {
-	return planStoreval.find((p: { active: boolean }) => p.active) as Plan;
+export function getActivePlan(planStoreval: IPlanStore): IPlan {
+	return planStoreval.find((p: { active: boolean }) => p.active) as IPlan;
 }
