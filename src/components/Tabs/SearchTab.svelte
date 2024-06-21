@@ -3,7 +3,7 @@
 	import type { ISection, IPlan } from '$lib/interfaces/Plans';
 	import { planStore } from '$lib/planStore';
 	import { termStore } from '$lib/termStore';
-	import { uuidv4 } from '$lib/uuidv4';
+	import { uuidv4 } from '$lib/util/uuidv4';
 	import {
 		Accordion,
 		AccordionItem,

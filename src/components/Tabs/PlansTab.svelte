@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { planStore } from '$lib/planStore';
 	import { termStore, humanReadableTerm } from '$lib/termStore';
-	import { uuidv4 } from '$lib/uuidv4';
+	import { uuidv4 } from '$lib/util/uuidv4';
 	import { ListBox, ListBoxItem, popup } from '@skeletonlabs/skeleton';
 
 	let name = '';
