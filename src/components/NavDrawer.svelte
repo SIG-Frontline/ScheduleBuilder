@@ -1,7 +1,7 @@
 <script lang="ts">
 	// Importing necessary modules and states
 	import { TABS } from '$lib/constants';
-	import { drawerState } from '$lib/drawerStateStore';
+	import { drawerState } from '$lib/stores/drawerStateStore';
 	import { Drawer } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 

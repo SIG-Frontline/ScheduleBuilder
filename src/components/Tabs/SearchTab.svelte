@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { getActivePlan } from '$lib/util/getActivePlan';
 	import type { ISection, IPlan } from '$lib/interfaces/Plans';
-	import { planStore } from '$lib/planStore';
-	import { termStore } from '$lib/termStore';
+	import { planStore } from '$lib/stores/planStore';
+	import { termStore } from '$lib/stores/termStore';
 	import { uuidv4 } from '$lib/util/uuidv4';
 	import {
 		Accordion,

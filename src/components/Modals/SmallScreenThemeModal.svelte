@@ -2,7 +2,7 @@
 	import { THEMES } from '$lib/constants';
 	import { LightSwitch } from '@skeletonlabs/skeleton';
 	import { setTheme } from '$lib/setTheme';
-	import { themeState } from '$lib/themeStateStore';
+	import { themeState } from '$lib/stores/themeStateStore';
 	$: setTheme($themeState);
 </script>
 

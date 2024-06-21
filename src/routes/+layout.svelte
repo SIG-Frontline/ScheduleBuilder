@@ -4,7 +4,7 @@
 	import NavTabs from '../components/NavTabs.svelte';
 	import NavDrawer from '../components/NavDrawer.svelte';
 	import { initializeStores, Modal } from '@skeletonlabs/skeleton';
-	import { drawerState } from '$lib/drawerStateStore';
+	import { drawerState } from '$lib/stores/drawerStateStore';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });

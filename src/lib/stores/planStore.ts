@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
-import { termStore } from './termStore';
+import { termStore } from '../stores/termStore';
 const defaultData = [] as Array<unknown>;
 const PLAN_KEY = 'SB_plans'; // key for local storage
 export const planStore = writable(

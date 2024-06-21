@@ -2,7 +2,7 @@
 	import { Tab, TabGroup } from '@skeletonlabs/skeleton';
 	import { getDrawerStore } from '@skeletonlabs/skeleton';
 	import { TABS } from '$lib/constants';
-	import { drawerState } from '$lib/drawerStateStore';
+	import { drawerState } from '$lib/stores/drawerStateStore';
 	let tabSet: number = 0;
 	const drawerStore = getDrawerStore();
 </script>

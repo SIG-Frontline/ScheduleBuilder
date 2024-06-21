@@ -11,8 +11,8 @@
 	import { onMount } from 'svelte'; // Importing onMount function from svelte
 	import { setTheme } from '$lib/setTheme'; // Importing setTheme function
 	import SmallScreenThemeModal from './Modals/SmallScreenThemeModal.svelte'; // Importing SmallScreenThemeModal component
-	import { themeState } from '$lib/themeStateStore'; // Importing themeState store
-	import { termStore } from '$lib/termStore'; // Importing termStore
+	import { themeState } from '$lib/stores/themeStateStore'; // Importing themeState store
+	import { termStore } from '$lib/stores/termStore'; // Importing termStore
 
 	// Initializing variables
 	let isMounted = false;
