@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 	import { planStore } from '$lib/planStore';
-
+	import { getActivePlan } from '$lib/getActivePlan';
 	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
 	let endDate = new Date(2000, 0, 1, 22, 0, 0); // 10:00pm
@@ -143,7 +143,7 @@
 		</span>
 	{/each}
 	{#if $planStore.length > 0}
-		{@const activePlan = $planStore.find((p) => p.active)}
+		{@const activePlan = getActivePlan($planStore)}
 		{#if activePlan}
 			{#each activePlan.courses as course, i}
 				{#each course.sections as section}
