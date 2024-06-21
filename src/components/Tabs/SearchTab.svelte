@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getActivePlan } from '$lib/getActivePlan';
+	import { getActivePlan } from '$lib/util/getActivePlan';
 	import type { ISection, IPlan } from '$lib/interfaces/Plans';
 	import { planStore } from '$lib/planStore';
 	import { termStore } from '$lib/termStore';

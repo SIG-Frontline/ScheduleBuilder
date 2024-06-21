@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 	import { planStore } from '$lib/planStore';
-	import { getActivePlan } from '$lib/getActivePlan';
+	import { getActivePlan } from '$lib/util/getActivePlan';
 	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
 	let endDate = new Date(2000, 0, 1, 22, 0, 0); // 10:00pm
