@@ -14,6 +14,7 @@
 	let search = '';
 
 	$: jsondata = {} as IPlan;
+
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
 	async function searchCourses(searchval: string) {
@@ -35,42 +36,7 @@
 				});
 			});
 	}
-	function selectSection(course: string, section: ISection) {
-		planStore.update((plans) => {
-			//mark the section as selected and unselect all other sections in that course
-			let activePlan = plans.find((p: { active: boolean }) => p.active);
-			if (!activePlan) {
-				plans.push({
-					active: true,
-					courses: [
-						{
-							course: course,
-							sections: [{ section: section, selected: true }],
-							id: uuidv4(),
-							name: `Plan ${plans.length + 1}`
-						}
-					],
-					term: $termStore
-				});
-				console.log(plans);
-			} else {
-				let courseIndex = activePlan.courses.findIndex(
-					(c: { course: string; sections: { section: string; selected: boolean }[] }) =>
-						c.course === course
-				);
-				console.log(courseIndex);
-				activePlan.courses[courseIndex].sections.forEach(
-					(s: { selected: boolean }) => (s.selected = false)
-				);
-				let sectionIndex = activePlan.courses[courseIndex].sections.findIndex(
-					(s: ISection) => s === section
-				);
-				console.log(sectionIndex);
-				activePlan.courses[courseIndex].sections[sectionIndex].selected = true;
-			}
-			return plans;
-		});
-	}
+
 	async function onSelection(event: CustomEvent<AutocompleteOption<string>>): Promise<void> {
 		const sections = event.detail.meta;
 		const course = event.detail.value;
@@ -79,7 +45,7 @@
 			if (!activePlan) {
 				plans.push({
 					active: true,
-					courses: [{ course: course, sections: sections }],
+					courses: [{ course: course, selectedSection: '', sections: sections }],
 					term: $termStore,
 					id: uuidv4(),
 					name: `Plan ${plans.length + 1}`
@@ -93,7 +59,7 @@
 						(c: { course: string }) => c.course !== course
 					);
 				}
-				activePlan.courses.push({ course: course, sections: sections });
+				activePlan.courses.push({ course: course, selectedSection: '', sections: sections });
 			}
 			return plans;
 		});
@@ -142,20 +108,21 @@
 	{@const activePlan = getActivePlan($planStore)}
 	{#if activePlan}
 		<Accordion>
-			{#each activePlan.courses as course}
+			{#each activePlan.courses as course, i}
 				<AccordionItem>
 					<svelte:fragment slot="summary">
 						{course.course}
 					</svelte:fragment>
 					<svelte:fragment slot="content">
-						{#each course.sections as section}
+						{#each course.sections as section, j}
 							<label class="flex items-center space-x-2">
 								<input
 									class="radio"
 									type="radio"
 									name="radio-{section.COURSE}"
 									value={section.SECTION}
-									on:change={() => selectSection(course.course, section)}
+									bind:group={$planStore[$planStore.findIndex((p) => p.active)].courses[i]
+										.selectedSection}
 								/>
 								<span>{section.COURSE}-{section.SECTION}, {section.INSTRUCTOR ?? 'TBA'}</span>
 							</label>
