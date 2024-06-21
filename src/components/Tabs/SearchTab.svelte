@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { getActivePlan } from '$lib/getActivePlan';
+	import type { ISection, IPlan } from '$lib/interfaces/Plans';
 	import { planStore } from '$lib/planStore';
 	import { termStore } from '$lib/termStore';
 	import { uuidv4 } from '$lib/uuidv4';
@@ -10,22 +12,9 @@
 	} from '@skeletonlabs/skeleton';
 
 	let search = '';
-	interface Course {
-		_id: string;
-		sections: { section: string; selected: boolean }[];
-		selectedSection: string;
-	}
-	interface Plan {
-		active: boolean;
-		courses: Course[];
-		term: string;
-		id: string;
-		name: string;
-	}
-	interface PlanStore {
-		plans: Plan[];
-	}
-	$: jsondata = {} as Plan;
+
+	$: jsondata = {} as IPlan;
+
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
 	async function searchCourses(searchval: string) {
@@ -47,7 +36,7 @@
 				});
 			});
 	}
-	
+
 	async function onSelection(event: CustomEvent<AutocompleteOption<string>>): Promise<void> {
 		const sections = event.detail.meta;
 		const course = event.detail.value;
@@ -116,7 +105,7 @@
 {/if}
 
 {#if $planStore.length > 0}
-	{@const activePlan = $planStore.find((p) => p.active)}
+	{@const activePlan = getActivePlan($planStore)}
 	{#if activePlan}
 		<Accordion>
 			{#each activePlan.courses as course, i}

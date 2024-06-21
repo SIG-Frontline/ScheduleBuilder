@@ -5,12 +5,12 @@ import { sectionsCollection } from '$lib/mongoClient';
 // Define an asynchronous GET function that takes a request object as a parameter
 export async function GET({ url }) {
 	// Extract the 'page' query parameter from the URL, defaulting to 0 if it's not provided
-	let page = url.searchParams.get('page') || 0;
-	let cursor, pipline;
+	const page = parseInt(url.searchParams.get('page') as string) || 0;
+	let cursor;
 	const termsPerPage = 20; // Define the number of terms to be returned per page
 
 	// Define the MongoDB aggregation pipeline
-	pipline = [
+	const pipline = [
 		{
 			$group: {
 				_id: '$TERM' // Group documents by the 'TERM' field

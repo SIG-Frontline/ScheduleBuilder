@@ -1,0 +1,31 @@
+interface ICourse {
+	_id: string;
+	sections: ISection[];
+	course: string;
+}
+interface ISection {
+	SECTION: string;
+	COURSE: string;
+	INSTRUCTOR: string;
+	TIMES: IMeeting[];
+	selected: boolean;
+}
+interface IPlan {
+	active: boolean;
+	courses: ICourse[];
+	term: string;
+	id: string;
+	name: string;
+}
+interface IMeeting {
+	start: string;
+	end: string;
+	day: string;
+	building: string;
+	room: string;
+}
+interface IPlanStore {
+	plans: IPlan[];
+	find: (value: (p: IPlan) => boolean) => IPlan;
+}
+export type { IPlan, IPlanStore, ISection, ICourse, IMeeting };

@@ -3,8 +3,7 @@
 	import { onMount } from 'svelte';
 	import CourseSection from './CourseSection.svelte';
 	import { planStore } from '$lib/planStore';
-	import 'material-symbols';
-
+	import { getActivePlan } from '$lib/getActivePlan';
 	// Initialize start and end times for the calendar
 	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
 	let endDate = new Date(2000, 0, 1, 22, 0, 0); // 10:00pm
@@ -95,9 +94,9 @@
 
 	// Function to convert time to localTime
 	function getLocal(time: any) {
-		return new Date(time).getHours() + 5 > 12
-			? `${(new Date(time).getHours() + 5) % 12}:${new Date(time).getMinutes().toString().padStart(2, '0')} PM`
-			: `${new Date(time).getHours() + 5}:${new Date(time).getMinutes().toString().padStart(2, '0')} AM`;
+		return new Date(
+			new Date(time).getTime() + startDate.getTimezoneOffset() * 60000
+		).toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' });
 	}
 </script>
 
@@ -159,13 +158,12 @@
 		</span>
 	{/each}
 	{#if $planStore.length > 0}
-		{@const activePlan = $planStore.find((p) => p.active)}
+		{@const activePlan = getActivePlan($planStore)}
 		{#if activePlan}
 			{#each activePlan.courses as course, i}
 				{#each course.sections as section}
 					{#if section.SECTION === course.selectedSection}
 						{#each section.TIMES as meeting}
-							{console.log(section)}
 							{@const tempPercent = roundPercent(section.NOW, section.MAX)}
 							<CourseSection
 								top={hourHeight *
@@ -189,63 +187,66 @@
 											{`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
 										</p>
 									</div>
-									<!-- Timing/Location -->
-									<div class="flex">
+									<div class="flex flex-row">
+										<!-- Timing/Location -->
+										<div class="flex flex-1 flex-col">
+											<!-- Location -->
+											<div class="flex flex-1 shrink">
+												<span
+													class="material-symbols-outlined !text-gray-700"
+													style="font-size: medium;"
+												>
+													location_on
+												</span>
+												<p class="flex-0.5 text-left text-xs !text-gray-700">
+													{`${meeting.building} ${meeting.room}`}
+												</p>
+											</div>
+											<!-- Instructor -->
+											<div class="flex flex-1 shrink">
+												<span
+													class="material-symbols-outlined align-middle !text-gray-700"
+													style="font-size: medium;">person</span
+												>
+												<p class="text-left text-xs !text-gray-700">
+													{section.INSTRUCTOR}
+												</p>
+											</div>
+											<!-- CRN -->
+											<div class="flex shrink">
+												<span
+													class="material-symbols-outlined !text-gray-700"
+													style="font-size: medium;">numbers</span
+												>
+												<p class=" text-left text-xs !text-gray-700">
+													{section.CRN}
+												</p>
+											</div>
+
+											<div
+												class="absolute -bottom-1 -right-2 rounded-3xl p-0.5"
+												style="background-image: conic-gradient({tempPercent < 75
+													? 'LimeGreen'
+													: tempPercent < 85
+														? 'Orange'
+														: 'Red'} {tempPercent}%, gray {tempPercent}%, gray);"
+											>
+												<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
+													<p class="text-xs !text-gray-700">
+														{`${section.NOW}/${section.MAX}`}
+													</p>
+												</div>
+											</div>
+										</div>
+
 										<!-- Timing -->
-										<div class="flex flex-1 shrink">
+										<div class="lg:hidden xl:flex xl:flex-1 xl:shrink xl:flex-row">
 											<span
 												class="material-symbols-outlined !text-gray-700"
 												style="font-size: medium;">nest_clock_farsight_analog</span
 											>
 											<p class="flex-1 shrink text-left text-xs !text-gray-700">
 												{getLocal(meeting.start)} - {getLocal(meeting.end)}
-											</p>
-										</div>
-										<!-- Location -->
-										<div class="flex shrink">
-											<span
-												class="material-symbols-outlined !text-gray-700"
-												style="font-size: medium;"
-											>
-												location_on
-											</span>
-											<p class="flex-0.5 text-left text-xs !text-gray-700">
-												{`${meeting.building} ${meeting.room}`}
-											</p>
-										</div>
-									</div>
-									<!-- Instructor -->
-									<div class="flex flex-1 shrink">
-										<span
-											class="material-symbols-outlined align-middle !text-gray-700"
-											style="font-size: medium;">person</span
-										>
-										<p class="text-left text-xs !text-gray-700">
-											{section.INSTRUCTOR}
-										</p>
-									</div>
-									<!-- CRN -->
-									<div class="flex shrink">
-										<span
-											class="material-symbols-outlined !text-gray-700"
-											style="font-size: medium;">numbers</span
-										>
-										<p class=" text-left text-xs !text-gray-700">
-											{section.CRN}
-										</p>
-									</div>
-
-									<div
-										class="absolute bottom-0 right-0 rounded-3xl p-0.5"
-										style="background-image: conic-gradient({tempPercent < 75
-											? 'LimeGreen'
-											: tempPercent < 85
-												? 'Orange'
-												: 'Red'} {tempPercent}%, gray {tempPercent}%, gray);"
-									>
-										<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
-											<p class="text-xs !text-gray-700">
-												{`${section.NOW}/${section.MAX}`}
 											</p>
 										</div>
 									</div>

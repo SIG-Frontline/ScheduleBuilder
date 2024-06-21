@@ -17,7 +17,7 @@
 }) then}
 	<button
 		title={course}
-		class=" card card-hover absolute inline-block !rounded-md {color} py-2"
+		class=" card card-hover absolute inline-block !rounded-md {color} py-1"
 		style="top: {top}px; left: {left}px; width: {width}px; height: {height}px;"
 	>
 		<slot class=""></slot>

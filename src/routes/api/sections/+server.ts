@@ -8,8 +8,8 @@ export async function GET({ url }) {
 	// Extract the search parameters from the url
 	const searchParams = url.searchParams;
 	// Initialize page and sectionsPerPage variables
-	let page = 0;
-	let sectionsPerPage = 20;
+	const page = 0;
+	const sectionsPerPage = 20;
 
 	// Check if the search parameters include 'term' and add it to the query
 	if (searchParams.has('term')) {
@@ -73,16 +73,34 @@ export async function GET({ url }) {
 }
 
 // Define a function to add a substring search to the query
-function addSubstrSearch(query: any, key: string, value: string) {
+function addSubstrSearch(
+	query: {
+		[key: string]: { $regex: string; $options: string };
+	},
+	key: string,
+	value: string
+) {
 	query[key] = { $regex: `.*${value}.*`, $options: 'i' };
 }
 
 // Define a function to add a boolean search to the query
-function addBooleanSearch(query: any, key: string, value: string) {
+function addBooleanSearch(
+	query: {
+		[key: string]: { $regex: string; $options: string } | { $eq: boolean };
+	},
+	key: string,
+	value: string
+) {
 	query[key] = { $eq: value === 'true' };
 }
 
 // Define a function to add an integer search to the query
-function addIntSearch(query: any, key: string, value: string) {
+function addIntSearch(
+	query: {
+		[key: string]: { $regex: string; $options: string } | { $eq: string };
+	},
+	key: string,
+	value: string
+) {
 	query[key] = { $eq: value };
 }
