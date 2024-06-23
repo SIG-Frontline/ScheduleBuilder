@@ -182,16 +182,30 @@
 								color={gencolor(i)}
 								course={fullName}
 							>
-								<div class="relative mx-1.5 h-full flex-col">
-									<!-- Course Name -->
-									<div>
-										<p
-											class="truncate rounded-lg border border-slate-400 bg-slate-200 p-0.5 text-left text-xs !text-gray-700"
-										>
-											{fullName}
-										</p>
+								<div class="relative h-[calc(100%-20px)]">
+									<div
+										class="absolute -right-5 -top-3 rounded-3xl p-0.5"
+										style="background-image: conic-gradient({tempPercent < 75
+											? 'LimeGreen'
+											: tempPercent < 85
+												? 'Orange'
+												: 'Red'} {tempPercent}%, gray {tempPercent}%, gray);"
+									>
+										<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
+											<p class="text-xs !text-gray-700">
+												{`${section.NOW ?? '??'}/${section.MAX ?? '??'}`}
+											</p>
+										</div>
 									</div>
-									<div class="flex flex-row">
+
+									<p
+										class="mx-1.5 truncate rounded-lg border border-slate-400 bg-slate-200 px-0.5 text-left text-xs !text-gray-700"
+									>
+										{fullName}
+									</p>
+									<div
+										class="relative mx-1.5 my-0.5 h-full flex-col overflow-x-auto overflow-y-auto"
+									>
 										<!-- Timing/Location -->
 										<div class="flex flex-1 flex-col">
 											<!-- Location -->
@@ -207,7 +221,7 @@
 												</p>
 											</div>
 											<!-- Instructor -->
-											<div class="flex flex-1 shrink">
+											<div class="flex">
 												<span
 													class="material-symbols-outlined align-middle !text-gray-700"
 													style="font-size: medium;">person</span
@@ -222,36 +236,21 @@
 													class="material-symbols-outlined !text-gray-700"
 													style="font-size: medium;">numbers</span
 												>
-												<p class=" text-left text-xs !text-gray-700">
+												<p class="text-left text-xs !text-gray-700">
 													{section.CRN ?? 'TBD'}
 												</p>
 											</div>
 
-											<div
-												class="absolute -bottom-1 -right-2 rounded-3xl p-0.5"
-												style="background-image: conic-gradient({tempPercent < 75
-													? 'LimeGreen'
-													: tempPercent < 85
-														? 'Orange'
-														: 'Red'} {tempPercent}%, gray {tempPercent}%, gray);"
-											>
-												<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
-													<p class="text-xs !text-gray-700">
-														{`${section.NOW ?? '??'}/${section.MAX ?? '??'}`}
-													</p>
-												</div>
+											<!-- Timing -->
+											<div class="flex">
+												<span
+													class="material-symbols-outlined !text-gray-700"
+													style="font-size: medium;">nest_clock_farsight_analog</span
+												>
+												<p class="text-nowrap text-left text-xs !text-gray-700">
+													{getLocal(meeting.start)} - {getLocal(meeting.end)}
+												</p>
 											</div>
-										</div>
-
-										<!-- Timing -->
-										<div class="lg:hidden xl:flex xl:flex-1 xl:shrink xl:flex-row">
-											<span
-												class="material-symbols-outlined !text-gray-700"
-												style="font-size: medium;">nest_clock_farsight_analog</span
-											>
-											<p class="flex-1 shrink text-left text-xs !text-gray-700">
-												{getLocal(meeting.start)} - {getLocal(meeting.end)}
-											</p>
 										</div>
 									</div>
 								</div>
