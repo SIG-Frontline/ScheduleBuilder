@@ -184,7 +184,7 @@
 							>
 								<div class="relative h-[calc(100%-20px)]">
 									<div
-										class="absolute -right-5 -top-3 rounded-3xl p-0.5"
+										class="absolute -right-2 -top-3 rounded-3xl p-0.5"
 										style="background-image: conic-gradient({tempPercent < 75
 											? 'LimeGreen'
 											: tempPercent < 85
