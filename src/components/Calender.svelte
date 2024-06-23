@@ -94,6 +94,9 @@
 
 	// Function to convert time to localTime
 	function getLocal(time: any) {
+		if (!time) {
+			return 'TBD';
+		}
 		return new Date(
 			new Date(time).getTime() + startDate.getTimezoneOffset() * 60000
 		).toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' });
@@ -165,6 +168,7 @@
 					{#if section.SECTION === course.selectedSection}
 						{#each section.TIMES as meeting}
 							{@const tempPercent = roundPercent(section.NOW, section.MAX)}
+							{@const fullName = `${section.COURSE ?? 'N/A'}-${section.SECTION ?? 'N/A'}: ${section.TITLE ?? 'N/A'}`}
 							<CourseSection
 								top={hourHeight *
 									(new Date(meeting.start).getHours() - new Date(startDate).getHours() + 5) +
@@ -176,7 +180,7 @@
 									(new Date(meeting.end).getTime() - new Date(meeting.start).getTime())) /
 									(1000 * 60 * 60)}
 								color={gencolor(i)}
-								course={`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
+								course={fullName}
 							>
 								<div class="relative mx-1.5 h-full flex-col">
 									<!-- Course Name -->
@@ -184,7 +188,7 @@
 										<p
 											class="truncate rounded-lg border border-slate-400 bg-slate-200 p-0.5 text-left text-xs !text-gray-700"
 										>
-											{`${section.COURSE}-${section.SECTION}: ${section.TITLE}`}
+											{fullName}
 										</p>
 									</div>
 									<div class="flex flex-row">
@@ -199,7 +203,7 @@
 													location_on
 												</span>
 												<p class="flex-0.5 text-left text-xs !text-gray-700">
-													{`${meeting.building} ${meeting.room}`}
+													{`${meeting.building ?? 'TBD'} ${meeting.room ?? 'TBD'}`}
 												</p>
 											</div>
 											<!-- Instructor -->
@@ -209,7 +213,7 @@
 													style="font-size: medium;">person</span
 												>
 												<p class="text-left text-xs !text-gray-700">
-													{section.INSTRUCTOR}
+													{section.INSTRUCTOR ?? 'TBD'}
 												</p>
 											</div>
 											<!-- CRN -->
@@ -219,7 +223,7 @@
 													style="font-size: medium;">numbers</span
 												>
 												<p class=" text-left text-xs !text-gray-700">
-													{section.CRN}
+													{section.CRN ?? 'TBD'}
 												</p>
 											</div>
 
@@ -233,7 +237,7 @@
 											>
 												<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
 													<p class="text-xs !text-gray-700">
-														{`${section.NOW}/${section.MAX}`}
+														{`${section.NOW ?? '??'}/${section.MAX ?? '??'}`}
 													</p>
 												</div>
 											</div>

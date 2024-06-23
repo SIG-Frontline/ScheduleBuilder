@@ -2,6 +2,7 @@ interface ICourse {
 	_id: string;
 	sections: ISection[];
 	course: string;
+	selectedSection: string;
 }
 interface ISection {
 	SECTION: string;
@@ -9,6 +10,10 @@ interface ISection {
 	INSTRUCTOR: string;
 	TIMES: IMeeting[];
 	selected: boolean;
+	NOW: number;
+	MAX: number;
+	TITLE: string;
+	CRN: string;
 }
 interface IPlan {
 	active: boolean;
