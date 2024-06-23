@@ -204,7 +204,7 @@
 										{fullName}
 									</p>
 									<div
-										class="relative mx-1.5 my-0.5 h-full flex-col overflow-x-auto overflow-y-auto"
+										class="hide-scrollbar relative mx-1.5 my-0.5 h-full flex-col overflow-y-auto overflow-x-hidden"
 									>
 										<!-- Timing/Location -->
 										<div class="flex flex-1 flex-col">
@@ -247,7 +247,7 @@
 													class="material-symbols-outlined !text-gray-700"
 													style="font-size: medium;">nest_clock_farsight_analog</span
 												>
-												<p class="text-nowrap text-left text-xs !text-gray-700">
+												<p class=" text-left text-xs !text-gray-700">
 													{getLocal(meeting.start)} - {getLocal(meeting.end)}
 												</p>
 											</div>
