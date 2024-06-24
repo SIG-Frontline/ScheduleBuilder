@@ -83,6 +83,24 @@
 		let returnval = colorarr[i % colorarr.length];
 		return returnval;
 	}
+
+	// Function used to get radial degree
+	function roundPercent(now: number, max: number) {
+		const temp = Math.ceil(((now / max) * 100) / 5) * 5;
+		console.log(temp);
+		if (temp >= 100) return 100;
+		return temp;
+	}
+
+	// Function to convert time to localTime
+	function getLocal(time: any) {
+		if (!time) {
+			return 'TBD';
+		}
+		return new Date(
+			new Date(time).getTime() + startDate.getTimezoneOffset() * 60000
+		).toLocaleTimeString('en-us', { hour: 'numeric', minute: '2-digit' });
+	}
 </script>
 
 <!-- Handle wheel event for grid resizing -->
@@ -149,6 +167,8 @@
 				{#each course.sections as section}
 					{#if section.SECTION === course.selectedSection}
 						{#each section.TIMES as meeting}
+							{@const tempPercent = roundPercent(section.NOW, section.MAX)}
+							{@const fullName = `${section.COURSE ?? 'N/A'}-${section.SECTION ?? 'N/A'}: ${section.TITLE ?? 'N/A'}`}
 							<CourseSection
 								top={hourHeight *
 									(new Date(meeting.start).getHours() - new Date(startDate).getHours() + 5) +
@@ -160,13 +180,80 @@
 									(new Date(meeting.end).getTime() - new Date(meeting.start).getTime())) /
 									(1000 * 60 * 60)}
 								color={gencolor(i)}
+								course={fullName}
 							>
-								<p class="text-center !text-gray-700">
-									{section.COURSE}
-									<br />
-									{meeting.building}
-									{meeting.room}
-								</p>
+								<div class="relative h-[calc(100%-20px)]">
+									<div
+										class="absolute -right-2 -top-3 rounded-3xl p-0.5"
+										style="background-image: conic-gradient({tempPercent < 75
+											? 'LimeGreen'
+											: tempPercent < 85
+												? 'Orange'
+												: 'Red'} {tempPercent}%, gray {tempPercent}%, gray);"
+									>
+										<div class="rounded-[calc(1.5rem-1px)] bg-white px-1 dark:bg-slate-200">
+											<p class="text-xs !text-gray-700">
+												{`${section.NOW ?? '??'}/${section.MAX ?? '??'}`}
+											</p>
+										</div>
+									</div>
+
+									<p
+										class="mx-1.5 truncate rounded-lg border border-slate-400 bg-slate-200 px-0.5 text-left text-xs !text-gray-700"
+									>
+										{fullName}
+									</p>
+									<div
+										class="hide-scrollbar relative mx-1.5 my-0.5 h-full flex-col overflow-y-auto overflow-x-hidden"
+									>
+										<!-- Timing/Location -->
+										<div class="flex flex-1 flex-col">
+											<!-- Location -->
+											<div class="flex flex-1 shrink">
+												<span
+													class="material-symbols-outlined !text-gray-700"
+													style="font-size: medium;"
+												>
+													location_on
+												</span>
+												<p class="flex-0.5 text-left text-xs !text-gray-700">
+													{`${meeting.building ?? 'TBD'} ${meeting.room ?? 'TBD'}`}
+												</p>
+											</div>
+											<!-- Instructor -->
+											<div class="flex">
+												<span
+													class="material-symbols-outlined align-middle !text-gray-700"
+													style="font-size: medium;">person</span
+												>
+												<p class="text-left text-xs !text-gray-700">
+													{section.INSTRUCTOR ?? 'TBD'}
+												</p>
+											</div>
+											<!-- CRN -->
+											<div class="flex shrink">
+												<span
+													class="material-symbols-outlined !text-gray-700"
+													style="font-size: medium;">numbers</span
+												>
+												<p class="text-left text-xs !text-gray-700">
+													{section.CRN ?? 'TBD'}
+												</p>
+											</div>
+
+											<!-- Timing -->
+											<div class="flex">
+												<span
+													class="material-symbols-outlined !text-gray-700"
+													style="font-size: medium;">nest_clock_farsight_analog</span
+												>
+												<p class=" text-left text-xs !text-gray-700">
+													{getLocal(meeting.start)} - {getLocal(meeting.end)}
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
 							</CourseSection>
 						{/each}
 					{/if}

@@ -4,6 +4,7 @@
 	export let width: Number | null = null;
 	export let height: Number | null = null;
 	export let color = '!bg-red-200';
+	export let course = 'Course';
 </script>
 
 <!-- this promise is used to wait for the top, and height to be defined before rendering the button so it doesn't jump around -->
@@ -14,11 +15,11 @@
 		resolve();
 	}
 }) then}
-	<button
-		title="Course"
-		class=" card card-hover absolute inline-block !rounded-md {color} py-2"
+	<div
+		title={course}
+		class=" card card-hover absolute inline-block !rounded-md {color} py-1"
 		style="top: {top}px; left: {left}px; width: {width}px; height: {height}px;"
 	>
-		<slot></slot>
-	</button>
+		<slot class=""></slot>
+	</div>
 {/await}
