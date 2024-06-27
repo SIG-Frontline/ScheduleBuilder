@@ -1,9 +1,23 @@
 <!--Async Section -->
-<script>
-	import arrow from '$lib/arrow-head.png';
+<script lang="ts">
+	import AsyncCourseSection from './AsyncCourseSection.svelte';
+	import { planStore } from '$lib/planStore';
+
+	// Variables for layout calculation
+	let dayWidth = 0;
+	let timeColWidth = 0;
+	let timeCol: HTMLDivElement;
+	let firstRowDivMarker: HTMLDivElement;
+	let secondRowDivMarker: HTMLDivElement;
+	let hourHeight = 0;
+
+	// Initialize start and end times for the calendar
+	let startDate = new Date(2000, 0, 1, 7, 0, 0); // 7:00am
+	let endDate = new Date(2000, 0, 1, 22, 0, 0); // 10:00pm
 
 	let async_open = true;
 	let async_container = null;
+
 	function toggleAsync() {
 		async_open = !async_open;
 	}
@@ -19,6 +33,28 @@
 			}
 		}
 	}
+
+	function gencolor(i: number) {
+		let colorarr = [
+			'!bg-red-300',
+			'!bg-blue-300',
+			'!bg-green-300',
+			'!bg-yellow-300',
+			'!bg-purple-300',
+			'!bg-pink-300',
+			'!bg-indigo-300',
+			'!bg-cyan-300',
+			'!bg-teal-300',
+			'!bg-lime-300',
+			'!bg-amber-300',
+			'!bg-orange-300'
+		];
+		if (i >= colorarr.length) {
+			i = i - colorarr.length;
+		}
+		let returnval = colorarr[i % colorarr.length];
+		return returnval;
+	}
 </script>
 
 <div
@@ -30,6 +66,24 @@
 		<!-- Rounded -->
 		<p>Async Courses</p>
 	</button>
+
+	{#if $planStore.length > 0}
+		{@const activePlan = $planStore.find((p) => p.active)}
+		{#if activePlan}
+			<div class="async-courses">
+				{#each activePlan.courses as course, i}
+					<AsyncCourseSection color={gencolor(i)}>
+						<p class="text-center !text-gray-700">
+							{course.sections[0].COURSE}
+							<br />
+							{course.sections[0].TIMES.building}
+							{course.sections[0].TIMES.room}
+						</p>
+					</AsyncCourseSection>
+				{/each}
+			</div>
+		{/if}
+	{/if}
 </div>
 
 <style>
@@ -113,5 +167,18 @@
 
 	.async-div-open .material-symbols-rounded {
 		transform: rotate(180deg) !important;
+	}
+
+	.async-courses {
+		width: 100%;
+		display: flex;
+		padding-top: 7.5px;
+		padding-bottom: 2.5px;
+	}
+	.async-course {
+		background-color: pink;
+		border-radius: 8px;
+		padding: 5px;
+		margin: 5px;
 	}
 </style>
