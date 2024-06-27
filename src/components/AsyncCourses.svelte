@@ -72,14 +72,16 @@
 		{#if activePlan}
 			<div class="async-courses">
 				{#each activePlan.courses as course, i}
-					<AsyncCourseSection color={gencolor(i)}>
-						<p class="text-center !text-gray-700">
-							{course.sections[0].COURSE}
-							<br />
-							{course.sections[0].TIMES.building}
-							{course.sections[0].TIMES.room}
-						</p>
-					</AsyncCourseSection>
+					{#if course.sections[0].IS_ASYNC}
+						<AsyncCourseSection color={gencolor(i)}>
+							<p class="text-center !text-gray-700">
+								{course.sections[0].COURSE}
+								<br />
+								{course.sections[0].TIMES.building}
+								{course.sections[0].TIMES.room}
+							</p>
+						</AsyncCourseSection>
+					{/if}
 				{/each}
 			</div>
 		{/if}
