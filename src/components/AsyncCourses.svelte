@@ -78,6 +78,8 @@
 								{course.sections[0].COURSE}-{course.sections[0].SECTION}
 								<br />
 								{course.sections[0].TITLE}
+								<br />
+								{course.sections[0].INSTRUCTOR ?? ''}
 							</p>
 						</AsyncCourseSection>
 					{/if}
