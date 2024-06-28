@@ -75,10 +75,9 @@
 					{#if course.sections[0].IS_ASYNC}
 						<AsyncCourseSection color={gencolor(i)}>
 							<p class="text-center !text-gray-700">
-								{course.sections[0].COURSE}
+								{course.sections[0].COURSE}-{course.sections[0].SECTION}
 								<br />
-								{course.sections[0].TIMES.building}
-								{course.sections[0].TIMES.room}
+								{course.sections[0].TITLE}
 							</p>
 						</AsyncCourseSection>
 					{/if}
