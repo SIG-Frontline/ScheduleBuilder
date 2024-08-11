@@ -1,6 +1,6 @@
-import type { TreeNode } from "./mongoClient";
+import type { ReqTree } from "./mongoClient";
 
-export function check_tree(tree: TreeNode, requisites: string[]) {
+export function check_tree(tree: ReqTree, requisites: string[]) {
     let is_and = tree[0] === '&'
 
     for (let i = 1; i < tree.length; i++) {
@@ -8,7 +8,7 @@ export function check_tree(tree: TreeNode, requisites: string[]) {
         if (typeof tree[i] === 'string') {
             is_condition_valid = requisites.includes(tree[i] as string)
         } else {
-            is_condition_valid = check_tree(tree[i] as TreeNode, requisites)
+            is_condition_valid = check_tree(tree[i] as ReqTree, requisites)
         }
 
         if (is_and && !is_condition_valid) {
