@@ -205,7 +205,9 @@ export interface SectionDocument {
  * Represents a node in the `tree` structure.
  * Each node can be either a string (course code or operator) or an array of `TreeNode`.
  */
-export type TreeNode = (string | TreeNode[])[];
+export interface TreeNode extends Array<string | TreeNode> {
+    0: '&' | '|';   // The first element is always one of these values, to denote how the requirements should be evaluated
+}
 
 /**
  * Represents a document in the `coursesCollection`.
@@ -240,7 +242,7 @@ export interface CourseDocument {
      * The prerequisite tree structure, defining logical prerequisites.
      * This can be nested to any depth.
      */
-    tree: TreeNode[];
+    tree: TreeNode;
 }
 
 export const sectionsCollection = client.db(BUILDER_NS).collection<SectionDocument>('Sections');
