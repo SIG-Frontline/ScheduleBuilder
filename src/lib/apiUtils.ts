@@ -150,6 +150,7 @@ export function addQuery(
             query[key] = { $eq: convertString(value) };
             break;
     }
+}
 export async function get_static_data(course: string) {
     let static_courses = await courseCache.getCourses()
     
