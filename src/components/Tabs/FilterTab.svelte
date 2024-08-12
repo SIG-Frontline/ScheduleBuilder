@@ -1,39 +1,37 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { termSeason } from '$lib/termStore';
+  import { filterStore, reset } from '$lib/filterStore';
 
-	// Variables for form inputs
-	let subjects = [];
-	let selectedSubjects = [];
+	// // Variables for form inputs
+	let subjects: {SUBJECT: string}[] = [];
+	// let selectedSubjects = [];
 	let isSubjectsCollapsed = true
 
-	let sectionStatus = 'Any';
-	let isHonors = 'Any';
-	let isAsync = 'Any';
+	// let sectionStatus = 'Any';
+	// let isHonors = 'Any';
+	// let isAsync = 'Any';
 
-	let creditsMin = 0;
-	let creditsMax = 20;
+	// let creditsMin = 0;
+	// let creditsMax = 20;
 
-	let courseLevelMin = 0;
-	let courseLevelMax = 10;
+	// let courseLevelMin = 0;
+	// let courseLevelMax = 10;
 
-	let selectedSummerPeriods = [];
+	// let selectedSummerPeriods = [];
 	let summerPeriods = [
 		{ value: 1, label: '1 | First Session' },
 		{ value: 2, label: '2 | Second Session' },
 		{ value: 4, label: '4 | Full Session' }
 	];
 
-	let instructionMethods: string[] = [];
-	let selectedInstructionMethods = [];
+	let instructionMethods: {INSTRUCTION_METHOD: string}[] = [];
+	// let selectedInstructionMethods = [];
 
 	// Fetch dynamic data for subjects and instruction methods
 	onMount(async () => {
-	// Fetch subjects dynamically
-	subjects = await fetchSubjects();
-
-	// Fetch instruction methods dynamically
-	instructionMethods = await fetchInstructionMethods();
+    subjects = await fetchSubjects();
+    instructionMethods = await fetchInstructionMethods();
 	});
 
 	// Example functions for fetching dynamic data
@@ -48,10 +46,6 @@
 			.then((res) => res.json())
 		return res.methods
 	}
-
-	function addPlan() {
-	// Handle form submission logic here
-	}
 </script>
 
 <style>
@@ -61,13 +55,13 @@
   </style>
 
 <h3 class="h3 mt-3 text-center">Filters</h3>
-<form class="flex flex-col space-y-4 px-4" on:submit|preventDefault={addPlan}>
+<form class="flex flex-col space-y-4 px-4">
 
 	<!-- Submit Button -->
   <button
     type="button"
     class="variant-soft-surface bg-surface-200-700-token btn !h-10 border-none"
-    on:click={addPlan}>Update Filters</button>
+    on:click={reset}>Reset Filters</button>
 
   <!-- Subject - Checkbox List, Collapsible -->
   <div>
@@ -82,7 +76,7 @@
       <div class="flex flex-col mt-2">
         {#each subjects as subject}
           <label>
-            <input type="checkbox" bind:group={selectedSubjects} value={subject.SUBJECT} />
+            <input type="checkbox" bind:group={$filterStore.selectedSubjects} value={subject.SUBJECT} />
             {subject.SUBJECT}
           </label>
         {/each}
@@ -97,13 +91,13 @@
   </label>
   <div>
     <label>
-      <input type="radio" bind:group={sectionStatus} value="Any" /> Any
+      <input type="radio" bind:group={$filterStore.sectionStatus} value="Any" /> Any
     </label>
     <label>
-      <input type="radio" bind:group={sectionStatus} value="Open" /> Open
+      <input type="radio" bind:group={$filterStore.sectionStatus} value="Open" /> Open
     </label>
     <label>
-      <input type="radio" bind:group={sectionStatus} value="Closed" /> Closed
+      <input type="radio" bind:group={$filterStore.sectionStatus} value="Closed" /> Closed
     </label>
   </div>
 
@@ -114,13 +108,13 @@
   </label>
   <div>
     <label>
-      <input type="radio" bind:group={isHonors} value="Any" /> Any
+      <input type="radio" bind:group={$filterStore.isHonors} value="Any" /> Any
     </label>
     <label>
-      <input type="radio" bind:group={isHonors} value="Honors" /> Honors
+      <input type="radio" bind:group={$filterStore.isHonors} value="Honors" /> Honors
     </label>
     <label>
-      <input type="radio" bind:group={isHonors} value="Not Honors" /> Not Honors
+      <input type="radio" bind:group={$filterStore.isHonors} value="Not Honors" /> Not Honors
     </label>
   </div>
 
@@ -131,13 +125,13 @@
   </label>
   <div>
     <label>
-      <input type="radio" bind:group={isAsync} value="Any" /> Any
+      <input type="radio" bind:group={$filterStore.isAsync} value="Any" /> Any
     </label>
     <label>
-      <input type="radio" bind:group={isAsync} value="Async" /> Async
+      <input type="radio" bind:group={$filterStore.isAsync} value="Async" /> Async
     </label>
     <label>
-      <input type="radio" bind:group={isAsync} value="Not Async" /> Not Async
+      <input type="radio" bind:group={$filterStore.isAsync} value="Not Async" /> Not Async
     </label>
   </div>
 
@@ -151,7 +145,7 @@
       type="number"
       min="0"
       max="18"
-      bind:value={creditsMin}
+      bind:value={$filterStore.creditsMin}
       class="input w-full"
       placeholder="Min"
     />
@@ -160,7 +154,7 @@
       type="number"
       min="0"
       max="18"
-      bind:value={creditsMax}
+      bind:value={$filterStore.creditsMax}
       class="input w-full"
       placeholder="Max"
     />
@@ -176,7 +170,7 @@
       type="number"
       min="0"
       max="10"
-      bind:value={courseLevelMin}
+      bind:value={$filterStore.courseLevelMin}
       class="input w-full"
       placeholder="Min"
     />
@@ -185,7 +179,7 @@
       type="number"
       min="0"
       max="10"
-      bind:value={courseLevelMax}
+      bind:value={$filterStore.courseLevelMax}
       class="input w-full"
       placeholder="Max"
     />
@@ -200,7 +194,7 @@
   <div class="flex flex-col">
     {#each summerPeriods as period}
       <label>
-        <input type="checkbox" bind:group={selectedSummerPeriods} value={period.value} />
+        <input type="checkbox" bind:group={$filterStore.selectedSummerPeriods} value={period.value} />
         {period.label}
       </label>
     {/each}
@@ -216,7 +210,7 @@
   <div class="flex flex-col">
     {#each instructionMethods as method}
       <label>
-        <input type="checkbox" bind:group={selectedInstructionMethods} value={method.INSTRUCTION_METHOD} />
+        <input type="checkbox" bind:group={$filterStore.selectedInstructionMethods} value={method.INSTRUCTION_METHOD} />
         {method.INSTRUCTION_METHOD}
       </label>
     {/each}
