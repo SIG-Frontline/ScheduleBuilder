@@ -1,6 +1,7 @@
 // Import the sectionsCollection from the mongoClient
 import { addQuery } from '$lib/apiUtils.js';
 import { sectionsCollection } from '$lib/mongoClient';
+import { check_prereq, check_tree } from '$lib/apiUtils.js';
 
 // Define an asynchronous GET function that takes a request object as a parameter
 export async function GET({ url }) {
@@ -8,9 +9,6 @@ export async function GET({ url }) {
 	const query = {};
 	// Extract the search parameters from the url
 	const searchParams = url.searchParams;
-	// Initialize page and sectionsPerPage variables
-	const page = 0;
-	const sectionsPerPage = 20;
 
 	// Check if the search parameters include 'term' and add it to the query
 	if (searchParams.has('term')) {
@@ -67,18 +65,35 @@ export async function GET({ url }) {
 		// Limit the results to sectionsPerPage and skip the sections for the previous pages
 		cursor = await sectionsCollection
 			.aggregate(pipeline)
-			.limit(sectionsPerPage)
-			.skip(sectionsPerPage * page)
 			.toArray();
+		
+		if (searchParams.has('requisites') && searchParams.get('requisites') != null) {
+			const requisites = (searchParams.get('requisites') as string).split(',');
+
+			const filteredCursor = await Promise.all(
+				cursor.map(async (course) => {
+					const isValid = await check_prereq(course._id, requisites);
+					return isValid ? course : null;  // Return null for invalid courses
+				})
+			);
+
+			// Filter out null values from the result
+			cursor = filteredCursor.filter(course => course !== null) as typeof cursor;
+		}
+		cursor = cursor.sort((a, b) => {
+			if (a._id < b._id) return -1;
+			if (a._id > b._id) return 1;
+			return 0;
+		});
 
 		// Get the total number of documents that match the query
-		totalNumCourses = await sectionsCollection.countDocuments(query);
+		totalNumCourses = cursor.length
 	} catch (e) {
 		// Log the error and return a 500 response if there is an error querying the database
 		console.error(e);
 		return new Response('Error querying database', { status: 500 });
 	}
-
+	
 	// Return a response with the courses and totalNumCourses in JSON format
 	return new Response(JSON.stringify({ courses: cursor, totalNumCourses }), {
 		headers: {

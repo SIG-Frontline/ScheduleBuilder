@@ -214,7 +214,7 @@ export interface ReqTree extends Array<string | ReqTree> {
  */
 export interface CourseDocument {
     /**
-     * The unique identifier for the course document.
+     * Course Code for this specific course (e.g. "BIOL 382")
      */
     _id: string;
 
@@ -264,11 +264,8 @@ class CourseCache {
         const now = new Date();
         
         if (!this.lastRetrieved || (now.getTime() - this.lastRetrieved.getTime()) > 3600000) {
-            console.log('Fetching courses from MongoDB...');
-            this.courses = await this.collection.find().toArray();
             this.lastRetrieved = now;
-        } else {
-            console.log('Returning cached courses...');
+			this.courses = await this.collection.find().toArray();            
         }
 
         return this.courses;
