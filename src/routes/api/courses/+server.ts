@@ -46,6 +46,17 @@ export async function GET({ url }) {
 	if (searchParams.has('method')) {
 		addQuery(query, 'INSTRUCTION_METHOD', searchParams.get('method') as string);
 	}
+	if (searchParams.has('day')) {
+		let days = ['U', 'M', 'T', 'W', 'R', 'F', 'S']
+		for (let i = 0; i < days.length; i++) {
+			if (!searchParams.get('day')?.includes(days[i])) {
+				addQuery(query, `DAYS.${days[i]}`, 'n!true')
+			}
+		}
+	}
+	if (searchParams.has('building')) {
+		addQuery(query, 'TIMES.building', searchParams.get('building') as string);
+	}
 	console.log(query)
 	// Initialize cursor and totalNumCourses variables
 	let cursor, totalNumCourses;

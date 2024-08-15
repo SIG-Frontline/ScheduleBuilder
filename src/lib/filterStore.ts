@@ -6,6 +6,7 @@ import { get } from 'svelte/store';
 
 const defaultData = {
     selectedSubjects: [],
+    avoidMode: "None",
     sectionStatus: 'Any',
     isHonors: 'Any',
     isAsync: 'Any',
@@ -14,7 +15,9 @@ const defaultData = {
     courseLevelMin: 0,
     courseLevelMax: 10,
     selectedSummerPeriods: [],
-    selectedInstructionMethods: []
+    selectedInstructionMethods: [],
+    selectedDays: ['U', 'M', 'T', 'W', 'R', 'F', 'S'],
+    excludedBuildings: []
 }
 const FILTER_KEY = "SB_Filter"
 export const filterStore = writable(
@@ -47,15 +50,25 @@ export const queryString = derived(filterStore, ($filter) => {
         data.summer = 'in!' + $filter.selectedSummerPeriods.join('|');
     }
 
+    if ($filter.selectedDays.length > 0) {
+        data.day = $filter.selectedDays.join('|');
+    }
+
+    if ($filter.excludedBuildings.length > 0) {
+        data.building = 'nin!' + $filter.excludedBuildings.join('|');
+    }
+
     data.credits = `range!${$filter.creditsMin}|${$filter.creditsMax}`
     data.level = `range!${$filter.courseLevelMin}|${$filter.courseLevelMax}`
 
     // Convert data object to query string
     const params = new URLSearchParams(data);
     console.log(params.toString()); // Check the output
+    console.log($filter)
     return params.toString();
 });
 filterStore.subscribe((value) => {
+    console.log(value)
 	if (browser) {
 		// if the browser is available, set the value in local storage
 		//if the old value is null, set the default value

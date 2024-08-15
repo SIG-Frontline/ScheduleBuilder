@@ -7,6 +7,7 @@
 	let subjects: {SUBJECT: string}[] = [];
 	// let selectedSubjects = [];
 	let isSubjectsCollapsed = true
+  let isBuildingsCollapsed = true
 
 	// let sectionStatus = 'Any';
 	// let isHonors = 'Any';
@@ -25,14 +26,32 @@
 		{ value: 4, label: '4 | Full Session' }
 	];
 
+  let daysOfWeek = [
+    {value: 'U', label:"U | Sunday"},
+    {value: 'M', label:"M | Monday"},
+    {value: 'T', label:"T | Tuesday"},
+    {value: 'W', label:"W | Wednesday"},
+    {value: 'R', label:"R | Thursday"},
+    {value: 'F', label:"F | Friday"},
+    {value: 'S', label:"S | Saturday"},
+  ]
+
 	let instructionMethods: {INSTRUCTION_METHOD: string}[] = [];
+  let buildingOptions: {building: string}[] = []
 	// let selectedInstructionMethods = [];
 
 	// Fetch dynamic data for subjects and instruction methods
 	onMount(async () => {
     subjects = await fetchSubjects();
     instructionMethods = await fetchInstructionMethods();
+    buildingOptions = await fetchBuildings();
 	});
+
+  async function fetchBuildings() {
+		let res = await fetch('/api/buildings')
+			.then((res) => res.json())
+		return res.buildings
+	}
 
 	// Example functions for fetching dynamic data
 	async function fetchSubjects() {
@@ -82,6 +101,25 @@
         {/each}
       </div>
     {/if}
+  </div>
+
+  <label>
+    <b>Conflict Avoidance</b>
+    <span class="material-symbols-outlined small-icon" title="Filter by whether a section conflicts with already planned blocks.">info</span>
+  </label>
+  <div>
+    <label>
+      <input type="radio" bind:group={$filterStore.avoidMode} value="None" /> None
+    </label>
+    <label>
+      <input type="radio" bind:group={$filterStore.avoidMode} value="Sections" /> Avoid Planned Sections
+    </label>
+    <label>
+      <input type="radio" bind:group={$filterStore.avoidMode} value="Events" /> Avoid Custom Events
+    </label>
+    <label>
+      <input type="radio" bind:group={$filterStore.avoidMode} value="All" /> Avoid All
+    </label>
   </div>
 
   <!-- Section Status - Radio -->
@@ -201,6 +239,18 @@
   </div>
 {/if}
 
+<label>
+  <b>Day of Week</b>
+  <span class="material-symbols-outlined small-icon" title="Select the day of week.">info</span>
+</label>
+<div class="flex flex-col">
+  {#each daysOfWeek as dow}
+    <label>
+      <input type="checkbox" bind:group={$filterStore.selectedDays} value={dow.value} />
+      {dow.label}
+    </label>
+  {/each}
+</div>
 
   <!-- Instruction Method - Checkbox List -->
   <label>
@@ -215,4 +265,24 @@
       </label>
     {/each}
   </div>  
+
+  <div>
+    <label>
+      <b>Exclude Buildings</b>
+      <span class="material-symbols-outlined small-icon" title="You can choose to exclude certain buildings from your search.">info</span>
+    </label>
+    <button type="button" class="text-blue-500 underline" on:click={() => isBuildingsCollapsed = !isBuildingsCollapsed}>
+      {isBuildingsCollapsed ? 'Show' : 'Hide'} Buildings
+    </button>
+    {#if !isBuildingsCollapsed}
+      <div class="flex flex-col mt-2">
+        {#each buildingOptions as subject}
+          <label>
+            <input type="checkbox" bind:group={$filterStore.excludedBuildings} value={subject.building} />
+            {subject.building}
+          </label>
+        {/each}
+      </div>
+    {/if}
+  </div>
 </form>
