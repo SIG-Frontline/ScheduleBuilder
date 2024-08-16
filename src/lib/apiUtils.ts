@@ -77,8 +77,8 @@ export function addQuery(
     // n!X - Match this key to anything except X
     // range!X|Y - Match this key to values in the range [X, Y]
     // nrange!X|Y - Match this key to values not in the range [X, Y]
-    // in!X|Y|Z - Match this key to anything in the range X,Y,Z
-    // nin!X|Y|Z - Match this key to anything not in the range X,Y,Z
+    // in!X|Y|Z - Match this key to anything in the list X,Y,Z
+    // nin!X|Y|Z - Match this key to anything not in the list X,Y,Z
     // sub!X - Match this key to any string containing X
     // nsub!X - Match this key to any string not containing X
     // str!X - Match this key to X exactly without converting X
