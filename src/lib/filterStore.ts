@@ -23,10 +23,11 @@ const FILTER_KEY = "SB_Filter"
 export const filterStore = writable(
         browser && localStorage.getItem(FILTER_KEY) !== null // check if the key exists in local storage
     ? JSON.parse(localStorage.getItem(FILTER_KEY) as string) // if it does, parse the value
-    : defaultData // if it doesn't, use the default value in the store
+    : JSON.parse(JSON.stringify(defaultData)) // if it doesn't, use the default value in the store
 );
 export function reset() {
-    filterStore.set(defaultData)
+    console.log(defaultData)
+    filterStore.set(JSON.parse(JSON.stringify(defaultData)))
 }
 export const queryString = derived(filterStore, ($filter) => {
     let data: Record<string, string> = {};
@@ -68,8 +69,8 @@ export const queryString = derived(filterStore, ($filter) => {
     return params.toString();
 });
 filterStore.subscribe((value) => {
-    console.log(value)
 	if (browser) {
+        console.log(defaultData)
 		// if the browser is available, set the value in local storage
 		//if the old value is null, set the default value
 		localStorage.setItem(FILTER_KEY, JSON.stringify(value) ?? JSON.stringify(defaultData));

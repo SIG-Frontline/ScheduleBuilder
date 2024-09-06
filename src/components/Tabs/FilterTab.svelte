@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { termSeason } from '$lib/termStore';
   import { filterStore, reset } from '$lib/filterStore';
+  import { get } from 'svelte/store';
 
 	// // Variables for form inputs
 	let subjects: {SUBJECT: string}[] = [];
@@ -65,6 +66,34 @@
 			.then((res) => res.json())
 		return res.methods
 	}
+
+  async function updateForm() {
+    // TODO: There is probably a better way to do this
+    const currentFilters = get(filterStore);
+
+    isSubjectsCollapsed = true;
+    isBuildingsCollapsed = true;
+
+    $filterStore.selectedSubjects = currentFilters.selectedSubjects || [];
+    $filterStore.avoidMode = currentFilters.avoidMode || 'None';
+    $filterStore.sectionStatus = currentFilters.sectionStatus || 'Any';
+    $filterStore.isHonors = currentFilters.isHonors || 'Any';
+    $filterStore.isAsync = currentFilters.isAsync || 'Any';
+    $filterStore.creditsMin = currentFilters.creditsMin || 0;
+    $filterStore.creditsMax = currentFilters.creditsMax || 20;
+    $filterStore.courseLevelMin = currentFilters.courseLevelMin || 0;
+    $filterStore.courseLevelMax = currentFilters.courseLevelMax || 10;
+    $filterStore.selectedSummerPeriods = currentFilters.selectedSummerPeriods || [];
+    $filterStore.selectedDays = currentFilters.selectedDays || [];
+    $filterStore.selectedInstructionMethods = currentFilters.selectedInstructionMethods || [];
+    $filterStore.excludedBuildings = currentFilters.excludedBuildings || [];
+
+  }
+
+  async function resetForm() {
+    reset()
+    updateForm()
+  }
 </script>
 
 <style>
@@ -80,7 +109,7 @@
   <button
     type="button"
     class="variant-soft-surface bg-surface-200-700-token btn !h-10 border-none"
-    on:click={reset}>Reset Filters</button>
+    on:click={resetForm}>Reset Filters</button>
 
   <!-- Subject - Checkbox List, Collapsible -->
   <div>

@@ -12,7 +12,8 @@ export async function GET({ url }) {
 		{ $unwind: "$TIMES" }, // Unwind the TIMES array to work with each object
 		{ $group: { _id: "$TIMES.building" } }, // Group by the building field
 		{ $sort: {_id:1}},
-		{ $project: { _id: 0, building: "$_id" } } // Project the buildings field
+		{ $project: { _id: 0, building: "$_id" } }, // Project the buildings field
+		{ $match: { building: { $ne: null } } }
 	  ];
 
 	  const searchParams = url.searchParams;

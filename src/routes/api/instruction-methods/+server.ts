@@ -24,7 +24,8 @@ export async function GET({ url }) {
 			$sort: {
 				INSTRUCTION_METHOD: 1 // Sort the output documents in descending order by the 'TERM' field
 			}
-		}
+		},
+		{ $match: { INSTRUCTION_METHOD: { $ne: null } } }
 	];
 
 	try {
