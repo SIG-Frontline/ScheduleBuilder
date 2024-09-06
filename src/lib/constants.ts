@@ -1,5 +1,6 @@
 import PlansTab from '../components/Tabs/PlansTab.svelte';
 import SearchTab from '../components/Tabs/SearchTab.svelte';
+import FilterTab from '../components/Tabs/FilterTab.svelte';
 
 export const THEMES = [
 	{
@@ -53,6 +54,12 @@ export const TABS = [
 		icon: 'search', //material-symbols icon name
 		label: 'search',
 		component: SearchTab
+	},
+	{
+		id: 'filter',
+		icon: 'instant_mix', //material-symbols icon name
+		label: 'filter',
+		component: FilterTab
 	},
 	{
 		id: 'plans',

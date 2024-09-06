@@ -1,4 +1,5 @@
 // Import the sectionsCollection from the mongoClient
+import { addQuery } from '$lib/apiUtils.js';
 import { sectionsCollection } from '$lib/mongoClient';
 import { check_prereq, check_tree } from '$lib/apiUtils.js';
 
@@ -11,39 +12,52 @@ export async function GET({ url }) {
 
 	// Check if the search parameters include 'term' and add it to the query
 	if (searchParams.has('term')) {
-		addIntSearch(query, 'TERM', searchParams.get('term') as string);
+		//addIntSearch(query, 'TERM', searchParams.get('term') as string);
+		addQuery(query, "TERM", searchParams.get('term') as string)
 	}
 	// Repeat the process for other potential search parameters
 	if (searchParams.has('course')) {
-		addSubstrSearch(query, 'COURSE', searchParams.get('course') as string);
+		addQuery(query, "COURSE", searchParams.get('course') as string)
 	}
 	if (searchParams.has('title')) {
-		addSubstrSearch(query, 'TITLE', searchParams.get('title') as string);
+		addQuery(query, 'TITLE', searchParams.get('title') as string);
 	}
 	if (searchParams.has('subject')) {
-		addSubstrSearch(query, 'SUBJECT', searchParams.get('subject') as string);
+		addQuery(query, 'SUBJECT', searchParams.get('subject') as string);
 	}
 	if (searchParams.has('instructor')) {
-		addSubstrSearch(query, 'INSTRUCTOR', searchParams.get('instructor') as string);
+		addQuery(query, 'INSTRUCTOR', searchParams.get('instructor') as string);
 	}
 	if (searchParams.has('honors')) {
-		addBooleanSearch(query, 'IS_HONORS', searchParams.get('honors') as string);
+		addQuery(query, 'IS_HONORS', searchParams.get('honors') as string);
 	}
 	if (searchParams.has('async')) {
-		addBooleanSearch(query, 'IS_ASYNC', searchParams.get('async') as string);
+		addQuery(query, 'IS_ASYNC', searchParams.get('async') as string);
 	}
 	if (searchParams.has('credits')) {
-		addIntSearch(query, 'CREDITS', searchParams.get('credits') as string);
+		addQuery(query, 'CREDITS', searchParams.get('credits') as string);
 	}
 	if (searchParams.has('level')) {
-		addIntSearch(query, 'COURSE_LEVEL', searchParams.get('level') as string);
+		addQuery(query, 'COURSE_LEVEL', searchParams.get('level') as string);
 	}
 	if (searchParams.has('summer')) {
-		addIntSearch(query, 'SUMMER_PERIOD', searchParams.get('summer') as string);
+		addQuery(query, 'SUMMER_PERIOD', searchParams.get('summer') as string);
 	}
 	if (searchParams.has('method')) {
-		addSubstrSearch(query, 'INSTRUCTION_METHOD', searchParams.get('method') as string);
+		addQuery(query, 'INSTRUCTION_METHOD', searchParams.get('method') as string);
 	}
+	if (searchParams.has('day')) {
+		let days = ['U', 'M', 'T', 'W', 'R', 'F', 'S']
+		for (let i = 0; i < days.length; i++) {
+			if (!searchParams.get('day')?.includes(days[i])) {
+				addQuery(query, `DAYS.${days[i]}`, 'n!true')
+			}
+		}
+	}
+	if (searchParams.has('building')) {
+		addQuery(query, 'TIMES.building', searchParams.get('building') as string);
+	}
+	console.log(query)
 	// Initialize cursor and totalNumCourses variables
 	let cursor, totalNumCourses;
 	const pipeline = [
@@ -97,37 +111,4 @@ export async function GET({ url }) {
 			'Content-Type': 'application/json'
 		}
 	});
-}
-
-// Define a function to add a substring search to the query
-function addSubstrSearch(
-	query: {
-		[key: string]: { $regex: string; $options: string };
-	},
-	key: string,
-	value: string
-) {
-	query[key] = { $regex: `.*${value}.*`, $options: 'i' };
-}
-
-// Define a function to add a boolean search to the query
-function addBooleanSearch(
-	query: {
-		[key: string]: { $regex: string; $options: string } | { $eq: boolean };
-	},
-	key: string,
-	value: string
-) {
-	query[key] = { $eq: value === 'true' };
-}
-
-// Define a function to add an integer search to the query
-function addIntSearch(
-	query: {
-		[key: string]: { $regex: string; $options: string } | { $eq: string };
-	},
-	key: string,
-	value: string
-) {
-	query[key] = { $eq: value };
 }
