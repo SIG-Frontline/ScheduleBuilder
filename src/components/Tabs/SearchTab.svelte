@@ -12,6 +12,7 @@
 	} from '@skeletonlabs/skeleton';
 	import { queryString } from '$lib/filterStore';
 	import { get } from 'svelte/store';
+	import { searchCourses } from '$lib/search'
 
 	let search = '';
 
@@ -20,24 +21,8 @@
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
 	const filter_query = get(queryString)
-	async function searchCourses(searchval: string) {
-		let query = searchval.replace(/\s/g, ''); // remove spaces from the query
-		query = query.replace(/([a-zA-Z])([0-9])/gi, '$1 $2'); // add a space between the course letters and numbers
-		autocompleteOptions = await fetch(
-			'http://localhost:5173/api/courses?course=sub!' + query + '&term=str!' + $termStore + '&' + filter_query
-		)
-			.then((res) => res.json())
-			.then((data) => {
-				console.log(data);
-				const coursearr = data.courses;
-				return coursearr.map((course: any) => {
-					return {
-						label: course._id,
-						value: course._id,
-						meta: course.sections
-					};
-				});
-			});
+	async function onSearch(searchval: string) {
+		autocompleteOptions = await searchCourses(searchval, $termStore.toString(), filter_query)
 	}
 
 	async function onSelection(event: CustomEvent<AutocompleteOption<string>>): Promise<void> {
@@ -74,7 +59,7 @@
 	function onInput(e: any) {
 		e.target.value = e?.target?.value.toUpperCase().replace(/\s/g, '');
 		e.target.value = e?.target?.value.replace(/([a-zA-Z])([0-9])/gi, '$1 $2');
-		searchCourses(search);
+		onSearch(search);
 	}
 </script>
 
