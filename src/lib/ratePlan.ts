@@ -30,7 +30,10 @@ function convertDayToIndex(day: string) : number {
 
 // Returns the amount of minutes a plan would spend on campus
 // "On campus" being from the start of the first class to the end of the last class on a given day
-export function ratePlan(plan: IPlan) : number {
+export function ratePlan(plan: IPlan, isCommute: boolean) : number {
+
+	//Commute option needs to be intergrated into frontend
+	
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440];
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 	
@@ -64,6 +67,11 @@ export function ratePlan(plan: IPlan) : number {
 		if(diff < 0) continue; // No classes on that day
 	
 		timeOnCampus += diff;
+
+		//Compensate for Commute time
+		if (isCommute){
+			timeOnCampus += (3*60);
+		}
 	}
 	
 	return timeOnCampus;
