@@ -2,7 +2,6 @@ import type { IPlan } from './interfaces/Plans';
 
 // Converts a Date to time in minutes since midnight
 function convertToMinutes(time: Date) : number {
-	console.log(time, time.getHours(), time.getMinutes());
 	return time.getHours() * 60 + time.getMinutes();
 }
 
@@ -10,19 +9,19 @@ function convertToMinutes(time: Date) : number {
 function convertDayToIndex(day: string) : number {
 	switch (day) {
 		case 'U':
-			return 0	;
+			return 0;
 		case 'M':
-			return 1	;
+			return 1;
 		case 'T':
-			return 2	;
+			return 2;
 		case 'W':
-			return 3	;
+			return 3;
 		case 'R':
-			return 4	;
+			return 4;
 		case 'F':
-			return 5	;
+			return 5;
 		case 'S':
-			return 6	;
+			return 6;
 		default:
 			return -1;
 	}
@@ -34,7 +33,7 @@ export function ratePlan(plan: IPlan, isCommute: boolean) : number {
 
 	//Commute option needs to be intergrated into frontend
 	
-	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440];
+	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 	
 	for(const course of plan.courses) {
