@@ -85,6 +85,8 @@ export function addQuery(
     // nstr!X - Match this key to anything except X, without converting X
     //
     // Note: We use '|' instead of ',' to separate lists so that we can match professor names more easily 
+    //
+    // api?n!CS 450,in!CS 288|CS 280|CS 114
 
     if (!value.includes('!')) {
         // Equivalent to str!X
