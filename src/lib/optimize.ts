@@ -1,63 +1,53 @@
 import type { IPlan, ICourse, ISection, IMeeting } from './interfaces/Plans';
 import type { IFilter } from './interfaces/Filters';
+import { ratePlan } from './ratePlan';
+
 import { searchCourses } from './search';
 import { queryString } from '$lib/filterStore';
 import { get } from 'svelte/store';
+import { planStore } from './planStore';
+import { termStore } from '$lib/termStore';
 import { uuidv4 } from '$lib/uuidv4';
 
-import { planStore } from '$lib/planStore';
-import { ratePlan } from './ratePlan';
-
-export async function optimizePlan(classes : string[], term: string, filters : IFilter[]) : Promise<IPlan | undefined> {
+// Takes in a list of course name strings, filters, and a commuter boolean (for rating the plan)
+// Outputs the schedule with the lowest score using the rating from ratePlan.ts
+// Outputs undefined if no schedule can be made/found
+export async function optimizePlan(classes : string[], filters : IFilter[], isCommuter : boolean) : Promise<IPlan | undefined> {
+	// FIX: logging for the generator
 	const start = Date.now();
+
 	// Gets the sections of the selected classes
-	const courses = await getCourses(classes, term, filters);
+	const courses = await getCourses(classes, filters);
 
 	if(!courses) {
-		console.log("cannot create a valid schedule with those filters");
+		console.log("cannot search for a better schedule with those filters");
 		return;
 	}
-
-	const searchTime = Date.now(); 
 
 	// Generate all possible schedule combinations as plans
-	const allPossiblePlans = generatePlans(courses, term);
+	const allPossiblePlans = generatePlans(courses);
 
 	if(allPossiblePlans.length == 0) {
-		console.log("no valid schedules can be made!")
+		console.log("no valid schedules can be made")
 		return;
 	}
 
-	const planTime = Date.now();
-
 	// Rank the plans using ratePlan.ts	
-	const bestPlan = findBestPlan(allPossiblePlans);	
+	const bestPlan = findBestPlan(allPossiblePlans, isCommuter);	
 	
-	const rankTime = Date.now();
-
-
-	// FIX: performance monitoring
-	console.log(`Searching for courses: ${(searchTime - start) / 1000}s`);
-	console.log(`Generating plans: ${(planTime - searchTime) / 1000}s`);
-	console.log(`Ranking plans: ${(rankTime - planTime) / 1000}s`);
-	console.log(`Total time: ${(rankTime - start) / 1000}s`);
-	
-	// FIX: TEMPORARY, adds the best plan to the plans tab
-	planStore.update((plans) => {
-		bestPlan.name = `Optimized plan ${plans.length + 1}`;
-		plans.push(bestPlan);
-		return plans;
-	});
+	// FIX: logging for the generator
+	console.log(`Took: ${(Date.now() - start)/1000}s to generate`);
 
 	// Return most optimal schedule
 	return bestPlan;
 }
 
 // Searches for each course, storing an array of their sections
-async function getCourses(classes: string[], term: string, filters: IFilter[]) : Promise<{[key: string]: ISection[]} | undefined> {
+async function getCourses(classes: string[], filters: IFilter[]) : Promise<{[key: string]: ISection[]} | undefined> {
 	
 	// Gets the filters from the "filter" section
 	const filter_query = get(queryString);
+	const term = get(termStore).toString();
 	const courses : {[key: string]: ISection[] }= {};
 
 	// Searches for each course
@@ -117,7 +107,7 @@ function filterSections(filters: IFilter[], sections: ISection[]) : ISection[] {
 
 // Creates every possible combination of plans 
 // Filters out any plan that has class conflicts with itself
-function generatePlans(courses : {[key: string]: ISection[]}, term: string) : IPlan[] {
+function generatePlans(courses : {[key: string]: ISection[]}) : IPlan[] {
 	const plans : IPlan[] = [];
 
 	const sectionCounts: number[] = []; // A static list of indexes to reset the indexes
@@ -156,8 +146,8 @@ function generatePlans(courses : {[key: string]: ISection[]}, term: string) : IP
 		// The current plan has a conflict, so void it
 		if(!verifySections(currSectionList)) continue;
 
-		// Converts it to a plan (TODO: maybe do this later in the process?) and stores it
-		plans.push(convertSectionListToPlan(currSectionList, term, courses));
+		// Converts it to a plan and stores it
+		plans.push(convertSectionListToPlan(currSectionList, courses));
 	}
 
 	return plans;
@@ -198,13 +188,13 @@ function verifySections(sections : ISection[]) : boolean {
 }
 
 // Rates and finds the best plan out of an array of plans
-function findBestPlan(plans : IPlan[]) : IPlan {
+function findBestPlan(plans : IPlan[], isCommuter : boolean) : IPlan {
 	let bestScore = 999999999;
 	let bestPlan = {} as IPlan;
 
 	// Loops through all plans to determine which has the smallest score
 	for(const plan of plans) {
-		const score = ratePlan(plan, false); // TODO: fix commuter stuff
+		const score = ratePlan(plan, isCommuter);
 		if(score < bestScore) {
 			bestScore = score;
 			bestPlan = plan;
@@ -215,7 +205,7 @@ function findBestPlan(plans : IPlan[]) : IPlan {
 }
 
 // Converts a list of selected sections into a proper IPlan that the schedule builder can use
-function convertSectionListToPlan(sections : ISections[], term: string, allCourseSections : {[key: string]: ISection[]}) : IPlan {
+function convertSectionListToPlan(sections : ISection[], allCourseSections : {[key: string]: ISection[]}) : IPlan {
 	// Makes a list of the selected sections
 	const selectedSectionList: {[key: string]: string} = {};
 
@@ -239,7 +229,7 @@ function convertSectionListToPlan(sections : ISections[], term: string, allCours
 	const plan = {
 		active: false,
 		courses: courses, 
-		term: term,
+		term: get(termStore).toString(),
 		id: uuidv4(),
 		name: `Optimized Plan`
 	};

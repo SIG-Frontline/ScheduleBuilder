@@ -29,10 +29,9 @@ function convertDayToIndex(day: string) : number {
 
 // Returns the amount of minutes a plan would spend on campus
 // "On campus" being from the start of the first class to the end of the last class on a given day
+// TODO: this could be improved for a better metric/have more parameters to tweak
 export function ratePlan(plan: IPlan, isCommute: boolean) : number {
 
-	//Commute option needs to be intergrated into frontend
-	
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 	
