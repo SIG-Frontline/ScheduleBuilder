@@ -10,18 +10,13 @@ export async function GET( {url} ) {
     const searchParams = url.searchParams;
     console.log("here");
 
-    // add a seach param for Major
+    // TODO: add a seach param for Major
     if (searchParams.has('taken')) {
         const takenClasses = searchParams.get('taken')?.split('|');
         console.log(takenClasses?.toString());
         const availableClasses = await getAvailableClasses(takenClasses);
-        /*
-        return new Response(JSON.stringify({ availableClasses }), {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        */
+        console.log("L:",availableClasses.length);
+      
         return new Response(JSON.stringify(availableClasses), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
@@ -51,8 +46,6 @@ function invertTree(possible_prereqs: Map<string, null|string[]>){
 }
 
 async function flattenTree(tree: null|string|string[]|ReqTree) {
-    //console.log(tree);
-
     if (tree == null) return null;
 
     const courses: string[] = [];
@@ -65,15 +58,12 @@ async function flattenTree(tree: null|string|string[]|ReqTree) {
     for (const i in tree){
         if (Array.isArray(tree[i])){
             const flatTree = await flattenTree(tree[i]);
-            //console.log("FlatTree:", flatTree)
-            if(flatTree != null){
+         
+            if(flatTree != null)
                 courses.push(...flatTree);
-                //console.log("Concat:",courses)
-            }
-
+            
         } else if(tree[i] != '|' && tree[i] !='&')
             courses.push(tree[i]);
-        //console.log("BRANCH:",courses);
     }
 
     return courses
@@ -101,20 +91,14 @@ async function getAvailableClasses(takenClasses?: string[]) {
         courseMap.set(course._id, course);  
     });
 
-    //console.log(static_courses);
-    console.log("here");
-    console.log(courseMap.get('CS 350'));
-    
     const possible_prereqs = new Map<string, null|string[]>();
     for(const [k,v] of courseMap.entries()){
         const branch = await flattenTree(v.tree);
         possible_prereqs.set(k,branch);
     }
         
-    //invert the tree
     const possible_available_classes = invertTree(possible_prereqs)
     
-    //console.log(possible_available_classes);
     
     //filter courses
     const availableClasses: string[] = [];
