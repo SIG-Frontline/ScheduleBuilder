@@ -129,19 +129,16 @@ async function getAvailableClasses(takenClasses?: string[]) {
             if(currCourseTree == null)
                 continue;
 
-            if (courseName == "CS 350"){
-
-                console.log("AHHHHHH")
-                console.log(currCourseTree.length)
-                console.log(check_tree(currCourseTree,takenClasses))
-            }
-
             if( !checked_courses.has(currCourse[Number(j)]) && check_tree(currCourseTree,takenClasses) )
                 availableClasses.push(courseName);
             checked_courses.add(courseName)
         }
     }
     
-    return availableClasses;
+    const availableCourses = static_courses.filter(course => 
+        availableClasses.includes(course._id)
+    );
+    
+    return availableCourses;
     
 }
