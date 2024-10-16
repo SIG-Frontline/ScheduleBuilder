@@ -1,6 +1,7 @@
 import PlansTab from '../components/Tabs/PlansTab.svelte';
 import SearchTab from '../components/Tabs/SearchTab.svelte';
 import FilterTab from '../components/Tabs/FilterTab.svelte';
+import PrereqTab from '../components/Tabs/PrereqTab.svelte';
 
 export const THEMES = [
 	{
@@ -66,5 +67,11 @@ export const TABS = [
 		icon: 'list', //material-symbols icon name
 		label: 'plans',
 		component: PlansTab
+	},
+	{
+		id: 'prereqs',
+		icon: 'signpost', //material-symbols icon name
+		label: 'prereqs',
+		component: PrereqTab
 	}
 ];

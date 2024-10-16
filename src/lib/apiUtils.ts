@@ -4,6 +4,10 @@ export function check_tree(tree: ReqTree, requisites: string[]) {
     if (tree === null || tree === undefined || tree.length <= 0) {
         return true
     }
+    
+    if (typeof tree === 'string') 
+        return requisites.includes(tree as string)
+
     let is_and = tree[0] === '&'
 
     for (let i = 1; i < tree.length; i++) {
