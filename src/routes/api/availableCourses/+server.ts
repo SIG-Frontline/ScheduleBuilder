@@ -8,21 +8,20 @@ import type { REPLCommand } from 'repl';
 export async function GET( {url} ) {
    const query = {};
     const searchParams = url.searchParams;
-    console.log("here");
 
     // TODO: add a seach param for Major
     if (searchParams.has('taken')) {
         const takenClasses = searchParams.get('taken')?.split('|');
         console.log(takenClasses?.toString());
         const availableClasses = await getAvailableClasses(takenClasses);
-        console.log("L:",availableClasses.length);
-      
+        
         return new Response(JSON.stringify(availableClasses), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }
         });
     } 
     const noPrereqClasses = await getAvailableClasses(); 
+
     return new Response(JSON.stringify({ noPrereqClasses }), {
         headers: {
             'Content-Type': 'application/json'
