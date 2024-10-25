@@ -68,6 +68,22 @@ export const queryString = derived(filterStore, ($filter) => {
     console.log($filter)
     return params.toString();
 });
+
+export const isFilterActive = derived(filterStore, (filter) => {
+    return (Object.keys(defaultData) as Array<keyof typeof defaultData>).every((key) => {
+        // For array properties, perform a shallow comparison to check if the arrays contain the same elements
+        if (Array.isArray(defaultData[key])) {
+            return (
+                Array.isArray(filter[key]) &&
+                (defaultData[key] as unknown[]).length === (filter[key] as unknown[]).length &&
+                (defaultData[key] as unknown[]).every((val, index) => val === (filter[key] as unknown[])[index])
+            );
+        }
+        // For other properties, perform a strict equality check
+        return filter[key] === defaultData[key];
+    });
+})
+
 filterStore.subscribe((value) => {
 	if (browser) {
         console.log(defaultData)

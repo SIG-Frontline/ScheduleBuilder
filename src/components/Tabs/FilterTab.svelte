@@ -132,23 +132,25 @@
     {/if}
   </div>
 
-  <label>
-    <b>Conflict Avoidance</b>
-    <span class="material-symbols-outlined small-icon" title="Filter by whether a section conflicts with already planned blocks.">info</span>
-  </label>
-  <div>
+  <div class="opacity-50 pointer-events-none cursor-not-allowed" title="This section is currently not functional">
     <label>
-      <input type="radio" bind:group={$filterStore.avoidMode} value="None" /> None
+      <b>Conflict Avoidance (WIP)</b>
+      <span class="material-symbols-outlined small-icon" title="Filter by whether a section conflicts with already planned blocks.">info</span>
     </label>
-    <label>
-      <input type="radio" bind:group={$filterStore.avoidMode} value="Sections" /> Avoid Planned Sections
-    </label>
-    <label>
-      <input type="radio" bind:group={$filterStore.avoidMode} value="Events" /> Avoid Custom Events
-    </label>
-    <label>
-      <input type="radio" bind:group={$filterStore.avoidMode} value="All" /> Avoid All
-    </label>
+    <div>
+      <label>
+        <input type="radio" bind:group={$filterStore.avoidMode} value="None" /> None
+      </label>
+      <label>
+        <input type="radio" bind:group={$filterStore.avoidMode} value="Sections" /> Avoid Planned Sections
+      </label>
+      <label>
+        <input type="radio" bind:group={$filterStore.avoidMode} value="Events" /> Avoid Custom Events
+      </label>
+      <label>
+        <input type="radio" bind:group={$filterStore.avoidMode} value="All" /> Avoid All
+      </label>
+    </div>
   </div>
 
   <!-- Section Status - Radio -->
