@@ -1,17 +1,17 @@
 import { courseCache, type CourseDocument, type ReqTree } from "./mongoClient";
 
 export function check_tree(tree: ReqTree, requisites: string[]) {
-    if (tree === null || tree === undefined || tree.length <= 0) {
+    if (!tree) {
         return true
-    }
-    
-    if (typeof tree === 'string') 
+    } else if (typeof tree === 'string') {
         return requisites.includes(tree as string)
+    }
 
     let is_and = tree[0] === '&'
 
     for (let i = 1; i < tree.length; i++) {
-        let is_condition_valid = undefined
+        let is_condition_valid;
+
         if (typeof tree[i] === 'string') {
             is_condition_valid = requisites.includes(tree[i] as string)
         } else {
