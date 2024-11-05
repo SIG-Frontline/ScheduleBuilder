@@ -13,18 +13,13 @@ COPY . .
 RUN pnpm run build
 RUN pnpm prune --prod
 
-FROM node:20-alpine AS deployer
+FROM nginx:alpine AS deployer
 
 WORKDIR /app
 
-COPY --from=builder /app/build build/
-COPY --from=builder /app/package.json .
+COPY --from=builder /app/frontend.conf /etc/nginx/conf.d/frontend.conf 
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-EXPOSE 3000
+EXPOSE 80
 
-ENV NODE_ENV=production
-
-CMD [ "node", "build" ]
-
-
-
+CMD ["nginx", "-g", "daemon off;"]
