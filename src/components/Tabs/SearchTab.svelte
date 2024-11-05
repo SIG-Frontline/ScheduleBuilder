@@ -12,7 +12,7 @@
 	} from '@skeletonlabs/skeleton';
 	import { queryString } from '$lib/filterStore';
 	import { get } from 'svelte/store';
-	import { searchCourses } from '$lib/search'
+	import { searchCourses } from '$lib/search';
 
 	let search = '';
 
@@ -20,9 +20,9 @@
 
 	let firstMinoftoday = new Date();
 	firstMinoftoday.setHours(0, 0, 0, 0);
-	const filter_query = get(queryString)
+	const filter_query = get(queryString);
 	async function onSearch(searchval: string) {
-		autocompleteOptions = await searchCourses(searchval, $termStore.toString(), filter_query)
+		autocompleteOptions = await searchCourses(searchval, $termStore.toString(), filter_query);
 	}
 
 	async function onSelection(event: CustomEvent<AutocompleteOption<string>>): Promise<void> {
@@ -65,7 +65,6 @@
 
 <h3 class="h3 mt-3 text-center">Search</h3>
 <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
-	<div class="input-group-shim"><span class="material-symbols-outlined">search</span></div>
 	<input
 		type="search"
 		name="demo"
@@ -73,11 +72,17 @@
 		on:input={onInput}
 		bind:value={search}
 		placeholder="Search..."
+		autocomplete="off"
 	/>
 </div>
 
 <div class="card max-h-48 w-full max-w-sm overflow-y-auto p-4" tabindex="-1">
-	<Autocomplete bind:input={search} options={autocompleteOptions} on:selection={onSelection} />
+	<Autocomplete
+		transitions={false}
+		bind:input={search}
+		options={autocompleteOptions}
+		on:selection={onSelection}
+	/>
 </div>
 
 {#if jsondata?.courses?.length > 0}
