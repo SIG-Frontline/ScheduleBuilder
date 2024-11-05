@@ -4,6 +4,10 @@ export function check_tree(tree: ReqTree, requisites: string[]) {
     if (tree === null || tree === undefined || tree.length <= 0) {
         return true
     }
+    
+    if (typeof tree === 'string') 
+        return requisites.includes(tree as string)
+
     let is_and = tree[0] === '&'
 
     for (let i = 1; i < tree.length; i++) {
@@ -85,6 +89,8 @@ export function addQuery(
     // nstr!X - Match this key to anything except X, without converting X
     //
     // Note: We use '|' instead of ',' to separate lists so that we can match professor names more easily 
+    //
+    // api?n!CS 450,in!CS 288|CS 280|CS 114
 
     if (!value.includes('!')) {
         // Equivalent to str!X
