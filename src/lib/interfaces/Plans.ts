@@ -1,9 +1,9 @@
-interface ICourse {
+/*interface ICourse {
 	_id: string;
 	sections: ISection[];
 	course: string;
 	selectedSection: string;
-}
+}*/
 interface ISection {
 	SECTION: string;
 	COURSE: string;
@@ -17,7 +17,7 @@ interface ISection {
 }
 interface IPlan {
 	active: boolean;
-	courses: ICourse[];
+	sections: ISection[];
 	term: string;
 	id: string;
 	name: string;
@@ -33,4 +33,4 @@ interface IPlanStore {
 	plans: IPlan[];
 	find: (value: (p: IPlan) => boolean) => IPlan;
 }
-export type { IPlan, IPlanStore, ISection, ICourse, IMeeting };
+export type { IPlan, IPlanStore, ISection, IMeeting };

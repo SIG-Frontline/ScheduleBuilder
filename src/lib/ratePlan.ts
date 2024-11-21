@@ -35,15 +35,7 @@ export function ratePlan(plan: IPlan, isCommute: boolean) : number {
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 	
-	for(const course of plan.courses) {
-		let section;
-
-		// Gets the selected section for that course
-		for(const s of course.sections) {
-			if(s.SECTION == course.selectedSection) section = s;
-		}
-		if(!section) continue;
-
+	for(const section of plan.sections) {
 		// Loops through each meeting of that day
 		for(const meeting of section.TIMES) {
 			// Gets the start and end time and sees if it earlier/later than our currently stored start/end time for that day
