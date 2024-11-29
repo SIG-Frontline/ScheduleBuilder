@@ -1,4 +1,4 @@
-import type { IPlan, ICourse, ISection, IMeeting } from './interfaces/Plans';
+import type { IPlan, ISection, IMeeting } from './interfaces/Plans';
 import type { IFilter } from './interfaces/Filters';
 import { ratePlan } from './ratePlan';
 
@@ -146,14 +146,23 @@ function generatePlans(courses : {[key: string]: ISection[]}) : IPlan[] {
 		// The current plan has a conflict, so void it
 		if(!verifySections(currSectionList)) continue;
 
+		const plan = {
+			active: false,
+			sections:currSectionList,
+			term: get(termStore).toString(),
+			id: uuidv4(),
+			name: `Optimized Plan`
+		};
+
 		// Converts it to a plan and stores it
-		plans.push(convertSectionListToPlan(currSectionList, courses));
+		plans.push(plan);
 	}
 
 	return plans;
 }
 
 // Verifies if a specific plan does not have any conflicts with itself
+// This could possibly be optimized by sorting
 function verifySections(sections : ISection[]) : boolean {
 	// Compares every section
 	for(let i = 0; i < sections.length - 1; i++) {
@@ -204,35 +213,3 @@ function findBestPlan(plans : IPlan[], isCommuter : boolean) : IPlan {
 	return bestPlan; 
 }
 
-// Converts a list of selected sections into a proper IPlan that the schedule builder can use
-function convertSectionListToPlan(sections : ISection[], allCourseSections : {[key: string]: ISection[]}) : IPlan {
-	// Makes a list of the selected sections
-	const selectedSectionList: {[key: string]: string} = {};
-
-	for(const section of Object.values(sections)) {
-		selectedSectionList[section["COURSE"]] = section["SECTION"];
-	}
-
-	// Adds all the courses in the proper format
-	const courses : ICourse[] = [];
-
-	for(const [courseName, sectionList] of Object.entries(allCourseSections)) {
-		const course : ICourse = {
-			sections: sectionList,
-			course: courseName,
-			selectedSection: selectedSectionList[courseName],
-		}		
-		courses.push(course);
-	}
-
-	// Creates the final plan
-	const plan = {
-		active: false,
-		courses: courses, 
-		term: get(termStore).toString(),
-		id: uuidv4(),
-		name: `Optimized Plan`
-	};
-
-	return plan;
-}
