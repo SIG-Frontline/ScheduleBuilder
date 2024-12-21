@@ -12,11 +12,13 @@ import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
+
 import {
   ColorSchemeScript,
   MantineProvider,
   mantineHtmlProps,
 } from "@mantine/core";
+import Shell from "@/components/Shell/Shell";
 
 export const metadata: Metadata = {
   title: "Schedule Builder",
@@ -34,7 +36,9 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider>
+          <Shell>{children}</Shell>
+        </MantineProvider>
       </body>
     </html>
   );
