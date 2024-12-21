@@ -1,36 +1,36 @@
-# SIG Frontline - Frontend
-
-## Tools
-
-- [svelte](https://svelte.dev/)
-- [sveltekit](https://kit.svelte.dev/)
-- [tailwindcss](https://tailwindcss.com/)
-- [skeleton](https://www.skeleton.dev/)
-- [pnpm](https://pnpm.io/)
-- [vite](https://vitejs.dev/)
-- [prettier](https://prettier.io/)
-- [eslint](https://eslint.org/)
-- [typescript](https://www.typescriptlang.org/)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-**Before anything, make sure you have the environment variables set up, you can find the `.env.example` file in the root of the project, you can copy it and rename it to `.env.local` and fill in the values.**
-
-Then you can run the following commands:
+First, run the development server:
 
 ```bash
-pnpm install # this will install all dependencies, make sure you have pnpm installed - https://pnpm.io/installation
-pnpm dev # this will start the development server, it will print the url in the console
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Folder Structure
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-`/src` - Contains all the source code for the project
-`/src/lib` - Contains all the utility functions and TS files
-`src/components` - Contains all the components for the project
-`src/routes` - Contains all the routes for the project
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- `src/routes/api` - Contains all the api routes
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-`src/themes` - Contains all the custom theme files for the project  
-`/static` - Contains all the static files for the project, whrn accessing the URL for these don't inclide the /static in the path
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

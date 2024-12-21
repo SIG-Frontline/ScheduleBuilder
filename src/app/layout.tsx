@@ -1,0 +1,41 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+// All packages except `@mantine/hooks` require styles imports
+import "material-symbols";
+import "@mantine/core/styles.css";
+import "@mantine/charts/styles.css";
+import "@mantine/code-highlight/styles.css";
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/dropzone/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/spotlight/styles.css";
+import "@mantine/nprogress/styles.css";
+import {
+  ColorSchemeScript,
+  MantineProvider,
+  mantineHtmlProps,
+} from "@mantine/core";
+
+export const metadata: Metadata = {
+  title: "Schedule Builder",
+  description: "Schedule Builder for SIG-Frontline",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" {...mantineHtmlProps}>
+      <head>
+        <ColorSchemeScript />
+      </head>
+      <body>
+        <MantineProvider>{children}</MantineProvider>
+      </body>
+    </html>
+  );
+}
