@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Table } from "@mantine/core";
+import Cal_Event from "../Cal_Event/Cal_Event";
 const Days_Of_Week = [
   {
     day: "Sunday",
@@ -59,11 +60,16 @@ const Cal_Grid = () => {
   ));
   return (
     <>
+      {/* <Cal_Event /> */}
       <Table
         stickyHeader
         stickyHeaderOffset={60}
         withColumnBorders
         withRowBorders={false}
+        style={{
+          marginBottom: "8rem",
+          pointerEvents: "none",
+        }}
       >
         <Table.Thead>
           <Table.Tr>

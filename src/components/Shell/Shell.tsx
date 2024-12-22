@@ -16,7 +16,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
       <AppShell.Main
         style={{
-          maxHeight: "calc(100vh - 60px)",
+          maxHeight: "calc(100vh - 60px - 656px)",
         }}
       >
         {children}
