@@ -14,7 +14,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         <Nav />
       </AppShell.Footer>
 
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main
+        style={{
+          maxHeight: "calc(100vh - 60px)",
+        }}
+      >
+        {children}
+      </AppShell.Main>
     </AppShell>
   );
 }

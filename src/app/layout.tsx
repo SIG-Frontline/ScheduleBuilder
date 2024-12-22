@@ -37,7 +37,9 @@ export default function RootLayout({
       </head>
       <body>
         <MantineProvider>
-          <Shell>{children}</Shell>
+          <div style={{ overflow: "auto" }}>
+            <Shell>{children}</Shell>
+          </div>
         </MantineProvider>
       </body>
     </html>
