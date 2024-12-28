@@ -52,7 +52,9 @@ const timestamps = (() => {
 const Cal_Grid = () => {
   const rows = timestamps.map((ts) => (
     <Table.Tr key={ts}>
-      <Table.Td w={100}>{ts}</Table.Td>
+      <Table.Td className={"sticky left-0"} w={100}>
+        {ts}
+      </Table.Td>
       {Days_Of_Week.map((day) => (
         <Table.Td key={day.day}></Table.Td>
       ))}
@@ -62,6 +64,7 @@ const Cal_Grid = () => {
     <>
       {/* <Cal_Event /> */}
       <Table
+        layout="fixed"
         stickyHeader
         stickyHeaderOffset={60}
         withColumnBorders
@@ -69,11 +72,14 @@ const Cal_Grid = () => {
         style={{
           marginBottom: "8rem",
           pointerEvents: "none",
+          minWidth: "60em",
         }}
       >
         <Table.Thead>
           <Table.Tr>
-            <Table.Th w={100}>Time</Table.Th>
+            <Table.Th className={"sticky left-0"} w={100}>
+              Time
+            </Table.Th>
             {Days_Of_Week.map((day) => (
               <Table.Th ta={"center"} key={day.day}>
                 {day.day}
