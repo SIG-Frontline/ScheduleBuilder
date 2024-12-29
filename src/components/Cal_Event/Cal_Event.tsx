@@ -1,28 +1,35 @@
 import React from "react";
 import { Card, Text, Badge } from "@mantine/core";
-const Cal_Event = ({}) => {
+interface Cal_Event_Props {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+const Cal_Event = ({ top, left, width, height }: Cal_Event_Props) => {
   return (
     <>
       <Card
         shadow="sm"
-        padding="lg"
-        maw={"20em"} //temporary
+        padding="sm"
         radius="md"
         bg={"#E9A1A1"}
         withBorder
+        style={{ top: top, left: left, width: width, height: height }}
+        className="!absolute"
       >
-        <Badge color="white" size="sm">
-          <Text className={"!text-black"} fw={500}>
+        <Badge color="white" size="xs">
+          <Text className={"!text-black"} size="xs" fw={500}>
             IT 114 ADV PROGRAM FOR INFOR TECH
           </Text>
         </Badge>
-        <Text className={"!text-black"} fw={400}>
+        <Text className={"!text-black"} size="xs" fw={400}>
           CKB 234
         </Text>
-        <Text className={"!text-black"} fw={400}>
+        <Text className={"!text-black"} size="xs" fw={400}>
           11:30am - 12:50 am
         </Text>
-        <Text className={"!text-black"} fw={400}>
+        <Text className={"!text-black"} size="xs" fw={400}>
           Matthew Toegel
         </Text>
       </Card>

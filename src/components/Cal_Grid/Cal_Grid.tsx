@@ -3,6 +3,7 @@
 import React from "react";
 import { Table } from "@mantine/core";
 import Cal_Event from "../Cal_Event/Cal_Event";
+import { useResizeObserver } from "@mantine/hooks";
 const Days_Of_Week = [
   {
     day: "Sunday",
@@ -50,20 +51,34 @@ const timestamps = (() => {
 })();
 
 const Cal_Grid = () => {
+  const [dayref, dayrect] = useResizeObserver();
+  const [timeref, timerect] = useResizeObserver();
   const rows = timestamps.map((ts) => (
     <Table.Tr key={ts}>
-      <Table.Td className={"sticky left-0"} w={100}>
+      <Table.Td ref={timeref} className={"sticky left-0"} w={100}>
         {ts}
       </Table.Td>
       {Days_Of_Week.map((day) => (
-        <Table.Td key={day.day}></Table.Td>
+        <Table.Td ref={dayref} key={day.day}></Table.Td>
       ))}
     </Table.Tr>
   ));
   return (
-    <>
-      {/* <Cal_Event /> */}
+    <div className="relative">
+      <Cal_Event
+        top={350}
+        left={timerect?.width + 4 * dayrect?.width}
+        width={dayrect?.width}
+        height={100}
+      />
+      <Cal_Event
+        top={350}
+        left={timerect?.width + 2 * dayrect?.width}
+        width={dayrect?.width}
+        height={100}
+      />
       <Table
+        horizontalSpacing={0}
         layout="fixed"
         stickyHeader
         stickyHeaderOffset={60}
@@ -89,7 +104,7 @@ const Cal_Grid = () => {
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
       </Table>
-    </>
+    </div>
   );
 };
 
