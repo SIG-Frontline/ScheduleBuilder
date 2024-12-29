@@ -8,6 +8,7 @@ import Tab_Optimizer from "@/components/Tabs/Tab_Optimizer/Tab_Optimizer";
 import Tab_Plans from "@/components/Tabs/Tab_Plans/Tab_Plans";
 import Tab_Settings from "@/components/Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
+import Search from "../Search/Search";
 
 const tabData = [
   {
@@ -44,23 +45,26 @@ const tabData = [
 
 export default function Home() {
   return (
-    <Tabs defaultValue="settings" inverted>
-      <Tabs.List justify="start" grow classNames={{ list: classes.list }}>
+    <>
+      <Search />
+      <Tabs defaultValue="settings" inverted>
+        <Tabs.List justify="start" grow classNames={{ list: classes.list }}>
+          {tabData.map((tab) => (
+            <Tabs.Tab key={tab.value} value={tab.value}>
+              <span className="flex items-center flex-col">
+                <Icon>{tab.icon}</Icon>
+                {tab.label}{" "}
+              </span>
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
         {tabData.map((tab) => (
-          <Tabs.Tab key={tab.value} value={tab.value}>
-            <span className="flex items-center flex-col">
-              <Icon>{tab.icon}</Icon>
-              {tab.label}{" "}
-            </span>
-          </Tabs.Tab>
+          <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
+            {/* {tab.label} */}
+            <tab.component />
+          </Tabs.Panel>
         ))}
-      </Tabs.List>
-      {tabData.map((tab) => (
-        <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
-          {/* {tab.label} */}
-          <tab.component />
-        </Tabs.Panel>
-      ))}
-    </Tabs>
+      </Tabs>
+    </>
   );
 }
