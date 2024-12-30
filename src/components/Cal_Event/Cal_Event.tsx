@@ -18,7 +18,7 @@ const Cal_Event = ({ top, left, width, height }: Cal_Event_Props) => {
         style={{ top: top, left: left, width: width, height: height }}
         className="!absolute"
       >
-        <Badge color="white" size="xs">
+        <Badge color="white" size="xs" mih={"15px"}>
           <Text className={"!text-black"} size="xs" fw={500}>
             IT 114 ADV PROGRAM FOR INFOR TECH
           </Text>
