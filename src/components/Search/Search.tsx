@@ -15,7 +15,9 @@ export default function Search() {
   useEffect(() => {
     getSubjects(202490).then((res) => {
       //server side fn to get subjects
-      const courses = res.map((course: { SUBJECT: string }) => course.SUBJECT);
+      const courses = res.subjects.map(
+        (course: { SUBJECT: string }) => course.SUBJECT
+      );
       setSubjectOptions(courses);
     });
   }, []); //on mount - no dependencies
