@@ -78,7 +78,7 @@ function MenuElms() {
     ],
   } as DropDownMenuItems;
   return (
-    <Menu trigger="click-hover" shadow="lg" openDelay={100} closeDelay={400}>
+    <Menu trigger="click" shadow="lg" openDelay={100} closeDelay={400}>
       <Menu.Target>
         <ActionIcon
           variant="subtle"
