@@ -67,13 +67,22 @@ export function convertString(
   return input;
 }
 
+/**
+ *
+ * @param query - The query object to add the key-value pair to
+ * @param key - The key to add to the query object
+ * @param value - The value to add to the query object
+ * @param preserveType - Whether to preserve the type of the value
+ * @returns
+ */
 export function addQuery(
   query: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   },
   key: string,
-  value: string
+  value: string,
+  preserveType?: boolean
 ) {
   // Queries have a special format to allow for different operations
   // These are split by an '!' character, in the following format: operation!value
@@ -95,7 +104,7 @@ export function addQuery(
 
   if (!value.includes("!")) {
     // Equivalent to str!X
-    query[key] = { $eq: convertString(value) };
+    query[key] = { $eq: preserveType ? value : convertString(value) };
     return;
   }
 
