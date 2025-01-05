@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { createRef, useEffect, useMemo, useState } from "react";
 import { Chip, TextInput, Group } from "@mantine/core";
 import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
@@ -12,6 +12,7 @@ export default function Search() {
     return textBoxValue.replace(selectedSubject, "").trim();
   }, [textBoxValue, selectedSubject]);
 
+  const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
     getSubjects(202490).then((res) => {
       //server side fn to get subjects
@@ -71,7 +72,19 @@ export default function Search() {
           setTextBoxValue(textBoxValue + val);
         }}
       >
-        <Group className="flex flex-row !flex-nowrap py-2">
+        <Group
+          className="flex flex-row !flex-nowrap py-2 overflow-x-auto no-scrollbar"
+          ref={chipGroupRef}
+          onWheel={(e) => {
+            // comment out to preserve default scrolling:
+            // e.preventDefault();
+            if (e.deltaY > 0 && chipGroupRef.current) {
+              chipGroupRef.current.scrollLeft += 100;
+            } else if (e.deltaY < 0 && chipGroupRef.current) {
+              chipGroupRef.current.scrollLeft -= 100;
+            }
+          }}
+        >
           {selectedSubject}
           {chipOptions.map((option) => (
             <Chip

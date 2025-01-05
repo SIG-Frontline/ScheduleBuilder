@@ -9,6 +9,7 @@ import Tab_Plans from "@/components/Tabs/Tab_Plans/Tab_Plans";
 import Tab_Settings from "@/components/Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
 import Search from "../Search/Search";
+import { createRef } from "react";
 
 const tabData = [
   {
@@ -44,11 +45,28 @@ const tabData = [
 ];
 
 export default function Home() {
+  const tabRef = createRef<HTMLDivElement>();
+
   return (
     <>
       <Search />
       <Tabs defaultValue="settings" inverted>
-        <Tabs.List justify="start" grow classNames={{ list: classes.list }}>
+        <Tabs.List
+          justify="start"
+          grow
+          className={"no-scrollbar"}
+          classNames={{ list: classes.list }}
+          ref={tabRef}
+          onWheel={(e) => {
+            // comment out to preserve default scrolling:
+            // e.preventDefault();
+            if (e.deltaY > 0 && tabRef.current) {
+              tabRef.current.scrollLeft += 100;
+            } else if (e.deltaY < 0 && tabRef.current) {
+              tabRef.current.scrollLeft -= 100;
+            }
+          }}
+        >
           {tabData.map((tab) => (
             <Tabs.Tab key={tab.value} value={tab.value}>
               <span className="flex items-center flex-col">
