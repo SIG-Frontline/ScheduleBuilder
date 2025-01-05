@@ -4,7 +4,13 @@ import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
 import { getSections } from "@/actions/getSections";
 
-export default function Search() {
+export default function Search({
+  onFocused,
+  onBlurred,
+}: {
+  onFocused: () => void;
+  onBlurred: () => void;
+}) {
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
   const [classOptions, setClassOptions] = useState<string[]>([]);
@@ -64,6 +70,8 @@ export default function Search() {
   return (
     <>
       <TextInput
+        onFocus={onFocused}
+        onBlur={onBlurred}
         placeholder="Pick value"
         value={textBoxValue}
         onChange={(event) => setTextBoxValue(event.currentTarget.value)}
