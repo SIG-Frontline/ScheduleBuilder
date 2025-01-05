@@ -14,11 +14,8 @@ export default function Search() {
 
   const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
-    getSubjects(202490).then((res) => {
+    getSubjects(202490).then((courses) => {
       //server side fn to get subjects
-      const courses = res.subjects.map(
-        (course: { SUBJECT: string }) => course.SUBJECT
-      );
       setSubjectOptions(courses);
     });
   }, []); //on mount - no dependencies
@@ -42,12 +39,8 @@ export default function Search() {
     if (subjectOptions.includes(textBoxValue)) {
       //if there is a subject in the textbox like CS, and it is not set as the selected subject
       setSelectedSubject(textBoxValue);
-      getClasses(202490, textBoxValue).then((res) => {
+      getClasses(202490, textBoxValue).then((classes) => {
         //server side fn to get classes for the subject - only called when a subject is selected
-        const classes = res.courses.map(
-          //get the coruse._id
-          (course: { _id: string }) => course._id
-        );
         setClassOptions(classes);
         console.log("classes", classes);
       });
@@ -67,10 +60,10 @@ export default function Search() {
         onChange={(event) => setTextBoxValue(event.currentTarget.value)}
       />
       <Chip.Group
-        multiple={false}
         onChange={(val) => {
           setTextBoxValue(textBoxValue + val);
         }}
+        value={[]} //this is so when a chip is clicked, and then the textbox is changed, the chip is not visually selected
       >
         <Group
           className="flex flex-row !flex-nowrap py-2 overflow-x-auto no-scrollbar"
@@ -85,7 +78,7 @@ export default function Search() {
             }
           }}
         >
-          {selectedSubject}
+          {/* {selectedSubject} */}
           {chipOptions.map((option) => (
             <Chip
               key={option}
