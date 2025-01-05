@@ -43,8 +43,9 @@ export default function Search() {
       setSelectedSubject(textBoxValue);
       getClasses(202490, textBoxValue).then((res) => {
         //server side fn to get classes for the subject - only called when a subject is selected
-        const classes = res.map(
-          (course: { COURSE_NUMB: string }) => course.COURSE_NUMB
+        const classes = res.courses.map(
+          //get the coruse._id
+          (course: { _id: string }) => course._id
         );
         setClassOptions(classes);
         console.log("classes", classes);
