@@ -10,7 +10,7 @@ const Header = () => {
           className="overflow-hidden whitespace-nowrap text-ellipsis !text-nowrap "
           order={1}
         >
-          Schdule Builder
+          Schedule Builder
         </Title>
         <Button rightSection={<Icon>login</Icon>}>Login</Button>
       </Flex>
