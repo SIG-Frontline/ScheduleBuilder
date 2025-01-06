@@ -1,4 +1,4 @@
-import mongodb from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 // import { SCHEDULEBUILDER_DB_URI, BUILDER_NS } from '$env/static/private';
 const SCHEDULEBUILDER_DB_URI = process.env.SCHEDULEBUILDER_DB_URI;
 if (!SCHEDULEBUILDER_DB_URI) {
@@ -6,7 +6,7 @@ if (!SCHEDULEBUILDER_DB_URI) {
 }
 const BUILDER_NS = process.env.BUILDER_NS ?? "Schedule_Builder";
 
-export const client = new mongodb.MongoClient(SCHEDULEBUILDER_DB_URI);
+export const client = new MongoClient(SCHEDULEBUILDER_DB_URI);
 await client.connect(); //top level await
 
 // TYPES FOR Sections Collection
@@ -259,7 +259,7 @@ class CourseCache {
   private courses: CourseDocument[] = [];
   private lastRetrieved: Date | null = null;
 
-  constructor(private collection: mongodb.Collection<CourseDocument>) {}
+  constructor(private collection: Collection<CourseDocument>) {}
 
   /**
    * Retrieves the list of courses. If the list was last retrieved more than an hour ago,

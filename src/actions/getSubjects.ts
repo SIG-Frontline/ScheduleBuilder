@@ -1,7 +1,7 @@
 "use server";
 
 export async function getSubjects(term: number) {
-  const URL = `http://localhost:3000/api/subjects/${term}`;
+  const URL = `http://localhost:3000/api/subjects/?term=${term}`;
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => data.subjects)
