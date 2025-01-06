@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ActionIcon, FloatingIndicator, Menu, Tabs } from "@mantine/core";
 import classes from "./Plans.module.css";
 import Icon from "@/components/Icon/Icon";
+import { planStore } from "@/lib/planStore";
 
 const Plans = () => {
   const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
@@ -14,12 +15,16 @@ const Plans = () => {
     setControlsRefs(controlsRefs);
   };
 
-  const tabsData = [
+  let tabsData = [
     { value: "1", label: "First tab" },
     { value: "2", label: "Second tab" },
     { value: "3", label: "Third tab" },
   ];
 
+  const plans = planStore((state) => state.plans);
+  tabsData = plans.map((plan) => {
+    return { value: plan.uuid, label: plan.name };
+  });
   return (
     <Tabs
       variant="none"
@@ -42,7 +47,7 @@ const Plans = () => {
             className={classes.tab}
           >
             <p>{tab.label}</p>
-            <MenuElms />
+            <MenuElms tabInfo={tab} />
           </Tabs.Tab>
         ))}
         <FloatingIndicator
@@ -56,27 +61,60 @@ const Plans = () => {
 };
 
 export default Plans;
-
-function MenuElms() {
+type MenuElmsProps = {
+  tabInfo: { value: string; label: string };
+};
+function MenuElms({ tabInfo }: MenuElmsProps) {
   type DropDownMenuItem = {
     label: string;
     icon: string;
     color?: string;
+    onAction: (
+      ev: CustomEvent,
+      tabinfo: { value: string; label: string }
+    ) => void;
   };
   type DropDownMenuItems = {
     [key: string]: DropDownMenuItem[];
   };
   const dropDownMenuItems = {
     "Plan options": [
-      { label: "Edit", icon: "edit" },
-      { label: "Select for Compare", icon: "compare_arrows" },
-      { label: "Share & Export", icon: "share" },
+      {
+        label: "Edit",
+        icon: "edit",
+        onAction: (ev, tabinfo) => console.log("edit"),
+      },
+      {
+        label: "Select for Compare",
+        icon: "compare_arrows",
+        onAction: (ev, tabinfo) => console.log("select for compare"),
+      },
+      {
+        label: "Share & Export",
+        icon: "share",
+        onAction: (ev, tabinfo) => console.log("share & export"),
+      },
     ],
     "Danger zone": [
-      { label: "No Guardrails Mode", icon: "thumb_down", color: "red" },
-      { label: "Delete Plan", icon: "delete", color: "red" },
+      {
+        label: "No Guardrails Mode",
+        icon: "thumb_down",
+        color: "red",
+        onAction: (ev, tabinfo) => console.log("no guardrails mode"),
+      },
+      {
+        label: "Delete Plan",
+        icon: "delete",
+        color: "red",
+        onAction: (e) => {
+          console.log("delete plan");
+          deletePlan(tabInfo.value);
+        },
+      },
     ],
   } as DropDownMenuItems;
+  const deletePlan = planStore((state) => state.removePlan);
+
   return (
     <Menu trigger="click" shadow="lg" openDelay={100} closeDelay={400}>
       <Menu.Target>
@@ -98,6 +136,7 @@ function MenuElms() {
                 key={item.label}
                 color={item.color}
                 leftSection={<Icon>{item.icon}</Icon>}
+                onClick={(e) => item.onAction(e, tabInfo)}
               >
                 {item.label}
               </Menu.Item>
