@@ -1,8 +1,37 @@
-import { useState } from "react";
-import { ActionIcon, FloatingIndicator, Menu, Tabs } from "@mantine/core";
+import { useEffect, useState } from "react";
+import {
+  ActionIcon,
+  Badge,
+  FloatingIndicator,
+  Menu,
+  Tabs,
+} from "@mantine/core";
 import classes from "./Plans.module.css";
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/planStore";
+
+function humanReadableTerm(term: string) {
+  //regex to check if the term is in the format of 4 digits followed by 2 digits
+  const termRegex = /^[0-9]{4}[0-9]{2}$/;
+  if (!termRegex.test(term)) {
+    return "??";
+  }
+  //split off the last 2 digits and the first 4
+  const year = term.slice(0, 4);
+  const semester = term.slice(4);
+  switch (semester) {
+    case "90":
+      return `F' ${year}`;
+    case "10":
+      return `S' ${year}`;
+    case "50":
+      return `Su' ${year}`;
+    case "95":
+      return `W' ${year}`;
+    default: //if the semester is not one of the above, return the year
+      return `?? ${year}`;
+  }
+}
 
 const Plans = () => {
   const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
@@ -15,16 +44,12 @@ const Plans = () => {
     setControlsRefs(controlsRefs);
   };
 
-  let tabsData = [
-    { value: "1", label: "First tab" },
-    { value: "2", label: "Second tab" },
-    { value: "3", label: "Third tab" },
-  ];
-
+  let tabsData = [];
   const plans = planStore((state) => state.plans);
   tabsData = plans.map((plan) => {
-    return { value: plan.uuid, label: plan.name };
+    return { value: plan.uuid, label: plan.name, term: plan.term };
   });
+  const [opened, setOpened] = useState<string | null>(null);
   return (
     <Tabs
       variant="none"
@@ -32,7 +57,7 @@ const Plans = () => {
       value={value}
       // center
       onChange={setValue}
-      className="w-1/2 mx-auto"
+      className="w-4/5 mx-auto"
     >
       <Tabs.List
         ref={setRootRef}
@@ -45,9 +70,19 @@ const Plans = () => {
             value={tab.value}
             ref={setControlRef(tab.value)}
             className={classes.tab}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              console.log("right click");
+              //to make this open the menu, we need to set the opened prop to true
+              // that can be done by using the state
+              setOpened(tab.value);
+            }}
           >
             <p>{tab.label}</p>
-            <MenuElms tabInfo={tab} />
+            <Badge variant="light" color="gray" size="lg" radius="lg">
+              {humanReadableTerm(tab.term.toString())}
+            </Badge>
+            <MenuElms tabInfo={tab} opened={opened === tab.value} />
           </Tabs.Tab>
         ))}
         <FloatingIndicator
@@ -63,14 +98,15 @@ const Plans = () => {
 export default Plans;
 type MenuElmsProps = {
   tabInfo: { value: string; label: string };
+  opened?: boolean;
 };
-function MenuElms({ tabInfo }: MenuElmsProps) {
+function MenuElms({ tabInfo, opened }: MenuElmsProps) {
   type DropDownMenuItem = {
     label: string;
     icon: string;
     color?: string;
     onAction: (
-      ev: CustomEvent,
+      ev: MouseEvent,
       tabinfo: { value: string; label: string }
     ) => void;
   };
@@ -114,9 +150,24 @@ function MenuElms({ tabInfo }: MenuElmsProps) {
     ],
   } as DropDownMenuItems;
   const deletePlan = planStore((state) => state.removePlan);
+  const [openedMenu, setOpenedMenu] = useState<boolean | undefined>(false);
+  //when opened is true, force the menu to open
+  // if (opened) {
+  //   setOpenedMenu(true);
+  // }
+  useEffect(() => {
+    setOpenedMenu(opened);
+  }, [opened]);
 
   return (
-    <Menu trigger="click" shadow="lg" openDelay={100} closeDelay={400}>
+    <Menu
+      trigger="click"
+      shadow="lg"
+      openDelay={100}
+      closeDelay={400}
+      opened={openedMenu}
+      onChange={setOpenedMenu}
+    >
       <Menu.Target>
         <ActionIcon
           variant="subtle"
