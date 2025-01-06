@@ -11,6 +11,7 @@ import classes from "./Nav.module.css";
 import Search from "../Search/Search";
 import { createRef, useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
+import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
 
 const tabData = [
   {
@@ -50,22 +51,28 @@ export default function Nav() {
     "only screen and (orientation: landscape) and (min-width: 1201px)" //same as in Shell.tsx
   );
   const tabRef = createRef<HTMLDivElement>();
+
   const [activeTab, setActiveTab] = useState<string | null>(tabData[0].value);
   return (
     <>
-      <Search
-        onFocused={() => {
-          //deselct the tab on mobile when search is focused
-          if (matches) return;
-          localStorage.setItem("lastTab", activeTab || tabData[0].value);
-          setActiveTab(null);
-        }}
-        onBlurred={() => {
-          //reselect the last tab on mobile when search is out of focus
-          if (matches) return;
-          setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
-        }}
-      />
+      <div className="relative block">
+        <Search
+          onFocused={() => {
+            //deselct the tab on mobile when search is focused
+            if (matches) return;
+            localStorage.setItem("lastTab", activeTab || tabData[0].value);
+            setActiveTab(null);
+          }}
+          onBlurred={() => {
+            //reselect the last tab on mobile when search is out of focus
+            if (matches) return;
+            setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
+          }}
+        />
+
+        <FiltersDrawer />
+      </div>
+
       <Tabs
         defaultValue="settings"
         inverted

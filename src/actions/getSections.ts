@@ -33,9 +33,11 @@ export async function getSections(
             days = "Async";
           }
 
-          return `${course.COURSE.replace(/ /g, "")}-${course.SECTION} (${
-            course.CREDITS
-          }) [${days}] ${course.INSTRUCTOR} `;
+          const returnStr = `${course.COURSE.replace(/ /g, "")}-${
+            course.SECTION
+          } (${course.CREDITS}) [${days}] ${course.INSTRUCTOR ?? "TBD"} `;
+          const CRN = course.CRN;
+          return { label: returnStr, value: CRN };
         }
       );
     })

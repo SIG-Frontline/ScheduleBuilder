@@ -97,6 +97,9 @@ export default function Search({
         onSearchChange={(value) => {
           setTextBoxValue(value);
         }}
+        onOptionSubmit={(value) => {
+          alert(value);
+        }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             const firstOption = chipOptions[0];
