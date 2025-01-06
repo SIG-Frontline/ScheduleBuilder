@@ -83,31 +83,34 @@ type MeetingTime = {
 
 interface PlanStoreState {
   plans: Plan[];
+  currentSelectedPlan: string | null;
   setPlans: (plans: Plan[]) => void;
   addPlan: (newPlan: Plan) => void;
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
   removePlan: (uuid: string) => void;
   getPlan: (uuid: string) => Plan | undefined;
   selectPlan: (uuid: string) => void;
+  addCourseToPlan: (course: Course) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
   persist(
     (set, get) => ({
       plans: [],
+      currentSelectedPlan: null,
       setPlans: (plans) => set({ plans }),
       addPlan: (newPlan) => {
         const { plans } = get();
         set({ plans: [...plans, newPlan] });
       },
       selectPlan: (uuid) => {
-        //selects a plan, and deselects all other plans
         const { plans } = get();
         set({
           plans: plans.map((plan) => ({
             ...plan,
             selected: plan.uuid === uuid,
           })),
+          currentSelectedPlan: uuid,
         });
       },
       updatePlan: (updatedPlan, uuid) => {
@@ -123,6 +126,21 @@ export const planStore = create<PlanStoreState>()(
       getPlan: (uuid) => {
         const { plans } = get();
         return plans.find((plan) => plan.uuid === uuid);
+      },
+      addCourseToPlan: (course) => {
+        const { plans, currentSelectedPlan } = get();
+        set({
+          plans: plans.map((plan) =>
+            plan.uuid === currentSelectedPlan
+              ? {
+                  ...plan,
+                  courses: plan.courses
+                    ? plan.courses.concat(course)
+                    : [course],
+                }
+              : plan
+          ),
+        });
       },
     }),
     {

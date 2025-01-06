@@ -49,12 +49,3 @@ export async function getSections(
 
   return data;
 }
-// {
-//   "M": true,
-//   "T": false,
-//   "W": false,
-//   "R": true,
-//   "F": false,
-//   "S": false,
-//   "U": false
-// }

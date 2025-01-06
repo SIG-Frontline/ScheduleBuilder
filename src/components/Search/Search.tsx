@@ -4,6 +4,8 @@ import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
 import { getSections } from "@/actions/getSections";
 import { useMediaQuery } from "@mantine/hooks";
+import { planStore } from "@/lib/planStore";
+import { getSectionData } from "@/actions/getSectionData";
 
 export default function Search({
   onFocused,
@@ -72,7 +74,7 @@ export default function Search({
       setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
     }
   }, [textBoxValue, subjectOptions, selectedSubject, searchWithoutSubject]);
-
+  const addCourseToPlan = planStore((state) => state.addCourseToPlan);
   return (
     <>
       {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
@@ -90,15 +92,23 @@ export default function Search({
         placeholder="Pick value"
         data={sectionOptions}
         comboboxProps={{ position: matches ? "top" : "bottom" }}
-        dropdownOpened={filteredClassOptions.length === 1}
+        dropdownOpened={filteredClassOptions.length === 1 && !!selectedSubject}
         // dropdownOpened={true}
         searchable
         searchValue={textBoxValue}
         onSearchChange={(value) => {
           setTextBoxValue(value);
         }}
-        onOptionSubmit={(value) => {
-          alert(value);
+        onOptionSubmit={async (value) => {
+          await getSectionData(202490, selectedSubject, chipOptions[0]).then(
+            (data) => {
+              console.log("data", data); //need to add the data to the plan in the store (todo !!!)
+            }
+          );
+          setTimeout(() => {
+            setTextBoxValue("");
+            setSelectedSubject("");
+          }, 10);
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
