@@ -35,7 +35,10 @@ function humanReadableTerm(term: string) {
 
 const Plans = () => {
   const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
-  const [value, setValue] = useState<string | null>("1");
+  const plans = planStore((state) => state.plans);
+  const selectPlan = planStore((state) => state.selectPlan);
+  const selectedPlan = plans.find((plan) => plan.selected);
+  const [value, setValue] = useState<string | null>(selectedPlan?.uuid || null);
   const [controlsRefs, setControlsRefs] = useState<
     Record<string, HTMLButtonElement | null>
   >({});
@@ -45,7 +48,7 @@ const Plans = () => {
   };
 
   let tabsData = [];
-  const plans = planStore((state) => state.plans);
+
   tabsData = plans.map((plan) => {
     return { value: plan.uuid, label: plan.name, term: plan.term };
   });
@@ -68,6 +71,7 @@ const Plans = () => {
           <Tabs.Tab
             key={tab.value}
             value={tab.value}
+            onClick={() => selectPlan(tab.value)}
             ref={setControlRef(tab.value)}
             className={classes.tab}
             onContextMenu={(e) => {

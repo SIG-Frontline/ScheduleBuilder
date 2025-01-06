@@ -52,6 +52,7 @@ type Plan = {
   description: string;
   term: number;
   courses?: Course[];
+  selected: boolean;
 };
 
 type Course = {
@@ -87,6 +88,7 @@ interface PlanStoreState {
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
   removePlan: (uuid: string) => void;
   getPlan: (uuid: string) => Plan | undefined;
+  selectPlan: (uuid: string) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -97,6 +99,16 @@ export const planStore = create<PlanStoreState>()(
       addPlan: (newPlan) => {
         const { plans } = get();
         set({ plans: [...plans, newPlan] });
+      },
+      selectPlan: (uuid) => {
+        //selects a plan, and deselects all other plans
+        const { plans } = get();
+        set({
+          plans: plans.map((plan) => ({
+            ...plan,
+            selected: plan.uuid === uuid,
+          })),
+        });
       },
       updatePlan: (updatedPlan, uuid) => {
         const { plans } = get();
