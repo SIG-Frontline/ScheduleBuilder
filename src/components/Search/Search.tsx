@@ -1,8 +1,9 @@
 import { createRef, useEffect, useMemo, useState } from "react";
-import { Chip, TextInput, Group } from "@mantine/core";
+import { Chip, Group, Select } from "@mantine/core";
 import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
 import { getSections } from "@/actions/getSections";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function Search({
   onFocused,
@@ -14,11 +15,14 @@ export default function Search({
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
   const [classOptions, setClassOptions] = useState<string[]>([]);
+  const [sectionOptions, setSectionOptions] = useState<string[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
     return textBoxValue.replace(selectedSubject, "").trim();
   }, [textBoxValue, selectedSubject]);
-
+  const matches = useMediaQuery(
+    "only screen and (orientation: landscape) and (min-width: 1201px)"
+  );
   const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
     getSubjects(202490).then((courses) => {
@@ -57,9 +61,10 @@ export default function Search({
       //if there is only one class option, set the textbox value to the subject and class
       if (filteredClassOptions.length === 1) {
         //get the sections
-        getSections(202490, selectedSubject, filteredClassOptions[0]).then(
+        getSections(202490, selectedSubject, chipOptions[0]).then(
           (sections) => {
             console.log("sections", sections);
+            setSectionOptions(sections);
           }
         );
       }
@@ -67,55 +72,78 @@ export default function Search({
       setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
     }
   }, [textBoxValue, subjectOptions, selectedSubject, searchWithoutSubject]);
+
   return (
     <>
-      <TextInput
+      {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
+      <Select
+        className={"max-w-screen" + (!matches ? " w-screen" : "")}
         onFocus={onFocused}
         onBlur={onBlurred}
+        label=""
+        maxDropdownHeight={200}
         placeholder="Pick value"
-        value={textBoxValue}
-        onChange={(event) => setTextBoxValue(event.currentTarget.value)}
+        data={sectionOptions}
+        // dropdownOpened={filteredClassOptions.length === 1}
+        dropdownOpened={true}
+        searchable
+        searchValue={textBoxValue}
+        onSearchChange={(value) => {
+          setTextBoxValue(value);
+        }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             const firstOption = chipOptions[0];
-            if (firstOption) {
-              setTextBoxValue(textBoxValue + firstOption);
+            if (firstOption && textBoxValue.length > 0) {
+              if (selectedSubject) {
+                setTextBoxValue(selectedSubject + firstOption);
+              } else {
+                setTextBoxValue(firstOption);
+              }
             }
           }
         }}
       />
-      <Chip.Group
-        onChange={(val) => {
-          setTextBoxValue(textBoxValue + val);
-        }}
-        value={[]} //no value selected for visible chips
-      >
-        <Group
-          className="flex flex-row !flex-nowrap py-2 overflow-x-auto no-scrollbar"
-          ref={chipGroupRef}
-          onWheel={(e) => {
-            // comment out to preserve default scrolling:
-            // e.preventDefault();
-            if (e.deltaY > 0 && chipGroupRef.current) {
-              chipGroupRef.current.scrollLeft += 100;
-            } else if (e.deltaY < 0 && chipGroupRef.current) {
-              chipGroupRef.current.scrollLeft -= 100;
-            }
+      {/* ) : (
+        <TextInput
+          placeholder="Pick value"
+          value={textBoxValue}
+          onChange={(event) => setTextBoxValue(event.currentTarget.value)}
+        />
+      )} */}
+      {(textBoxValue.length > 0 ||
+        (selectedSubject && filteredClassOptions.length === 1)) && (
+        <Chip.Group
+          onChange={(val) => {
+            setTextBoxValue(textBoxValue + val);
           }}
+          value={[]} //no value selected for visible chips
         >
-          {textBoxValue.length > 0
-            ? chipOptions.map((option) => (
-                <Chip
-                  key={option}
-                  className="flex items-center justify-center"
-                  value={option}
-                >
-                  {option}
-                </Chip>
-              ))
-            : null}
-        </Group>
-      </Chip.Group>
+          <Group
+            className="flex flex-row !flex-nowrap py-2 overflow-x-auto no-scrollbar"
+            ref={chipGroupRef}
+            onWheel={(e) => {
+              // comment out to preserve default scrolling:
+              // e.preventDefault();
+              if (e.deltaY > 0 && chipGroupRef.current) {
+                chipGroupRef.current.scrollLeft += 100;
+              } else if (e.deltaY < 0 && chipGroupRef.current) {
+                chipGroupRef.current.scrollLeft -= 100;
+              }
+            }}
+          >
+            {chipOptions.map((option) => (
+              <Chip
+                key={option}
+                className="flex items-center justify-center"
+                value={option}
+              >
+                {option}
+              </Chip>
+            ))}
+          </Group>
+        </Chip.Group>
+      )}
     </>
   );
 }

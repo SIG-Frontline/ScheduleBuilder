@@ -10,12 +10,49 @@ export async function getSections(
   }`;
   const data = fetch(URL)
     .then((res) => res.json())
-    
+    .then((data) => {
+      return data.courses;
+    })
+    .then((courses) => {
+      return courses.map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (course: any) => {
+          if (course.CREDITS === null) {
+            course.CREDITS = "TBA";
+          }
+          let days = "";
+          if (!course.IS_ASYNC) {
+            if (course.DAYS === null) {
+              days = "TBA";
+            } else {
+              days = Object.keys(course.DAYS)
+                .filter((day) => course.DAYS[day])
+                .join(", ");
+            }
+          } else {
+            days = "Async";
+          }
+
+          return `${course.COURSE.replace(/ /g, "")}-${course.SECTION} (${
+            course.CREDITS
+          }) [${days}] ${course.INSTRUCTOR} `;
+        }
+      );
+    })
+
     .catch((err) => {
       console.error(err);
       return [];
     });
-  console.log(data);
 
   return data;
 }
+// {
+//   "M": true,
+//   "T": false,
+//   "W": false,
+//   "R": true,
+//   "F": false,
+//   "S": false,
+//   "U": false
+// }

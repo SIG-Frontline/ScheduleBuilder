@@ -62,7 +62,8 @@ export async function GET(request: NextRequest) {
         COURSE: 1,
         SECTION: 1,
         CRN: 1,
-        CREDITS: 1
+        CREDITS: 1,
+        IS_ASYNC: 1,
       })
       .limit(sectionsPerPage)
       .skip(sectionsPerPage * page)

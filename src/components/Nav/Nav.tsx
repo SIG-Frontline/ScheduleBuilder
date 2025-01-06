@@ -45,7 +45,7 @@ const tabData = [
   },
 ];
 
-export default function Home() {
+export default function Nav() {
   const matches = useMediaQuery(
     "only screen and (orientation: landscape) and (min-width: 1201px)" //same as in Shell.tsx
   );
