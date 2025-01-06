@@ -105,10 +105,7 @@ function MenuElms({ tabInfo, opened }: MenuElmsProps) {
     label: string;
     icon: string;
     color?: string;
-    onAction: (
-      ev: MouseEvent,
-      tabinfo: { value: string; label: string }
-    ) => void;
+    onAction: (tabinfo: { value: string; label: string }) => void;
   };
   type DropDownMenuItems = {
     [key: string]: DropDownMenuItem[];
@@ -118,17 +115,17 @@ function MenuElms({ tabInfo, opened }: MenuElmsProps) {
       {
         label: "Edit",
         icon: "edit",
-        onAction: (ev, tabinfo) => console.log("edit"),
+        onAction: () => console.log("edit"),
       },
       {
         label: "Select for Compare",
         icon: "compare_arrows",
-        onAction: (ev, tabinfo) => console.log("select for compare"),
+        onAction: () => console.log("select for compare"),
       },
       {
         label: "Share & Export",
         icon: "share",
-        onAction: (ev, tabinfo) => console.log("share & export"),
+        onAction: () => console.log("share & export"),
       },
     ],
     "Danger zone": [
@@ -136,13 +133,13 @@ function MenuElms({ tabInfo, opened }: MenuElmsProps) {
         label: "No Guardrails Mode",
         icon: "thumb_down",
         color: "red",
-        onAction: (ev, tabinfo) => console.log("no guardrails mode"),
+        onAction: () => console.log("no guardrails mode"),
       },
       {
         label: "Delete Plan",
         icon: "delete",
         color: "red",
-        onAction: (e) => {
+        onAction: () => {
           console.log("delete plan");
           deletePlan(tabInfo.value);
         },
@@ -187,7 +184,7 @@ function MenuElms({ tabInfo, opened }: MenuElmsProps) {
                 key={item.label}
                 color={item.color}
                 leftSection={<Icon>{item.icon}</Icon>}
-                onClick={(e) => item.onAction(e, tabInfo)}
+                onClick={() => item.onAction(tabInfo)}
               >
                 {item.label}
               </Menu.Item>
