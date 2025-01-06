@@ -79,13 +79,19 @@ export default function Search({
       <Select
         className={"max-w-screen" + (!matches ? " w-screen" : "")}
         onFocus={onFocused}
-        onBlur={onBlurred}
+        onBlur={(event) => {
+          //keep the state of the dropdown search value
+          setTextBoxValue(event.currentTarget.value);
+          onBlurred();
+        }}
         label=""
-        maxDropdownHeight={200}
+        // maxDropdownHeight={200}
+        // withScrollArea={true}
         placeholder="Pick value"
         data={sectionOptions}
-        // dropdownOpened={filteredClassOptions.length === 1}
-        dropdownOpened={true}
+        comboboxProps={{ position: matches ? "top" : "bottom" }}
+        dropdownOpened={filteredClassOptions.length === 1}
+        // dropdownOpened={true}
         searchable
         searchValue={textBoxValue}
         onSearchChange={(value) => {
@@ -114,10 +120,15 @@ export default function Search({
       {(textBoxValue.length > 0 ||
         (selectedSubject && filteredClassOptions.length === 1)) && (
         <Chip.Group
-          onChange={(val) => {
-            setTextBoxValue(textBoxValue + val);
+          multiple={false}
+          onChange={(chipValue) => {
+            if (textBoxValue.startsWith(chipValue)) {
+              setTextBoxValue(chipValue);
+            } else {
+              setTextBoxValue(selectedSubject + chipValue);
+            }
           }}
-          value={[]} //no value selected for visible chips
+          value={null} //no value selected for visible chips
         >
           <Group
             className="flex flex-row !flex-nowrap py-2 overflow-x-auto no-scrollbar"
