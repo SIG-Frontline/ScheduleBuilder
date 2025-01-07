@@ -75,6 +75,7 @@ export type Section = {
   is_async: boolean;
   sectionNumber: string;
   comments: string;
+  selected: boolean;
 };
 export type MeetingTime = {
   day: string;
@@ -94,6 +95,8 @@ interface PlanStoreState {
   getPlan: (uuid: string) => Plan | undefined;
   selectPlan: (uuid: string) => void;
   addCourseToPlan: (course: Course) => void;
+  selectSection: (course: string, crn: string) => void;
+  deleteCourseFromPlan: (course: string) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -157,6 +160,39 @@ export const planStore = create<PlanStoreState>()(
               : plan
           ),
         });
+      },
+      selectSection: (course, crn) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.map((c) =>
+                  c.code === course
+                    ? {
+                        ...c,
+                        sections: c.sections.map((s) =>
+                          s.crn === crn ? { ...s, selected: true } : s
+                        ),
+                      }
+                    : c
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      },
+      deleteCourseFromPlan: (course) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.filter((c) => c.code !== course),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
       },
     }),
     {
