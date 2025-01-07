@@ -11,8 +11,7 @@ export async function getSectionData(
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => {
-      console.log(data);
-      return data;
+      return data.courses[0];
     })
 
     .catch((err) => {

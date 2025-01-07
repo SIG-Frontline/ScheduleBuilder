@@ -66,6 +66,8 @@ export async function GET(request: NextRequest) {
     {
       $group: {
         _id: "$COURSE",
+        title: { $first: "$TITLE" },
+        credits: { $first: "$CREDITS" },
         sections: { $push: "$$ROOT" },
       },
     },

@@ -12,6 +12,7 @@ import Search from "../Search/Search";
 import { createRef, useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
+import Tab_Sections from "../Tabs/Tab_Sections/Tab_Sections";
 
 const tabData = [
   {
@@ -43,6 +44,12 @@ const tabData = [
     label: "optimizer",
     icon: "instant_mix",
     component: Tab_Optimizer,
+  },
+  {
+    value: "sections",
+    label: "sections",
+    icon: "view_timeline",
+    component: Tab_Sections,
   },
 ];
 
@@ -97,7 +104,7 @@ export default function Nav() {
         >
           {tabData.map((tab) => (
             <Tabs.Tab key={tab.value} value={tab.value}>
-              <span className="flex items-center flex-col">
+              <span className="flex items-center flex-col capitalize">
                 <Icon>{tab.icon}</Icon>
                 {tab.label}
               </span>

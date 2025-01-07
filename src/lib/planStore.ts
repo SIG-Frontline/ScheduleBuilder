@@ -46,7 +46,7 @@ is_async:true
 
 */
 
-type Plan = {
+export type Plan = {
   uuid: string;
   name: string;
   description: string;
@@ -55,7 +55,7 @@ type Plan = {
   selected: boolean;
 };
 
-type Course = {
+export type Course = {
   title: string;
   code: string;
   description: string;
@@ -64,7 +64,7 @@ type Course = {
   sections: Section[];
 };
 
-type Section = {
+export type Section = {
   meetingTimes: MeetingTime[];
   instructor: string;
   seats: number;
@@ -73,7 +73,7 @@ type Section = {
   is_honors: boolean;
   is_async: boolean;
 };
-type MeetingTime = {
+export type MeetingTime = {
   day: string;
   startTime: string;
   endTime: string;
@@ -101,15 +101,19 @@ export const planStore = create<PlanStoreState>()(
       setPlans: (plans) => set({ plans }),
       addPlan: (newPlan) => {
         const { plans } = get();
-        set({ plans: [...plans, newPlan] });
+        if (plans.length === 0) {
+          newPlan.selected = true;
+        }
+        set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
       },
       selectPlan: (uuid) => {
         const { plans } = get();
+        const newplans = plans.map((plan) => ({
+          ...plan,
+          selected: plan.uuid === uuid,
+        }));
         set({
-          plans: plans.map((plan) => ({
-            ...plan,
-            selected: plan.uuid === uuid,
-          })),
+          plans: newplans,
           currentSelectedPlan: uuid,
         });
       },
@@ -120,8 +124,17 @@ export const planStore = create<PlanStoreState>()(
         });
       },
       removePlan: (uuid) => {
-        const { plans } = get();
-        set({ plans: plans.filter((plan) => plan.uuid !== uuid) });
+        const { plans, currentSelectedPlan } = get();
+        let newSelectedPlan = currentSelectedPlan;
+        if (currentSelectedPlan === uuid && plans.length > 1) {
+          newSelectedPlan = plans[0].uuid;
+        } else if (currentSelectedPlan === uuid && plans.length === 1) {
+          newSelectedPlan = null;
+        }
+        set({
+          plans: plans.filter((plan) => plan.uuid !== uuid),
+          currentSelectedPlan: newSelectedPlan,
+        });
       },
       getPlan: (uuid) => {
         const { plans } = get();

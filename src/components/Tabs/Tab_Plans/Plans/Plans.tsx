@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import classes from "./Plans.module.css";
 import Icon from "@/components/Icon/Icon";
-import { planStore } from "@/lib/planStore";
+import { Plan, planStore } from "@/lib/planStore";
 
 function humanReadableTerm(term: string) {
   //regex to check if the term is in the format of 4 digits followed by 2 digits
@@ -34,11 +34,10 @@ function humanReadableTerm(term: string) {
 }
 
 const Plans = () => {
-  const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
+  // const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
   const plans = planStore((state) => state.plans);
   const selectPlan = planStore((state) => state.selectPlan);
-  const selectedPlan = plans.find((plan) => plan.selected);
-  const [value, setValue] = useState<string | null>(selectedPlan?.uuid || null);
+  // const value = planStore((state) => state.currentSelectedPlan);
   const [controlsRefs, setControlsRefs] = useState<
     Record<string, HTMLButtonElement | null>
   >({});
@@ -57,13 +56,15 @@ const Plans = () => {
     <Tabs
       variant="none"
       orientation="vertical"
-      value={value}
+      value={plans.find((plan) => plan.selected)?.uuid}
       // center
-      onChange={setValue}
+      onChange={(e) => {
+        selectPlan(e);
+      }}
       className="w-4/5 mx-auto"
     >
       <Tabs.List
-        ref={setRootRef}
+        // ref={setRootRef}
         grow={true}
         className={[classes.list, "w-full"].join(" ")}
       >
@@ -89,11 +90,11 @@ const Plans = () => {
             <MenuElms tabInfo={tab} opened={opened === tab.value} />
           </Tabs.Tab>
         ))}
-        <FloatingIndicator
-          target={value ? controlsRefs[value] : null}
+        {/* <FloatingIndicator
+          target={controlsRefs[value as string]}
           parent={rootRef}
           className={classes.indicator}
-        />
+        /> */}
       </Tabs.List>
     </Tabs>
   );

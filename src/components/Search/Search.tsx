@@ -1,5 +1,5 @@
 import { createRef, useEffect, useMemo, useState } from "react";
-import { Chip, Group, Select } from "@mantine/core";
+import { Chip, Group, Select, TextInput } from "@mantine/core";
 import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
 import { getSections } from "@/actions/getSections";
@@ -78,8 +78,8 @@ export default function Search({
   return (
     <>
       {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
-      <Select
-        className={"max-w-screen" + (!matches ? " w-screen" : "")}
+      <TextInput
+        // className={"max-w-screen" + (!matches ? " w-screen" : "")}
         onFocus={onFocused}
         onBlur={(event) => {
           //keep the state of the dropdown search value

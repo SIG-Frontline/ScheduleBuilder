@@ -15,6 +15,8 @@ const Tab_Plans = () => {
               name: "my awesome plan" + Math.floor(Math.random() * 100),
               description: "this is a plan",
               term: 202490,
+              selected: false,
+              courses: [],
             });
           }}
           leftSection={<Icon>add</Icon>}
