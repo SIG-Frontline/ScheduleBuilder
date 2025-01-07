@@ -1,11 +1,9 @@
 import { createRef, useEffect, useMemo, useState } from "react";
-import { Chip, Group, Select, TextInput } from "@mantine/core";
+import { Chip, Group, TextInput } from "@mantine/core";
 import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
-import { getSections } from "@/actions/getSections";
-import { useMediaQuery } from "@mantine/hooks";
-import { planStore } from "@/lib/planStore";
 import { getSectionData } from "@/actions/getSectionData";
+import { planStore } from "@/lib/planStore";
 
 export default function Search({
   onFocused,
@@ -17,14 +15,11 @@ export default function Search({
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
   const [classOptions, setClassOptions] = useState<string[]>([]);
-  const [sectionOptions, setSectionOptions] = useState<string[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
     return textBoxValue.replace(selectedSubject, "").trim();
   }, [textBoxValue, selectedSubject]);
-  const matches = useMediaQuery(
-    "only screen and (orientation: landscape) and (min-width: 1201px)"
-  );
+
   const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
     getSubjects(202490).then((courses) => {
@@ -41,7 +36,7 @@ export default function Search({
     //filter the class options based on the search value without the subject
     option.includes(searchWithoutSubject)
   );
-
+  const addCourseToPlan = planStore((state) => state.addCourseToPlan);
   const chipOptions = selectedSubject
     ? filteredClassOptions
     : filteredSubjectOptions;
@@ -57,24 +52,10 @@ export default function Search({
         setClassOptions(classes);
         console.log("classes", classes);
       });
-    } else if (selectedSubject && textBoxValue.includes(selectedSubject)) {
-      //if the textbox value includes the already selected subject
-
-      //if there is only one class option, set the textbox value to the subject and class
-      if (filteredClassOptions.length === 1) {
-        //get the sections
-        getSections(202490, selectedSubject, chipOptions[0]).then(
-          (sections) => {
-            console.log("sections", sections);
-            setSectionOptions(sections);
-          }
-        );
-      }
     } else {
       setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
     }
   }, [textBoxValue, subjectOptions, selectedSubject, searchWithoutSubject]);
-  const addCourseToPlan = planStore((state) => state.addCourseToPlan);
   return (
     <>
       {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
@@ -86,29 +67,11 @@ export default function Search({
           setTextBoxValue(event.currentTarget.value);
           onBlurred();
         }}
-        label=""
-        // maxDropdownHeight={200}
-        // withScrollArea={true}
-        placeholder="Pick value"
-        data={sectionOptions}
-        comboboxProps={{ position: matches ? "top" : "bottom" }}
-        dropdownOpened={filteredClassOptions.length === 1 && !!selectedSubject}
-        // dropdownOpened={true}
-        searchable
-        searchValue={textBoxValue}
-        onSearchChange={(value) => {
-          setTextBoxValue(value);
-        }}
-        onOptionSubmit={async (value) => {
-          await getSectionData(202490, selectedSubject, chipOptions[0]).then(
-            (data) => {
-              console.log("data", data); //need to add the data to the plan in the store (todo !!!)
-            }
-          );
-          setTimeout(() => {
-            setTextBoxValue("");
-            setSelectedSubject("");
-          }, 10);
+        label="Search for a course"
+        placeholder="Search for a course"
+        value={textBoxValue}
+        onChange={(e) => {
+          setTextBoxValue(e.currentTarget.value);
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
@@ -123,13 +86,6 @@ export default function Search({
           }
         }}
       />
-      {/* ) : (
-        <TextInput
-          placeholder="Pick value"
-          value={textBoxValue}
-          onChange={(event) => setTextBoxValue(event.currentTarget.value)}
-        />
-      )} */}
       {(textBoxValue.length > 0 ||
         (selectedSubject && filteredClassOptions.length === 1)) && (
         <Chip.Group
@@ -139,6 +95,14 @@ export default function Search({
               setTextBoxValue(chipValue);
             } else {
               setTextBoxValue(selectedSubject + chipValue);
+            }
+            //if the chip is a class, and there is a subject selected, and the subject is in the textbox
+            if (selectedSubject && textBoxValue.startsWith(selectedSubject)) {
+              getSectionData(202490, selectedSubject, chipValue).then(
+                (data) => {
+                  addCourseToPlan(data);
+                }
+              );
             }
           }}
           value={null} //no value selected for visible chips
