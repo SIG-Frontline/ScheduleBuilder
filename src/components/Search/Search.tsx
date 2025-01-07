@@ -52,6 +52,10 @@ export default function Search({
         setClassOptions(classes);
         console.log("classes", classes);
       });
+    }
+    //make it so that the selected subject is not reset if the textbox value includes the selected subject and the user is typing
+    else if (textBoxValue.startsWith(selectedSubject)) {
+      //if the selected subject is not in the textbox
     } else {
       setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
     }
@@ -98,11 +102,13 @@ export default function Search({
             }
             //if the chip is a class, and there is a subject selected, and the subject is in the textbox
             if (selectedSubject && textBoxValue.startsWith(selectedSubject)) {
-              getSectionData(202490, selectedSubject, chipValue).then(
-                (data) => {
+              getSectionData(202490, selectedSubject, chipValue)
+                .then((data) => {
                   addCourseToPlan(data);
-                }
-              );
+                })
+                .then(() => {
+                  setTextBoxValue("");
+                });
             }
           }}
           value={null} //no value selected for visible chips

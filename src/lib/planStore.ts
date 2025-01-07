@@ -67,11 +67,14 @@ export type Course = {
 export type Section = {
   meetingTimes: MeetingTime[];
   instructor: string;
-  seats: number;
+  crn: string;
   currentEnrollment: number;
+  maxEnrollment: number;
   status: string;
   is_honors: boolean;
   is_async: boolean;
+  sectionNumber: string;
+  comments: string;
 };
 export type MeetingTime = {
   day: string;
