@@ -20,6 +20,7 @@ const SectionSelection = ({
   courseTitle: string;
 }) => {
   const selectSection = planStore((state) => state.selectSection);
+  const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
   const combobox = useCombobox();
   const [value, setValue] = useState<string | null>(null);
   const options = sections.map((item) => (
@@ -74,6 +75,7 @@ const SectionSelection = ({
           variant="outline"
           aria-label="remove"
           color="red"
+          onClick={() => deleteCourseFromPlan(courseCode)}
         >
           <Icon>delete</Icon>
         </ActionIcon>
