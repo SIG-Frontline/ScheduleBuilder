@@ -101,16 +101,7 @@ title: "CS 100 ROADMAP TO COMPUTING"
       //     endTime: "12:00:00+00:00",
       //   },
       // ]}
-      events={
-        eventData?.flat().flat() ?? [
-          {
-            title: "Repeating Event",
-            startTime: "08:00:00+00:00",
-            daysOfWeek: [1, 2, 4],
-            endTime: "12:00:00+00:00",
-          },
-        ]
-      }
+      events={eventData?.flat().flat() ?? []}
       allDaySlot={false}
       nowIndicator={false}
       eventContent={(eventContent) => (
