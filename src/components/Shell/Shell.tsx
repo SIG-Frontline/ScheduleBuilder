@@ -41,7 +41,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         >
           <div className="flex flex-col h-[calc(100vh_-_60px)]">
             <div className="flex-grow">{children} </div>
-            <div className="sticky"> {!matches && <Nav />} </div>
+            <div className="h-max w-screen sticky left-0">
+              {!matches && <Nav />}
+            </div>
           </div>
         </AppShell.Main>
       </AppShell>
