@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import {
   ActionIcon,
   Badge,
-  FloatingIndicator,
+  // FloatingIndicator,
   Menu,
   Tabs,
 } from "@mantine/core";
 import classes from "./Plans.module.css";
 import Icon from "@/components/Icon/Icon";
-import { Plan, planStore } from "@/lib/planStore";
+import { planStore } from "@/lib/planStore";
 
 function humanReadableTerm(term: string) {
   //regex to check if the term is in the format of 4 digits followed by 2 digits
@@ -58,7 +58,10 @@ const Plans = () => {
       orientation="vertical"
       value={plans.find((plan) => plan.selected)?.uuid}
       // center
-      onChange={(e) => {
+      onChange={(e: string | null) => {
+        if (!e) {
+          return;
+        }
         selectPlan(e);
       }}
       className="w-4/5 mx-auto"
