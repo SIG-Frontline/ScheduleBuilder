@@ -62,62 +62,63 @@ export default function Nav() {
   const [activeTab, setActiveTab] = useState<string | null>(tabData[0].value);
   return (
     <>
-      <div className="relative block">
-        <Search
-          onFocused={() => {
-            //deselct the tab on mobile when search is focused
-            if (matches) return;
-            localStorage.setItem("lastTab", activeTab || tabData[0].value);
-            setActiveTab(null);
-          }}
-          onBlurred={() => {
-            //reselect the last tab on mobile when search is out of focus
-            if (matches) return;
-            setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
-          }}
-        />
+      <div>
+        <div className="relative block">
+          <Search
+            onFocused={() => {
+              //deselct the tab on mobile when search is focused
+              if (matches) return;
+              localStorage.setItem("lastTab", activeTab || tabData[0].value);
+              setActiveTab(null);
+            }}
+            onBlurred={() => {
+              //reselect the last tab on mobile when search is out of focus
+              if (matches) return;
+              setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
+            }}
+          />
 
-        <FiltersDrawer />
-      </div>
-
-      <Tabs
-        defaultValue="settings"
-        inverted
-        value={activeTab}
-        onChange={setActiveTab}
-      >
-        <Tabs.List
-          justify="start"
-          grow
-          className={"no-scrollbar"}
-          classNames={{ list: classes.list }}
-          ref={tabRef}
-          onWheel={(e) => {
-            // comment out to preserve default scrolling:
-            // e.preventDefault();
-            if (e.deltaY > 0 && tabRef.current) {
-              tabRef.current.scrollLeft += 100;
-            } else if (e.deltaY < 0 && tabRef.current) {
-              tabRef.current.scrollLeft -= 100;
-            }
-          }}
+          <FiltersDrawer />
+        </div>
+        <Tabs
+          defaultValue="settings"
+          inverted
+          value={activeTab}
+          onChange={setActiveTab}
         >
+          <Tabs.List
+            justify="start"
+            grow
+            className={"no-scrollbar"}
+            classNames={{ list: classes.list }}
+            ref={tabRef}
+            onWheel={(e) => {
+              // comment out to preserve default scrolling:
+              // e.preventDefault();
+              if (e.deltaY > 0 && tabRef.current) {
+                tabRef.current.scrollLeft += 100;
+              } else if (e.deltaY < 0 && tabRef.current) {
+                tabRef.current.scrollLeft -= 100;
+              }
+            }}
+          >
+            {tabData.map((tab) => (
+              <Tabs.Tab key={tab.value} value={tab.value}>
+                <span className="flex items-center flex-col capitalize">
+                  <Icon>{tab.icon}</Icon>
+                  {tab.label}
+                </span>
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
           {tabData.map((tab) => (
-            <Tabs.Tab key={tab.value} value={tab.value}>
-              <span className="flex items-center flex-col capitalize">
-                <Icon>{tab.icon}</Icon>
-                {tab.label}
-              </span>
-            </Tabs.Tab>
+            <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
+              {/* {tab.label} */}
+              <tab.component />
+            </Tabs.Panel>
           ))}
-        </Tabs.List>
-        {tabData.map((tab) => (
-          <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
-            {/* {tab.label} */}
-            <tab.component />
-          </Tabs.Panel>
-        ))}
-      </Tabs>
+        </Tabs>
+      </div>
     </>
   );
 }

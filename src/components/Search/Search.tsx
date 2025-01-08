@@ -71,7 +71,7 @@ export default function Search({
           setTextBoxValue(event.currentTarget.value);
           onBlurred();
         }}
-        label="Search for a course"
+        label=""
         placeholder="Search for a course"
         value={textBoxValue}
         onChange={(e) => {

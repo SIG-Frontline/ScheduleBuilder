@@ -80,15 +80,12 @@ title: "CS 100 ROADMAP TO COMPUTING"
 
   return (
     <FullCalendar
+      height={"100%"}
       plugins={[timeGridPlugin]}
       slotLabelClassNames={"transform -translate-y-1/2 bg-white"}
       timeZone="America/New_York"
       initialView="timeGridWeek"
-      headerToolbar={{
-        left: "",
-        center: "",
-        right: "",
-      }}
+      headerToolbar={false}
       stickyHeaderDates={true}
       dayHeaderFormat={{
         weekday: "long",
@@ -113,17 +110,17 @@ title: "CS 100 ROADMAP TO COMPUTING"
       )}
       businessHours={[
         {
-          daysOfWeek: [0, 1, 3, 4, 6],
+          daysOfWeek: [0, 1, 2, 4, 6],
           startTime: "06:00:00",
           endTime: "22:00:00",
         },
         {
-          daysOfWeek: [2],
+          daysOfWeek: [3],
           startTime: "06:00:00",
           endTime: "14:30:00",
         },
         {
-          daysOfWeek: [2],
+          daysOfWeek: [3],
           startTime: "18:00:00",
           endTime: "22:00:00",
         },

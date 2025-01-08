@@ -1,12 +1,7 @@
 import { Card, Text, Badge, Modal, Title } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-interface Cal_Event_Props {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
-const Cal_Event = ({ top, left, width, height }: Cal_Event_Props) => {
+
+const Cal_Event = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const isMobile = useMediaQuery("(max-width: 50em)");
   return (
@@ -14,12 +9,10 @@ const Cal_Event = ({ top, left, width, height }: Cal_Event_Props) => {
       <Card
         onClick={() => open()}
         shadow="sm"
-        padding="sm"
         radius="md"
         bg={"#E9A1A1"}
         withBorder
-        style={{ top: top, left: left, width: width, height: height }}
-        className="!absolute"
+        className="!absolute w-full"
       >
         <Badge color="white" size="xs" mih={"15px"}>
           <Text className={"!text-black"} size="xs" fw={500}>

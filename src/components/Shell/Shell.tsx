@@ -10,15 +10,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     "only screen and (orientation: landscape) and (min-width: 1201px)"
   );
   return (
-    <AppShell
-      aside={{ width: 350, breakpoint: "lg" }}
-      header={{ height: 60 }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Header />
-      </AppShell.Header>
-      {matches ? (
+    <>
+      <AppShell
+        aside={{ width: 350, breakpoint: "lg" }}
+        header={{ height: 60 }}
+      >
+        <AppShell.Header>
+          <Header />
+        </AppShell.Header>
+        {/* {matches ? (
         <AppShell.Aside>
           <Nav />
         </AppShell.Aside>
@@ -26,15 +26,25 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         <AppShell.Footer>
           <Nav />
         </AppShell.Footer>
-      )}
+      )} */}
+        {matches ? (
+          <AppShell.Aside>
+            <Nav />
+          </AppShell.Aside>
+        ) : null}
 
-      <AppShell.Main
-        style={{
-          maxHeight: "calc(100vh - 60px - 656px)",
-        }}
-      >
-        {children}
-      </AppShell.Main>
-    </AppShell>
+        <AppShell.Main
+          style={{
+            maxHeight: "100vh",
+            minWidth: "50em",
+          }}
+        >
+          <div className="flex flex-col h-[calc(100vh_-_60px)]">
+            <div className="flex-grow">{children} </div>
+            <div className="sticky"> {!matches && <Nav />} </div>
+          </div>
+        </AppShell.Main>
+      </AppShell>
+    </>
   );
 }
