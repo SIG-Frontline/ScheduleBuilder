@@ -5,6 +5,7 @@ import { getClasses } from "@/actions/getClasses";
 import { getSectionData } from "@/actions/getSectionData";
 import { planStore } from "@/lib/planStore";
 import { useClickOutside } from "@mantine/hooks";
+import { subjectStore } from "@/lib/subjectStore";
 
 export default function Search({
   onFocused,
@@ -16,9 +17,11 @@ export default function Search({
   const ref = useClickOutside(() => {
     onBlurred();
   });
+  const subject_store = subjectStore();
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const textBoxRef = useRef<HTMLInputElement>(null);
-  const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
+  // const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
+  const subjectOptions = subject_store.subjects;
   const [classOptions, setClassOptions] = useState<string[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
@@ -27,11 +30,12 @@ export default function Search({
 
   const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
+    if (subjectOptions.length > 0) return;
     getSubjects(202490).then((courses) => {
-      //server side fn to get subjects
-      setSubjectOptions(courses);
+      // setSubjectOptions(courses);
+      subject_store.setSubjects(courses);
     });
-  }, []); //on mount - no dependencies
+  }, [subjectOptions.length, subject_store]); //on mount - no dependencies
 
   const filteredSubjectOptions = subjectOptions.filter((option) =>
     //filter the subject options based on the search value

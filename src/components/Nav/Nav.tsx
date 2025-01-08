@@ -22,6 +22,12 @@ const tabData = [
     component: Tab_Plans,
   },
   {
+    value: "sections",
+    label: "sections",
+    icon: "view_timeline",
+    component: Tab_Sections,
+  },
+  {
     value: "settings",
     label: "settings",
     icon: "settings",
@@ -44,12 +50,6 @@ const tabData = [
     label: "optimizer",
     icon: "instant_mix",
     component: Tab_Optimizer,
-  },
-  {
-    value: "sections",
-    label: "sections",
-    icon: "view_timeline",
-    component: Tab_Sections,
   },
 ];
 

@@ -82,7 +82,7 @@ title: "CS 100 ROADMAP TO COMPUTING"
     <FullCalendar
       height={"100%"}
       plugins={[timeGridPlugin]}
-      slotLabelClassNames={"transform -translate-y-1/2 bg-white"}
+      slotLabelClassNames={`transform -translate-y-1/2 bg-white data-[time="06:00:00"]:opacity-0`}
       timeZone="America/New_York"
       initialView="timeGridWeek"
       headerToolbar={false}
@@ -90,14 +90,6 @@ title: "CS 100 ROADMAP TO COMPUTING"
       dayHeaderFormat={{
         weekday: "long",
       }}
-      // events={[
-      //   {
-      //     title: "Repeating Event",
-      //     startTime: "08:00:00+00:00",
-      //     daysOfWeek: [1, 2, 4],
-      //     endTime: "12:00:00+00:00",
-      //   },
-      // ]}
       events={eventData?.flat().flat() ?? []}
       allDaySlot={false}
       nowIndicator={false}
