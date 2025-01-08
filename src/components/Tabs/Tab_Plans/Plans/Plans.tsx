@@ -10,7 +10,7 @@ import classes from "./Plans.module.css";
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/planStore";
 
-function humanReadableTerm(term: string) {
+export function humanReadableTerm(term: string) {
   //regex to check if the term is in the format of 4 digits followed by 2 digits
   const termRegex = /^[0-9]{4}[0-9]{2}$/;
   if (!termRegex.test(term)) {

@@ -27,11 +27,16 @@ export default function Search({
   const searchWithoutSubject = useMemo(() => {
     return textBoxValue.replace(selectedSubject, "").trim();
   }, [textBoxValue, selectedSubject]);
+  const plan_store = planStore();
+  const selectedPlanuuid = plan_store.currentSelectedPlan;
+  const selectedPlan = plan_store.plans.find(
+    (plan) => plan.uuid === selectedPlanuuid
+  );
 
   const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
     if (subjectOptions.length > 0) return;
-    getSubjects(202490).then((courses) => {
+    getSubjects(selectedPlan?.term ?? 202490).then((courses) => {
       // setSubjectOptions(courses);
       subject_store.setSubjects(courses);
     });
@@ -56,7 +61,7 @@ export default function Search({
     if (subjectOptions.includes(textBoxValue)) {
       //if there is a subject in the textbox like CS, and it is not set as the selected subject
       setSelectedSubject(textBoxValue);
-      getClasses(202490, textBoxValue).then((classes) => {
+      getClasses(selectedPlan?.term ?? 202490, textBoxValue).then((classes) => {
         //server side fn to get classes for the subject - only called when a subject is selected
         setClassOptions(classes);
         console.log("classes", classes);
@@ -112,7 +117,11 @@ export default function Search({
             }
             //if the chip is a class, and there is a subject selected, and the subject is in the textbox
             if (selectedSubject && textBoxValue.startsWith(selectedSubject)) {
-              getSectionData(202490, selectedSubject, chipValue)
+              getSectionData(
+                selectedPlan?.term ?? 202490,
+                selectedSubject,
+                chipValue
+              )
                 .then((data) => {
                   addCourseToPlan(data);
                 })
