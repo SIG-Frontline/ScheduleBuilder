@@ -1,9 +1,10 @@
-import { createRef, useEffect, useMemo, useState } from "react";
+import { createRef, useEffect, useMemo, useRef, useState } from "react";
 import { Chip, Group, TextInput } from "@mantine/core";
 import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
 import { getSectionData } from "@/actions/getSectionData";
 import { planStore } from "@/lib/planStore";
+import { useClickOutside } from "@mantine/hooks";
 
 export default function Search({
   onFocused,
@@ -12,7 +13,11 @@ export default function Search({
   onFocused: () => void;
   onBlurred: () => void;
 }) {
+  const ref = useClickOutside(() => {
+    onBlurred();
+  });
   const [textBoxValue, setTextBoxValue] = useState<string>("");
+  const textBoxRef = useRef<HTMLInputElement>(null);
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
   const [classOptions, setClassOptions] = useState<string[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>("");
@@ -61,15 +66,16 @@ export default function Search({
     }
   }, [textBoxValue, subjectOptions, selectedSubject, searchWithoutSubject]);
   return (
-    <>
+    <div ref={ref}>
       {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
       <TextInput
+        ref={textBoxRef}
         // className={"max-w-screen" + (!matches ? " w-screen" : "")}
         onFocus={onFocused}
-        onBlur={(event) => {
-          //keep the state of the dropdown search value
-          setTextBoxValue(event.currentTarget.value);
-          onBlurred();
+        onBlur={() => {
+          if (textBoxValue.length === 0) {
+            onBlurred();
+          }
         }}
         label=""
         placeholder="Search for a course"
@@ -110,6 +116,10 @@ export default function Search({
                   setTextBoxValue("");
                 });
             }
+            //focus the textbox after selecting a chip
+            setTimeout(() => {
+              textBoxRef.current?.focus();
+            }, 10);
           }}
           value={null} //no value selected for visible chips
         >
@@ -138,6 +148,6 @@ export default function Search({
           </Group>
         </Chip.Group>
       )}
-    </>
+    </div>
   );
 }
