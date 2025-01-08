@@ -32,7 +32,7 @@ const Tab_Sections = () => {
   });
 
   //on unmount, unsubscribe from the store
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       unsubscribe();
     };

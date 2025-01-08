@@ -172,7 +172,9 @@ export const planStore = create<PlanStoreState>()(
                     ? {
                         ...c,
                         sections: c.sections.map((s) =>
-                          s.crn === crn ? { ...s, selected: true } : s
+                          s.crn === crn
+                            ? { ...s, selected: true }
+                            : { ...s, selected: false }
                         ),
                       }
                     : c
@@ -180,6 +182,7 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
+
         set({ plans: newPlans });
       },
       deleteCourseFromPlan: (course) => {

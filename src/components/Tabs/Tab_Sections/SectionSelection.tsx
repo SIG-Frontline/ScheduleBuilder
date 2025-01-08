@@ -23,11 +23,7 @@ const SectionSelection = ({
   const combobox = useCombobox();
   const [value, setValue] = useState<string | null>(null);
   const options = sections.map((item) => (
-    <Combobox.Option
-      value={`
-    ${courseCode} - ${item.instructor} - ${item.crn}`}
-      key={item.crn}
-    >
+    <Combobox.Option value={item.crn} key={item.crn}>
       {courseCode + " -" + item.instructor}
     </Combobox.Option>
   ));
