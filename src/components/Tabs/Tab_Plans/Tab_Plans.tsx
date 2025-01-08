@@ -29,7 +29,7 @@ const Tab_Plans = () => {
             placeholder="Select Term"
             data={terms}
             value={selectedTerm}
-            onChange={(val) => setSelectedTerm(val)}
+            onChange={(val) => setSelectedTerm(val ?? terms[0])}
           />
           <Button
             mt={"10px"}

@@ -35,12 +35,17 @@ export default function Search({
 
   const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
-    if (subjectOptions.length > 0) return;
-    getSubjects(selectedPlan?.term ?? 202490).then((courses) => {
-      // setSubjectOptions(courses);
-      subject_store.setSubjects(courses);
-    });
-  }, [subjectOptions.length, subject_store]); //on mount - no dependencies
+    //if the term changes, get the subjects again
+    if (
+      (selectedPlan?.term && selectedPlan?.term !== subject_store.term) || // if the term is not set or the term is not the same as the term in the store
+      !subjectOptions.length
+    ) {
+      getSubjects(selectedPlan?.term ?? 202490).then((courses) => {
+        // setSubjectOptions(courses);
+        subject_store.setSubjects(courses, selectedPlan?.term);
+      });
+    }
+  }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
 
   const filteredSubjectOptions = subjectOptions.filter((option) =>
     //filter the subject options based on the search value
@@ -73,7 +78,13 @@ export default function Search({
     } else {
       setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
     }
-  }, [textBoxValue, subjectOptions, selectedSubject, searchWithoutSubject]);
+  }, [
+    textBoxValue,
+    subjectOptions,
+    selectedSubject,
+    searchWithoutSubject,
+    selectedPlan?.term,
+  ]);
   return (
     <div ref={ref}>
       {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
