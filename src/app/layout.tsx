@@ -23,6 +23,12 @@ import Shell from "@/components/Shell/Shell";
 export const metadata: Metadata = {
   title: "Schedule Builder",
   description: "Schedule Builder for SIG-Frontline",
+  // favicon: "/frontline.png",
+  icons: {
+    apple: "/frontline.png",
+    icon: "/frontline.png",
+    shortcut: "/frontline.png",
+  },
 };
 
 export default function RootLayout({
@@ -33,10 +39,10 @@ export default function RootLayout({
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <MantineProvider defaultColorScheme="dark">
+        <MantineProvider>
           <div style={{ overflow: "auto" }}>
             <Shell>{children}</Shell>
           </div>
