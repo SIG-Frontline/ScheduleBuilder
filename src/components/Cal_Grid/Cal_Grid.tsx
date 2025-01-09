@@ -1,4 +1,5 @@
 "use client";
+import { dayStore } from "@/lib/dayStore";
 import { Plan, planStore } from "@/lib/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -25,7 +26,7 @@ const Cal_Grid = () => {
       plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
     );
   });
-
+  const day_store = dayStore();
   useEffect(() => {
     return () => {
       unsubscribe();
@@ -77,6 +78,7 @@ const Cal_Grid = () => {
       dayHeaderFormat={{
         weekday: "long",
       }}
+      hiddenDays={day_store.days}
       events={eventData?.flat().flat() ?? []}
       allDaySlot={false}
       nowIndicator={false}
