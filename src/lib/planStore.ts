@@ -170,6 +170,16 @@ export const planStore = create<PlanStoreState>()(
       },
       addCourseToPlan: (course) => {
         const { plans, currentSelectedPlan } = get();
+        const currentPlan = plans.find(
+          (plan) => plan.uuid === currentSelectedPlan
+        );
+        const currentPlanHasCourse = currentPlan?.courses?.find(
+          (c) => c.code === course.code
+        );
+        if (currentPlanHasCourse) {
+          alert("Course already in plan");
+          return;
+        }
         set({
           plans: plans.map((plan) =>
             plan.uuid === currentSelectedPlan
