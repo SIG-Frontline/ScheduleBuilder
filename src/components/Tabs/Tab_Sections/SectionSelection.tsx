@@ -8,6 +8,7 @@ import {
   Radio,
   Stack,
   ScrollArea,
+  Title,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import React, { useState } from "react";
@@ -25,7 +26,7 @@ const SectionSelection = ({
     "only screen and (orientation: landscape) and (min-width: 1201px)"
   );
   const selectSection = planStore((state) => state.selectSection);
-  const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
+
   const [value, setValue] = useState<string | null>(
     sections.find((item) => item.selected)?.crn || null
   );
@@ -69,25 +70,16 @@ const SectionSelection = ({
       <Group justify="start" align="start" mt={"sm"}>
         <div className="flex-grow">
           <Group mb={"sm"} pos={"relative"}>
-            <ActionIcon
-              pos={"absolute"}
-              className="m-1"
-              variant="outline"
-              aria-label="remove"
-              color="red"
-              onClick={() => deleteCourseFromPlan(courseCode)}
-            >
-              <Icon>delete</Icon>
-            </ActionIcon>
-            <Text
-              fw={"bolder"}
-              size="sm"
+            <Title
+              order={3}
+              size="md"
+              fw={500}
               ta={"center"}
               mx={"auto"}
               className="overflow-ellipsis overflow-hidden whitespace-nowrap"
             >
               {courseTitle}
-            </Text>
+            </Title>
           </Group>
 
           <Radio.Group

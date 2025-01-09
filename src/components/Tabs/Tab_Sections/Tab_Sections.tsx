@@ -1,7 +1,7 @@
 import { Plan, planStore } from "@/lib/planStore";
 import React, { useEffect, useState } from "react";
 import Section from "./SectionSelection";
-import { Accordion, ScrollArea, Text } from "@mantine/core";
+import { Accordion, ActionIcon, Group, ScrollArea, Text } from "@mantine/core";
 import Icon from "@/components/Icon/Icon";
 // import { Accordion } from "@mantine/core";
 //this will be the tab that shows an accordion for each course, and each acordion will have a list of sections and a radio button to select the section
@@ -40,6 +40,7 @@ const Tab_Sections = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
 
   // return <p>{JSON.stringify(currentSelectedPlan)}</p>;
   return (
@@ -66,7 +67,28 @@ const Tab_Sections = () => {
           return (
             <Accordion.Item key={courseCode} value={courseCode}>
               {/* <div key={courseCode} className="mx-6"> */}
-              <Accordion.Control>{courseCode}</Accordion.Control>
+              <Accordion.Control>
+                <Group>
+                  <ActionIcon
+                    // pos={"absolute"}
+                    className="m-1"
+                    variant="outline"
+                    aria-label="remove"
+                    color="red"
+                    component="a"
+                    onClick={() => deleteCourseFromPlan(courseCode)}
+                  >
+                    <Icon>delete</Icon>
+                  </ActionIcon>
+                  <Text
+                    size="md"
+                    fw={600}
+                    className="overflow-ellipsis overflow-hidden whitespace-nowrap"
+                  >
+                    {courseCode}
+                  </Text>
+                </Group>
+              </Accordion.Control>
               <Accordion.Panel>
                 <Section
                   courseCode={courseCode}
