@@ -22,7 +22,9 @@ const SectionSelection = ({
   const selectSection = planStore((state) => state.selectSection);
   const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
   const combobox = useCombobox();
-  const [value, setValue] = useState<string | null>(null);
+  const [value, setValue] = useState<string | null>(
+    sections.find((item) => item.selected)?.crn || null
+  );
   const options = sections.map((item) => (
     <Combobox.Option value={item.crn} key={item.crn}>
       {courseCode + " -" + item.instructor}

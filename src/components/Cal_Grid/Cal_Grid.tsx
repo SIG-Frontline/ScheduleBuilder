@@ -8,32 +8,22 @@ const Cal_Grid = () => {
   const computedColorScheme = useComputedColorScheme("light", {
     getInitialValueInEffect: true,
   });
-  const getPlan = planStore((state) => state.getPlan);
-  const cur_plan_id = planStore((state) => state.currentSelectedPlan) as string;
-  const curpln = getPlan(cur_plan_id);
-  const [currentSelectedPlan, setCurrentSelectedPlan] = useState<
+  const plan_store = planStore();
+
+  const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
     Plan | undefined
-  >(curpln);
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
+  >(
+    plan_store.getPlan(
+      plan_store.currentSelectedPlan ?? plan_store.plans[0].uuid
+    )
+  );
+
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
-    //if the component has not mounted, return
-    if (!hasMounted) {
-      return;
-    }
-    //if there is no selected plan, and there are plans, select the first plan
-    if (!currentSelectedPlan && plans.length > 0) {
-      setCurrentSelectedPlan(plans[0]);
-    }
-    //if the current selected plan is not null, set the current selected plan
-    if (currentSelectedPlan) {
-      setCurrentSelectedPlan(getPlan(currentSelectedPlan));
-    }
+    setCurrentSelectedPlan(
+      plan_store.getPlan(currentSelectedPlan ?? plans[0].uuid)
+    );
   });
 
-  //on unmount, unsubscribe from the store
   useEffect(() => {
     return () => {
       unsubscribe();
@@ -41,7 +31,7 @@ const Cal_Grid = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const eventData = currentSelectedPlan?.courses?.map((item) => {
+  const eventData = currentSelectedPlanObj?.courses?.map((item) => {
     const courseCode = item.code;
     const sections = item.sections;
     const courseTitle = item.title;
@@ -80,7 +70,7 @@ startTime:
 title: "CS 100 ROADMAP TO COMPUTING"
 */
   //need to convert the time to the correct format
-  console.log(eventData);
+  console.log(eventData + "eventData");
   return (
     <FullCalendar
       height={"100%"}
