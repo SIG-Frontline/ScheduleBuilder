@@ -55,6 +55,8 @@ const Tab_Plans = () => {
                 selected: false,
                 courses: [],
               });
+              setSelectedPlanName("");
+              setSelectedTerm(terms[0]);
               close();
             }}
           >

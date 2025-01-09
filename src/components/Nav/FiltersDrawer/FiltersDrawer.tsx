@@ -12,7 +12,7 @@ function FiltersDrawer() {
       <ActionIcon
         aria-label="filter"
         title="filter"
-        variant="white"
+        variant="subtle"
         className="!absolute right-0 top-0 z-20 m-1"
         onClick={open}
       >

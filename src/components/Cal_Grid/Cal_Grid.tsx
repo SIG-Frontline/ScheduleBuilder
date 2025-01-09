@@ -2,8 +2,10 @@
 import { Plan, planStore } from "@/lib/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import { useMantineColorScheme } from "@mantine/core";
 import { useEffect, useState } from "react";
 const Cal_Grid = () => {
+  const { colorScheme } = useMantineColorScheme();
   const getPlan = planStore((state) => state.getPlan);
   const cur_plan_id = planStore((state) => state.currentSelectedPlan) as string;
   const curpln = getPlan(cur_plan_id);
@@ -77,12 +79,13 @@ title: "CS 100 ROADMAP TO COMPUTING"
 */
   //need to convert the time to the correct format
   console.log(eventData);
-
   return (
     <FullCalendar
       height={"100%"}
       plugins={[timeGridPlugin]}
-      slotLabelClassNames={`transform -translate-y-1/2 bg-white data-[time="06:00:00"]:opacity-0`}
+      slotLabelClassNames={`transform -translate-y-1/2 ${
+        colorScheme === "dark" ? "bg-[#242424]" : "bg-white"
+      } data-[time="06:00:00"]:opacity-0`}
       timeZone="America/New_York"
       initialView="timeGridWeek"
       headerToolbar={false}

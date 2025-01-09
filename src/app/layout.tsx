@@ -36,7 +36,7 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider>
+        <MantineProvider defaultColorScheme="dark">
           <div style={{ overflow: "auto" }}>
             <Shell>{children}</Shell>
           </div>
