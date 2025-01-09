@@ -12,15 +12,17 @@ export const dayStore = create<dayStoreState>((set, get) => ({
   toggleDay: (day: number) => {
     const { days } = get();
     set(() => {
-      if (days.length === 6) {
-        return { days: days };
-      }
-
       if (days.includes(day)) {
         const retval = { days: days.filter((d) => d !== day) };
+        if (retval.days.length === 7) {
+          return { days: days };
+        }
         return retval;
       } else {
         const retval = { days: [...days, day] };
+        if (retval.days.length === 7) {
+          return { days: days };
+        }
         return retval;
       }
     });
