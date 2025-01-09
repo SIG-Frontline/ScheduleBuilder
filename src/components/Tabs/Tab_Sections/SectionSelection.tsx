@@ -2,11 +2,12 @@ import Icon from "@/components/Icon/Icon";
 import { planStore, Section } from "@/lib/planStore";
 import {
   ActionIcon,
-  Combobox,
+  Badge,
   Group,
-  Input,
-  InputBase,
-  useCombobox,
+  Text,
+  Radio,
+  Stack,
+  ScrollArea,
 } from "@mantine/core";
 import React, { useState } from "react";
 
@@ -21,66 +22,84 @@ const SectionSelection = ({
 }) => {
   const selectSection = planStore((state) => state.selectSection);
   const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
-  const combobox = useCombobox();
   const [value, setValue] = useState<string | null>(
     sections.find((item) => item.selected)?.crn || null
   );
   const options = sections.map((item) => (
-    <Combobox.Option value={item.crn} key={item.crn}>
-      {courseCode + " -" + item.instructor}
-    </Combobox.Option>
+    <Radio.Card radius="md" p={"sm"} value={item.crn} key={item.crn}>
+      <Group gap="sm" align="start">
+        <Radio.Indicator />
+        <Group gap="1" align="start" ms={"auto"}>
+          {item.meetingTimes.map((time) => (
+            <Badge variant="light" key={time.day + time.startTime}>
+              {time.day}
+            </Badge>
+          ))}{" "}
+        </Group>
+      </Group>
+      <Stack gap={0} align="flex-start">
+        <Text size="md" fw={600}>
+          {courseCode}-{item.sectionNumber}
+        </Text>
+        <Text size="sm" c="dimmed">
+          {item.instructor}
+        </Text>
+      </Stack>
+      <Group>
+        {[
+          ...new Set(
+            item.meetingTimes.map((time) => `${time.building} ${time.room}`)
+          ),
+        ].map((location) => (
+          <Badge variant="light" mt={"5"} key={location}>
+            <Text size="xs" key={location} c="blue">
+              {location}
+            </Text>
+          </Badge>
+        ))}
+      </Group>
+    </Radio.Card>
   ));
   return (
     <>
-      <h1>
-        {courseCode} {courseTitle}
-      </h1>
-      <Group>
+      <Group justify="start" align="start" mt={"sm"}>
         <div className="flex-grow">
-          <Combobox
-            store={combobox}
-            onOptionSubmit={(val) => {
-              setValue(val);
-              combobox.closeDropdown();
-              selectSection(courseCode, val);
-            }}
-          >
-            <Combobox.Target>
-              <InputBase
-                component="button"
-                type="button"
-                pointer
-                rightSection={<Combobox.Chevron />}
-                rightSectionPointerEvents="none"
-                onClick={() => combobox.toggleDropdown()}
-              >
-                {value || <Input.Placeholder>Pick value</Input.Placeholder>}
-              </InputBase>
-            </Combobox.Target>
-            <Combobox.Dropdown
-              onWheel={(event) => {
-                //prevent scrolling on the page when scrolling on the dropdown
-                event.preventDefault();
-                event.stopPropagation();
-                event.nativeEvent.stopImmediatePropagation();
+          <Group mb={"sm"} pos={"relative"}>
+            <ActionIcon
+              pos={"absolute"}
+              className="m-1"
+              variant="outline"
+              aria-label="remove"
+              color="red"
+              onClick={() => deleteCourseFromPlan(courseCode)}
+            >
+              <Icon>delete</Icon>
+            </ActionIcon>
+            <Text
+              fw={"bolder"}
+              size="sm"
+              ta={"center"}
+              mx={"auto"}
+              className="overflow-ellipsis overflow-hidden whitespace-nowrap"
+            >
+              {courseTitle}
+            </Text>
+          </Group>
+
+          <ScrollArea mih={"40vh"} scrollbars="y">
+            <Radio.Group
+              value={value}
+              onChange={(val) => {
+                setValue(val);
+                selectSection(courseCode, val);
               }}
             >
-              <Combobox.Options mah={200} style={{ overflowY: "auto" }}>
+              <Stack pt="md" gap="xs">
                 {options}
-              </Combobox.Options>
-            </Combobox.Dropdown>
-          </Combobox>
+              </Stack>
+            </Radio.Group>
+          </ScrollArea>
         </div>
-
-        <ActionIcon
-          className="m-2"
-          variant="outline"
-          aria-label="remove"
-          color="red"
-          onClick={() => deleteCourseFromPlan(courseCode)}
-        >
-          <Icon>delete</Icon>
-        </ActionIcon>
       </Group>
     </>
   );

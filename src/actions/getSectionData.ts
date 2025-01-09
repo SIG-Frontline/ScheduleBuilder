@@ -52,7 +52,7 @@ export async function getSectionData(
           INSTRUCTOR?: string;
           instructor: string | undefined;
           SECTION?: string;
-          section: string | undefined;
+          sectionNumber: string | undefined;
           STATUS?: string;
           status: string | undefined;
           NOW?: number;
@@ -92,7 +92,7 @@ export async function getSectionData(
           }
           section.instructor = section.INSTRUCTOR;
           delete section.INSTRUCTOR;
-          section.section = section.SECTION;
+          section.sectionNumber = section.SECTION;
           delete section.SECTION;
           section.status = section.STATUS;
           delete section.STATUS;
