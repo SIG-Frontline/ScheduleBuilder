@@ -91,7 +91,11 @@ export default function Search({
       <TextInput
         ref={textBoxRef}
         // className={"max-w-screen" + (!matches ? " w-screen" : "")}
-        onFocus={onFocused}
+        onFocus={(e) => {
+          onFocused();
+          //scroll to the elm immediately on focus
+          e.currentTarget.scrollIntoView({ behavior: "smooth" });
+        }}
         onBlur={() => {
           if (textBoxValue.length === 0) {
             onBlurred();

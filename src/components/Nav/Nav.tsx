@@ -73,7 +73,7 @@ export default function Nav() {
             }}
             onBlurred={() => {
               //reselect the last tab on mobile when search is out of focus
-              if (matches) return;
+              if (matches || activeTab) return;
               setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
             }}
           />
@@ -84,7 +84,15 @@ export default function Nav() {
           defaultValue="settings"
           inverted
           value={activeTab}
-          onChange={setActiveTab}
+          onChange={(value) => {
+            // console.log(value);
+            if (value === activeTab) {
+              localStorage.setItem("lastTab", value || tabData[0].value);
+              setActiveTab(null);
+              return;
+            }
+            setActiveTab(value);
+          }}
         >
           <Tabs.List
             justify="start"
