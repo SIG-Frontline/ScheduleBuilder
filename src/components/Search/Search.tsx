@@ -42,7 +42,7 @@ export default function Search({
     ) {
       getSubjects(selectedPlan?.term ?? 202490).then((courses) => {
         // setSubjectOptions(courses);
-        subject_store.setSubjects(courses, selectedPlan?.term);
+        subject_store.setSubjects(courses, selectedPlan?.term ?? 0);
       });
     }
   }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
