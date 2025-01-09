@@ -45,7 +45,8 @@ const Tab_Sections = () => {
   return (
     <Accordion>
       <>
-        {currentSelectedPlan?.courses?.length === 0 && (
+        {(currentSelectedPlan === undefined ||
+          currentSelectedPlan?.courses?.length === 0) && (
           <>
             <Text className="text-center !mt-8" c="dimmed" size="xl">
               <Icon className="!text-4xl">info</Icon>
@@ -56,28 +57,29 @@ const Tab_Sections = () => {
             </Text>
           </>
         )}
-        <ScrollArea h={"100vh"} scrollbars="y">
-          {currentSelectedPlan?.courses?.map((item) => {
-            const courseCode = item.code;
-            const sections = item.sections;
-            const courseTitle = item.title;
-            return (
-              <Accordion.Item key={courseCode} value={courseCode}>
-                {/* <div key={courseCode} className="mx-6"> */}
-                <Accordion.Control>{courseCode}</Accordion.Control>
-                <Accordion.Panel>
-                  <Section
-                    courseCode={courseCode}
-                    sections={sections}
-                    courseTitle={courseTitle}
-                  />
-                </Accordion.Panel>
-                {/* </div> */}
-              </Accordion.Item>
-            );
-          })}
-        </ScrollArea>
-      </>{" "}
+
+        {/* <ScrollArea h={"100vh"} scrollbars="y"> */}
+        {currentSelectedPlan?.courses?.map((item) => {
+          const courseCode = item.code;
+          const sections = item.sections;
+          const courseTitle = item.title;
+          return (
+            <Accordion.Item key={courseCode} value={courseCode}>
+              {/* <div key={courseCode} className="mx-6"> */}
+              <Accordion.Control>{courseCode}</Accordion.Control>
+              <Accordion.Panel>
+                <Section
+                  courseCode={courseCode}
+                  sections={sections}
+                  courseTitle={courseTitle}
+                />
+              </Accordion.Panel>
+              {/* </div> */}
+            </Accordion.Item>
+          );
+        })}
+        {/* </ScrollArea> */}
+      </>
     </Accordion>
   );
 };

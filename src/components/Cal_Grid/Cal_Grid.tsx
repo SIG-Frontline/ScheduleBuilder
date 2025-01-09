@@ -88,10 +88,10 @@ const Cal_Grid = () => {
         allDaySlot={false}
         nowIndicator={false}
         eventContent={(eventContent) => (
-          <div>
-            <i>{eventContent.event.title}</i>
+          <div className="!overflow-scroll !no-scrollbar h-full">
+            <b className="whitespace-nowrap">{eventContent.event.title}</b>
             <br />
-            <b>{eventContent?.timeText}</b>
+            <i>{eventContent?.timeText}</i>
           </div>
         )}
         businessHours={[

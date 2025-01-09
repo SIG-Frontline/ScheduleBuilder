@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs } from "@mantine/core";
+import { ScrollArea, Tabs } from "@mantine/core";
 import Icon from "../Icon/Icon";
 import Tab_Events from "@/components/Tabs/Tab_Events/Tab_Events";
 import Tab_Insights from "@/components/Tabs/Tab_Insights/Tab_Insights";
@@ -121,7 +121,6 @@ export default function Nav() {
           </Tabs.List>
           {tabData.map((tab) => (
             <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
-              {/* {tab.label} */}
               <tab.component />
             </Tabs.Panel>
           ))}

@@ -9,6 +9,7 @@ import {
   Stack,
   ScrollArea,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import React, { useState } from "react";
 
 const SectionSelection = ({
@@ -20,6 +21,9 @@ const SectionSelection = ({
   sections: Section[];
   courseTitle: string;
 }) => {
+  const matches = useMediaQuery(
+    "only screen and (orientation: landscape) and (min-width: 1201px)"
+  );
   const selectSection = planStore((state) => state.selectSection);
   const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
   const [value, setValue] = useState<string | null>(
@@ -86,19 +90,24 @@ const SectionSelection = ({
             </Text>
           </Group>
 
-          <ScrollArea mih={"40vh"} scrollbars="y">
-            <Radio.Group
-              value={value}
-              onChange={(val) => {
-                setValue(val);
-                selectSection(courseCode, val);
-              }}
+          <Radio.Group
+            value={value}
+            onChange={(val) => {
+              setValue(val);
+              selectSection(courseCode, val);
+            }}
+          >
+            <ScrollArea
+              h={matches ? "90vh" : "200px"}
+              mah={"300px"}
+              mih={"100px"}
+              scrollbars="y"
             >
               <Stack pt="md" gap="xs">
                 {options}
               </Stack>
-            </Radio.Group>
-          </ScrollArea>
+            </ScrollArea>
+          </Radio.Group>
         </div>
       </Group>
     </>
