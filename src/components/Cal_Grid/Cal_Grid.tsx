@@ -9,18 +9,20 @@ const Cal_Grid = () => {
     getInitialValueInEffect: true,
   });
   const plan_store = planStore();
-
   const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
     Plan | undefined
-  >(
-    plan_store.getPlan(
-      plan_store.currentSelectedPlan ?? plan_store.plans[0].uuid
-    )
-  );
-
+  >(plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined);
+  //use effect to log the current selected plan
+  useEffect(() => {
+    setCurrentSelectedPlan(
+      plan_store.getPlan(
+        plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
+      )
+    );
+  }, [plan_store.currentSelectedPlan, plan_store]);
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
     setCurrentSelectedPlan(
-      plan_store.getPlan(currentSelectedPlan ?? plans[0].uuid)
+      plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
     );
   });
 
@@ -61,16 +63,6 @@ const Cal_Grid = () => {
     return theReturnData;
   });
 
-  /*daysOfWeek: "M"
-​​​​
-endTime: "1900-01-01T12:50:00.000Z"
-​​​​
-startTime: 
-​​​​
-title: "CS 100 ROADMAP TO COMPUTING"
-*/
-  //need to convert the time to the correct format
-  console.log(eventData + "eventData");
   return (
     <FullCalendar
       height={"100%"}
