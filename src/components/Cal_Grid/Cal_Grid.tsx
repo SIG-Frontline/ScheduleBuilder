@@ -34,7 +34,7 @@ const Cal_Grid = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const eventData = currentSelectedPlanObj?.courses?.map((item) => {
+  let eventData = currentSelectedPlanObj?.courses?.map((item) => {
     const courseCode = item.code;
     const sections = item.sections;
     const courseTitle = item.title;
@@ -63,6 +63,10 @@ const Cal_Grid = () => {
     });
     return theReturnData;
   });
+  eventData = [
+    ...(eventData?.flat().flat() ?? []),
+    ...(currentSelectedPlanObj?.events ?? []),
+  ];
 
   return (
     <FullCalendar
@@ -79,7 +83,7 @@ const Cal_Grid = () => {
         weekday: "long",
       }}
       hiddenDays={day_store.days}
-      events={eventData?.flat().flat() ?? []}
+      events={eventData}
       allDaySlot={false}
       nowIndicator={false}
       eventContent={(eventContent) => (

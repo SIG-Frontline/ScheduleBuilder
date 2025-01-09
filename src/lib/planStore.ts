@@ -12,6 +12,8 @@ term:202490
 courses:[
 
 ]
+events:[
+]
 }]
 
 course object
@@ -44,6 +46,16 @@ is_honors:true
 is_async:true
 }
 
+event object
+
+{
+title:"Event Title",
+description:"Event Description",
+startTime:"1900-01-01T14:30:00.000Z",
+endTime:"1900-01-01T15:45:00.000Z",
+daysOfWeek:[1,2,3,4,5]
+}
+
 */
 
 export type Plan = {
@@ -52,6 +64,7 @@ export type Plan = {
   description: string;
   term: number;
   courses?: Course[];
+  events?: Event[];
   selected: boolean;
 };
 
@@ -84,6 +97,13 @@ export type MeetingTime = {
   building: string;
   room: string;
 };
+export type Event = {
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  daysOfWeek: number[];
+};
 
 interface PlanStoreState {
   plans: Plan[];
@@ -97,6 +117,8 @@ interface PlanStoreState {
   addCourseToPlan: (course: Course) => void;
   selectSection: (course: string, crn: string) => void;
   deleteCourseFromPlan: (course: string) => void;
+  addEventToPlan: (event: Event) => void;
+  removeEventFromPlan: (event: Event) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -182,7 +204,30 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
-
+        set({ plans: newPlans });
+      },
+      addEventToPlan: (event) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                events: plan.events ? plan.events.concat(event) : [event],
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      },
+      removeEventFromPlan: (event) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                events: plan.events?.filter((e) => e.title !== event.title),
+              }
+            : plan
+        );
         set({ plans: newPlans });
       },
       deleteCourseFromPlan: (course) => {
