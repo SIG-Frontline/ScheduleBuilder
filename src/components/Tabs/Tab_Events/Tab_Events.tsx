@@ -21,6 +21,23 @@ const Tab_Events = () => {
   });
 
   function addEvent() {
+    if (event.title === "") {
+      alert("Please enter a title");
+      return;
+    }
+    if (event.startTime === "") {
+      alert("Please enter a start time");
+      return;
+    }
+    if (event.endTime === "") {
+      alert("Please enter an end time");
+      return;
+    }
+    if (event.daysOfWeek.length === 0) {
+      alert("Please select at least one day of the week");
+      return;
+    }
+
     plan_store.addEventToPlan(event);
   }
   const cur_plan = plan_store.getPlan(plan_store.currentSelectedPlan + "");
