@@ -9,6 +9,8 @@ import {
 import classes from "./Plans.module.css";
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/planStore";
+import ShareModal from "./ShareModal/ShareModal";
+import { useDisclosure } from "@mantine/hooks";
 
 export function humanReadableTerm(term: string) {
   //regex to check if the term is in the format of 4 digits followed by 2 digits
@@ -133,7 +135,7 @@ function MenuElms({ tabInfo, opened }: MenuElmsProps) {
       {
         label: "Share & Export",
         icon: "share",
-        onAction: () => console.log("share & export"),
+        onAction: () => open(),
       },
     ],
     "Danger zone": [
@@ -164,42 +166,46 @@ function MenuElms({ tabInfo, opened }: MenuElmsProps) {
     setOpenedMenu(opened);
   }, [opened]);
 
+  const [ShareModalOpen, { open, close }] = useDisclosure(false);
   return (
-    <Menu
-      trigger="click"
-      shadow="lg"
-      openDelay={100}
-      closeDelay={400}
-      opened={openedMenu}
-      onChange={setOpenedMenu}
-    >
-      <Menu.Target>
-        <ActionIcon
-          variant="subtle"
-          radius={"lg"}
-          component="a"
-          aria-label="more"
-        >
-          <Icon>more_vert</Icon>
-        </ActionIcon>
-      </Menu.Target>
-      <Menu.Dropdown>
-        {Object.keys(dropDownMenuItems).map((menuLabel) => (
-          <div key={menuLabel}>
-            <Menu.Label>{menuLabel}</Menu.Label>
-            {dropDownMenuItems[menuLabel].map((item) => (
-              <Menu.Item
-                key={item.label}
-                color={item.color}
-                leftSection={<Icon>{item.icon}</Icon>}
-                onClick={() => item.onAction(tabInfo)}
-              >
-                {item.label}
-              </Menu.Item>
-            ))}
-          </div>
-        ))}
-      </Menu.Dropdown>
-    </Menu>
+    <>
+      <ShareModal opened={ShareModalOpen ?? false} onClose={close}></ShareModal>
+      <Menu
+        trigger="click"
+        shadow="lg"
+        openDelay={100}
+        closeDelay={400}
+        opened={openedMenu}
+        onChange={setOpenedMenu}
+      >
+        <Menu.Target>
+          <ActionIcon
+            variant="subtle"
+            radius={"lg"}
+            component="a"
+            aria-label="more"
+          >
+            <Icon>more_vert</Icon>
+          </ActionIcon>
+        </Menu.Target>
+        <Menu.Dropdown>
+          {Object.keys(dropDownMenuItems).map((menuLabel) => (
+            <div key={menuLabel}>
+              <Menu.Label>{menuLabel}</Menu.Label>
+              {dropDownMenuItems[menuLabel].map((item) => (
+                <Menu.Item
+                  key={item.label}
+                  color={item.color}
+                  leftSection={<Icon>{item.icon}</Icon>}
+                  onClick={() => item.onAction(tabInfo)}
+                >
+                  {item.label}
+                </Menu.Item>
+              ))}
+            </div>
+          ))}
+        </Menu.Dropdown>
+      </Menu>
+    </>
   );
 }

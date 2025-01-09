@@ -1,10 +1,17 @@
-import { Button, Group, Modal, Select, TextInput } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Modal,
+  Select,
+  TextInput,
+  FileButton,
+} from "@mantine/core";
 import Plans, { humanReadableTerm } from "./Plans/Plans";
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/planStore";
 import { useDisclosure } from "@mantine/hooks";
 import { getTerms } from "@/actions/getTerms";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Tab_Plans = () => {
   // const addPlan = planStore((state) => state.addPlan);
@@ -14,6 +21,39 @@ const Tab_Plans = () => {
   const [modalopened, { open, close }] = useDisclosure(false);
   const [selectedTerm, setSelectedTerm] = useState<string>(terms[0]);
   const [selectedPlanName, setSelectedPlanName] = useState<string>("");
+  const [files, setFiles] = useState<File | null>(null);
+  useEffect(() => {
+    //if there are files, add them to the plan store, then set the files to null
+    //make sure the plan is not selected
+    if (files) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const contents = e.target?.result;
+        if (contents) {
+          const plan = JSON.parse(contents as string);
+          plan.selected = false;
+          plan.uuid = (() => {
+            function uuidv4() {
+              return "10000000-1000-4000-8000-100000000000".replace(
+                /[018]/g,
+                (c) =>
+                  (
+                    +c ^
+                    (crypto.getRandomValues(new Uint8Array(1))[0] &
+                      (15 >> (+c / 4)))
+                  ).toString(16)
+              );
+            }
+            return uuidv4();
+          })();
+
+          addPlan(plan);
+        }
+      };
+      reader.readAsText(files);
+      setFiles(null);
+    }
+  }, [files, addPlan]);
   return (
     <>
       <Group justify="center" py={"14px"}>
@@ -75,34 +115,19 @@ const Tab_Plans = () => {
               }
               setTerms(terms_val);
             });
-
-            // addPlan({
-            //   uuid: (() => {
-            //     function uuidv4() {
-            //       return "10000000-1000-4000-8000-100000000000".replace(
-            //         /[018]/g,
-            //         (c) =>
-            //           (
-            //             +c ^
-            //             (crypto.getRandomValues(new Uint8Array(1))[0] &
-            //               (15 >> (+c / 4)))
-            //           ).toString(16)
-            //       );
-            //     }
-            //     return uuidv4();
-            //   })(),
-            //   name: "my awesome plan" + Math.floor(Math.random() * 100),
-            //   description: "this is a plan",
-            //   term: 202490,
-            //   selected: false,
-            //   courses: [],
-            // });
           }}
           leftSection={<Icon>add</Icon>}
         >
           New Plan
         </Button>
-        <Button leftSection={<Icon>upload</Icon>}>Import Plan</Button>
+        {/*  */}
+        <FileButton onChange={setFiles} accept="application/json">
+          {(props) => (
+            <Button {...props} leftSection={<Icon>upload</Icon>}>
+              Import Plan
+            </Button>
+          )}
+        </FileButton>
       </Group>
       <Plans />
     </>
