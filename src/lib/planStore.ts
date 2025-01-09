@@ -224,7 +224,14 @@ export const planStore = create<PlanStoreState>()(
           plan.uuid === currentSelectedPlan
             ? {
                 ...plan,
-                events: plan.events?.filter((e) => e.title !== event.title),
+                events: plan.events?.filter(
+                  (e) =>
+                    e.title !== event.title &&
+                    e.startTime !== event.startTime &&
+                    e.endTime !== event.endTime &&
+                    e.daysOfWeek !== event.daysOfWeek &&
+                    e.description !== event.description
+                ),
               }
             : plan
         );

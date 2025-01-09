@@ -101,10 +101,10 @@ const Tab_Events = () => {
       <br />
       <br />
       <div className="flex flex-col w-3/4 mx-auto ">
-        {cur_plan?.events?.map((event) => (
+        {cur_plan?.events?.map((event, i) => (
           <Button
             className="my-2"
-            key={event.title}
+            key={i}
             onClick={() => plan_store.removeEventFromPlan(event)}
           >
             Remove {event.title}

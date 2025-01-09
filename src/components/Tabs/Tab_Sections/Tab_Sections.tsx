@@ -1,6 +1,8 @@
 import { Plan, planStore } from "@/lib/planStore";
 import React, { useEffect, useState } from "react";
 import Section from "./SectionSelection";
+import { Text } from "@mantine/core";
+import Icon from "@/components/Icon/Icon";
 // import { Accordion } from "@mantine/core";
 //this will be the tab that shows an accordion for each course, and each acordion will have a list of sections and a radio button to select the section
 
@@ -42,6 +44,17 @@ const Tab_Sections = () => {
   // return <p>{JSON.stringify(currentSelectedPlan)}</p>;
   return (
     <>
+      {currentSelectedPlan?.courses?.length === 0 && (
+        <>
+          <Text className="text-center !mt-8" c="dimmed" size="xl">
+            <Icon className="!text-4xl">info</Icon>
+          </Text>
+          <Text className="text-center !mx-10 " c="dimmed">
+            No courses have been added to this plan yet. Search for courses to
+            add them.
+          </Text>
+        </>
+      )}
       {currentSelectedPlan?.courses?.map((item) => {
         const courseCode = item.code;
         const sections = item.sections;

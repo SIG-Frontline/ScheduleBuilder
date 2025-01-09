@@ -5,6 +5,7 @@ import {
   Select,
   TextInput,
   FileButton,
+  Text,
 } from "@mantine/core";
 import Plans, { humanReadableTerm } from "./Plans/Plans";
 import Icon from "@/components/Icon/Icon";
@@ -129,7 +130,19 @@ const Tab_Plans = () => {
           )}
         </FileButton>
       </Group>
-      <Plans />
+      {plan_store.plans.length === 0 ? (
+        <>
+          <Text className="text-center !mt-8" c="dimmed" size="xl">
+            <Icon className="!text-4xl">info</Icon>
+          </Text>
+          <Text className="text-center !mx-10 " c="dimmed">
+            No plans have been added yet, click the button above to create a new
+            plan.
+          </Text>
+        </>
+      ) : (
+        <Plans />
+      )}
     </>
   );
 };
