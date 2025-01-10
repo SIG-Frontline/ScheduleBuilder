@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { planStore } from "@/lib/planStore";
 import {
   ActionIcon,
   Badge,
-  // FloatingIndicator,
+  Group,
   Menu,
-  Tabs,
+  Radio,
+  Stack,
+  Text,
 } from "@mantine/core";
-import classes from "./Plans.module.css";
-import Icon from "@/components/Icon/Icon";
-import { planStore } from "@/lib/planStore";
+import { useEffect, useState } from "react";
 import ShareModal from "./ShareModal/ShareModal";
+import Icon from "@/components/Icon/Icon";
 import { useDisclosure } from "@mantine/hooks";
 
 export function humanReadableTerm(term: string) {
@@ -36,176 +37,162 @@ export function humanReadableTerm(term: string) {
 }
 
 const Plans = () => {
-  // const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
+  const [ShareModalOpen, setShareModalOpen] = useState<boolean>(false);
+
+  type MenuElmsProps = {
+    tabInfo: { value: string; label: string };
+    opened?: boolean;
+    setOpenMenu: (value: string | null) => void;
+  };
+  function MenuElms({ tabInfo, opened, setOpenMenu }: MenuElmsProps) {
+    type DropDownMenuItem = {
+      label: string;
+      icon: string;
+      color?: string;
+      onAction: (tabinfo: { value: string; label: string }) => void;
+    };
+    type DropDownMenuItems = {
+      [key: string]: DropDownMenuItem[];
+    };
+    // const [ShareModalOpen, { open, close }] = useDisclosure(false);
+    const dropDownMenuItems = {
+      "Plan options": [
+        {
+          label: "Edit",
+          icon: "edit",
+          onAction: () => console.log("edit"),
+        },
+        {
+          label: "Select for Compare",
+          icon: "compare_arrows",
+          onAction: () => console.log("select for compare"),
+        },
+        {
+          label: "Share & Export",
+          icon: "share",
+          onAction: () => setShareModalOpen(true),
+        },
+      ],
+      "Danger zone": [
+        {
+          label: "No Guardrails Mode",
+          icon: "thumb_down",
+          color: "red",
+          onAction: () => console.log("no guardrails mode"),
+        },
+        {
+          label: "Delete Plan",
+          icon: "delete",
+          color: "red",
+          onAction: () => {
+            console.log("delete plan");
+            deletePlan(tabInfo.value);
+          },
+        },
+      ],
+    } as DropDownMenuItems;
+    const deletePlan = planStore((state) => state.removePlan);
+    const [openedMenu, setOpenedMenu] = useState<boolean | undefined>(false);
+    //when opened is true, force the menu to open
+    // if (opened) {
+    //   setOpenedMenu(true);
+    // }
+    useEffect(() => {
+      setOpenedMenu(opened);
+    }, [opened]);
+    return (
+      <>
+        <ShareModal
+          opened={ShareModalOpen ?? false}
+          onClose={() => setShareModalOpen(false)}
+        ></ShareModal>
+        <Menu
+          onClose={() => {
+            setOpenMenu(null);
+          }}
+          trigger="click"
+          shadow="lg"
+          openDelay={100}
+          closeDelay={400}
+          opened={openedMenu}
+          onChange={setOpenedMenu}
+        >
+          <Menu.Target>
+            <ActionIcon
+              onClick={() => setOpenMenu(tabInfo.value)}
+              variant="subtle"
+              radius={"lg"}
+              component="a"
+              aria-label="more"
+            >
+              <Icon>more_vert</Icon>
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            {Object.keys(dropDownMenuItems).map((menuLabel) => (
+              <div key={menuLabel}>
+                <Menu.Label>{menuLabel}</Menu.Label>
+                {dropDownMenuItems[menuLabel].map((item) => (
+                  <Menu.Item
+                    key={item.label}
+                    color={item.color}
+                    leftSection={<Icon>{item.icon}</Icon>}
+                    onClick={() => item.onAction(tabInfo)}
+                  >
+                    {item.label}
+                  </Menu.Item>
+                ))}
+              </div>
+            ))}
+          </Menu.Dropdown>
+        </Menu>
+      </>
+    );
+  }
   const plans = planStore((state) => state.plans);
   const selectPlan = planStore((state) => state.selectPlan);
-  // const value = planStore((state) => state.currentSelectedPlan);
-  const [controlsRefs, setControlsRefs] = useState<
-    Record<string, HTMLButtonElement | null>
-  >({});
-  const setControlRef = (val: string) => (node: HTMLButtonElement) => {
-    controlsRefs[val] = node;
-    setControlsRefs(controlsRefs);
-  };
-
-  let tabsData = [];
-
-  tabsData = plans.map((plan) => {
-    return { value: plan.uuid, label: plan.name, term: plan.term };
-  });
-  const [opened, setOpened] = useState<string | null>(null);
-  return (
-    <Tabs
-      variant="none"
-      orientation="vertical"
-      value={plans.find((plan) => plan.selected)?.uuid}
-      // center
-      onChange={(e: string | null) => {
-        if (!e) {
-          return;
-        }
-        selectPlan(e);
+  const value = planStore((state) => state.currentSelectedPlan);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const cards = plans.map((plan) => (
+    <Radio.Card
+      p={"sm"}
+      radius="md"
+      value={plan.uuid}
+      key={plan.uuid}
+      className={plan.uuid === value ? "shadow-lg border border-primary" : ""}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setOpenMenu(plan.uuid);
       }}
-      className="w-4/5 mx-auto"
     >
-      <Tabs.List
-        // ref={setRootRef}
-        grow={true}
-        className={[classes.list, "w-full"].join(" ")}
-      >
-        {tabsData.map((tab) => (
-          <Tabs.Tab
-            key={tab.value}
-            value={tab.value}
-            onClick={() => selectPlan(tab.value)}
-            ref={setControlRef(tab.value)}
-            className={classes.tab}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              console.log("right click");
-              //to make this open the menu, we need to set the opened prop to true
-              // that can be done by using the state
-              setOpened(tab.value);
-            }}
-          >
-            <p>{tab.label}</p>
-            <Badge variant="light" color="gray" size="lg" radius="lg">
-              {humanReadableTerm(tab.term.toString())}
-            </Badge>
-            <MenuElms tabInfo={tab} opened={opened === tab.value} />
-          </Tabs.Tab>
-        ))}
-        {/* <FloatingIndicator
-          target={controlsRefs[value as string]}
-          parent={rootRef}
-          className={classes.indicator}
-        /> */}
-      </Tabs.List>
-    </Tabs>
-  );
-};
-
-export default Plans;
-type MenuElmsProps = {
-  tabInfo: { value: string; label: string };
-  opened?: boolean;
-};
-function MenuElms({ tabInfo, opened }: MenuElmsProps) {
-  type DropDownMenuItem = {
-    label: string;
-    icon: string;
-    color?: string;
-    onAction: (tabinfo: { value: string; label: string }) => void;
-  };
-  type DropDownMenuItems = {
-    [key: string]: DropDownMenuItem[];
-  };
-  const dropDownMenuItems = {
-    "Plan options": [
-      {
-        label: "Edit",
-        icon: "edit",
-        onAction: () => console.log("edit"),
-      },
-      {
-        label: "Select for Compare",
-        icon: "compare_arrows",
-        onAction: () => console.log("select for compare"),
-      },
-      {
-        label: "Share & Export",
-        icon: "share",
-        onAction: () => open(),
-      },
-    ],
-    "Danger zone": [
-      {
-        label: "No Guardrails Mode",
-        icon: "thumb_down",
-        color: "red",
-        onAction: () => console.log("no guardrails mode"),
-      },
-      {
-        label: "Delete Plan",
-        icon: "delete",
-        color: "red",
-        onAction: () => {
-          console.log("delete plan");
-          deletePlan(tabInfo.value);
-        },
-      },
-    ],
-  } as DropDownMenuItems;
-  const deletePlan = planStore((state) => state.removePlan);
-  const [openedMenu, setOpenedMenu] = useState<boolean | undefined>(false);
-  //when opened is true, force the menu to open
-  // if (opened) {
-  //   setOpenedMenu(true);
-  // }
-  useEffect(() => {
-    setOpenedMenu(opened);
-  }, [opened]);
-
-  const [ShareModalOpen, { open, close }] = useDisclosure(false);
+      <Group justify="space-between">
+        <Text c={plan.uuid === value ? "dark" : "dimmed"}>{plan.name}</Text>
+        <Group>
+          <Badge variant="light">
+            <Text>{humanReadableTerm(plan.term.toString())}</Text>
+          </Badge>
+          <MenuElms
+            tabInfo={{ value: plan.uuid, label: plan.name }}
+            opened={openMenu === plan.uuid}
+            setOpenMenu={setOpenMenu}
+          />
+        </Group>
+      </Group>
+    </Radio.Card>
+  ));
   return (
     <>
-      <ShareModal opened={ShareModalOpen ?? false} onClose={close}></ShareModal>
-      <Menu
-        trigger="click"
-        shadow="lg"
-        openDelay={100}
-        closeDelay={400}
-        opened={openedMenu}
-        onChange={setOpenedMenu}
+      <Radio.Group
+        value={value}
+        onChange={(value) => selectPlan(value)}
+        aria-label="Choose a plan"
       >
-        <Menu.Target>
-          <ActionIcon
-            variant="subtle"
-            radius={"lg"}
-            component="a"
-            aria-label="more"
-          >
-            <Icon>more_vert</Icon>
-          </ActionIcon>
-        </Menu.Target>
-        <Menu.Dropdown>
-          {Object.keys(dropDownMenuItems).map((menuLabel) => (
-            <div key={menuLabel}>
-              <Menu.Label>{menuLabel}</Menu.Label>
-              {dropDownMenuItems[menuLabel].map((item) => (
-                <Menu.Item
-                  key={item.label}
-                  color={item.color}
-                  leftSection={<Icon>{item.icon}</Icon>}
-                  onClick={() => item.onAction(tabInfo)}
-                >
-                  {item.label}
-                </Menu.Item>
-              ))}
-            </div>
-          ))}
-        </Menu.Dropdown>
-      </Menu>
+        {ShareModalOpen}
+        <Stack p="md" gap="xs">
+          {cards}
+        </Stack>
+      </Radio.Group>
     </>
   );
-}
+};
+export default Plans;

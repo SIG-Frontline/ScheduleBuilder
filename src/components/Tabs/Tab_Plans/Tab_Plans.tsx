@@ -81,7 +81,7 @@ const Tab_Plans = () => {
                 return;
               }
               if (selectedTerm.length === 0) {
-                alert("Please select a term for the plan"); 
+                alert("Please select a term for the plan");
                 return;
               }
 
