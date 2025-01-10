@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollArea, Tabs } from "@mantine/core";
+import { Tabs } from "@mantine/core";
 import Icon from "../Icon/Icon";
 import Tab_Events from "@/components/Tabs/Tab_Events/Tab_Events";
 import Tab_Insights from "@/components/Tabs/Tab_Insights/Tab_Insights";

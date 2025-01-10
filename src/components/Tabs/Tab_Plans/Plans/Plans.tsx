@@ -11,7 +11,6 @@ import {
 import { useEffect, useState } from "react";
 import ShareModal from "./ShareModal/ShareModal";
 import Icon from "@/components/Icon/Icon";
-import { useDisclosure } from "@mantine/hooks";
 
 export function humanReadableTerm(term: string) {
   //regex to check if the term is in the format of 4 digits followed by 2 digits

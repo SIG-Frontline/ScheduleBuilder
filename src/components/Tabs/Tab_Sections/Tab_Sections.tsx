@@ -1,7 +1,7 @@
 import { Plan, planStore } from "@/lib/planStore";
 import React, { useEffect, useState } from "react";
 import Section from "./SectionSelection";
-import { Accordion, ActionIcon, Group, ScrollArea, Text } from "@mantine/core";
+import { Accordion, ActionIcon, Group, Text } from "@mantine/core";
 import Icon from "@/components/Icon/Icon";
 // import { Accordion } from "@mantine/core";
 //this will be the tab that shows an accordion for each course, and each acordion will have a list of sections and a radio button to select the section
