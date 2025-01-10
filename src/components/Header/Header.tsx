@@ -7,7 +7,7 @@ const Header = () => {
     <>
       <Flex justify="space-between" py={10} px={20}>
         <Title
-          className="overflow-hidden whitespace-nowrap text-ellipsis !text-nowrap "
+          className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap "
           order={1}
         >
           Schedule Builder
