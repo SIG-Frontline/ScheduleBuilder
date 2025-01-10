@@ -3,7 +3,7 @@ import { dayStore } from "@/lib/dayStore";
 import { Plan, planStore } from "@/lib/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { Group, useComputedColorScheme } from "@mantine/core";
+import { Group, Text, useComputedColorScheme } from "@mantine/core";
 import { useEffect, useState } from "react";
 const Cal_Grid = () => {
   const computedColorScheme = useComputedColorScheme("light", {
@@ -137,11 +137,22 @@ const Cal_Grid = () => {
           );
           return onlineSections.map((section) => {
             return (
-              <div key={section.crn} className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+              <div
+                key={section.crn}
+                className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
+              >
+                <div
+                  style={{ backgroundColor: item.color ?? "#00aa00" }}
+                  className="w-4 h-4 rounded-full"
+                ></div>
                 <div>
-                  <div>{courseCode + " " + courseTitle}</div>
-                  <div>Online</div>
+                  <Text size="md">{courseCode + " " + courseTitle}</Text>
+                  <Group justify="space-between">
+                    <Text size="sm">{section.instructor}</Text>
+                    <Text size="xs" c="dimmed">
+                      Online
+                    </Text>
+                  </Group>
                 </div>
               </div>
             );
