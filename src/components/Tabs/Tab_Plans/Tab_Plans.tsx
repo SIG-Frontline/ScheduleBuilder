@@ -6,6 +6,7 @@ import {
   TextInput,
   FileButton,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import Plans, { humanReadableTerm } from "./Plans/Plans";
 import Icon from "@/components/Icon/Icon";
@@ -114,31 +115,36 @@ const Tab_Plans = () => {
             Create
           </Button>
         </Modal>
-        <Button
-          onClick={() => {
-            open();
-            getTerms().then((terms_val) => {
-              for (let i = 0; i < terms_val.length; i++) {
-                terms_val[i] = {
-                  value: terms_val[i],
-                  label: humanReadableTerm(terms_val[i]),
-                };
-              }
-              setTerms(terms_val);
-            });
-          }}
-          leftSection={<Icon>add</Icon>}
-        >
-          New Plan
-        </Button>
-        {/*  */}
-        <FileButton onChange={setFiles} accept="application/json">
-          {(props) => (
-            <Button {...props} leftSection={<Icon>upload</Icon>}>
-              Import Plan
-            </Button>
-          )}
-        </FileButton>
+        <Tooltip label="Create a new plan">
+          <Button
+            onClick={() => {
+              open();
+              getTerms().then((terms_val) => {
+                for (let i = 0; i < terms_val.length; i++) {
+                  terms_val[i] = {
+                    value: terms_val[i],
+                    label: humanReadableTerm(terms_val[i]),
+                  };
+                }
+                setTerms(terms_val);
+              });
+            }}
+            leftSection={<Icon>add</Icon>}
+          >
+            New Plan
+          </Button>
+        </Tooltip>
+        <Tooltip label="Import a plan from a JSON file">
+          <div>
+            <FileButton onChange={setFiles} accept="application/json">
+              {(props) => (
+                <Button {...props} leftSection={<Icon>upload</Icon>}>
+                  Import Plan
+                </Button>
+              )}
+            </FileButton>
+          </div>
+        </Tooltip>
       </Group>
       {plan_store.plans.length === 0 ? (
         <>

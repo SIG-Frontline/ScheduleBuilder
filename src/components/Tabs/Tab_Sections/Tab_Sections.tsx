@@ -9,6 +9,7 @@ import {
   Group,
   Popover,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import Icon from "@/components/Icon/Icon";
 // import { Accordion } from "@mantine/core";
@@ -100,17 +101,19 @@ const Tab_Sections = () => {
                       </Popover.Dropdown>
                     </Popover>
                   </div>
-                  <ActionIcon
-                    // pos={"absolute"}
-                    className="m-1"
-                    variant="outline"
-                    aria-label="remove"
-                    color="red"
-                    component="a"
-                    onClick={() => deleteCourseFromPlan(courseCode)}
-                  >
-                    <Icon>delete</Icon>
-                  </ActionIcon>
+                  <Tooltip label="Remove Course">
+                    <ActionIcon
+                      // pos={"absolute"}
+                      className="m-1"
+                      variant="outline"
+                      aria-label="remove"
+                      color="red"
+                      component="a"
+                      onClick={() => deleteCourseFromPlan(courseCode)}
+                    >
+                      <Icon>delete</Icon>
+                    </ActionIcon>
+                  </Tooltip>
                   <Text
                     size="md"
                     fw={600}

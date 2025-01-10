@@ -5,6 +5,7 @@ import {
   Group,
   MultiSelect,
   Text,
+  Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
 import React from "react";
@@ -25,12 +26,18 @@ const Tab_Settings = () => {
   return (
     <>
       <Group m="sm">
-        <ActionIcon className="m-1" variant="light" onClick={toggleColorScheme}>
-          <Icon>
-            <p className="dark:hidden">light_mode</p>
-            <p className="hidden dark:block">dark_mode</p>
-          </Icon>
-        </ActionIcon>
+        <Tooltip label="Toggle color scheme">
+          <ActionIcon
+            className="m-1"
+            variant="light"
+            onClick={toggleColorScheme}
+          >
+            <Icon>
+              <p className="dark:hidden">light_mode</p>
+              <p className="hidden dark:block">dark_mode</p>
+            </Icon>
+          </ActionIcon>
+        </Tooltip>
         <Text size="md">Color Scheme</Text>
       </Group>
       <Text size="md" ta={"center"}>
