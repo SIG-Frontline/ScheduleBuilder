@@ -34,7 +34,7 @@ const Tab_Insights = () => {
                 <Text>{course.description}</Text>
               </Spoiler>
             </Card>
-            <Space h="xs" />
+            <Space h="xs" key={course.code + "space"} />
           </>
         );
       })}

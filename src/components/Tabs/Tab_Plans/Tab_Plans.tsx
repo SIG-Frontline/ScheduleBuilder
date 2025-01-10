@@ -77,11 +77,14 @@ const Tab_Plans = () => {
             mt={"10px"}
             onClick={() => {
               //validate the input
-              if (selectedPlanName.length === 0) {
+              if (
+                selectedPlanName === undefined ||
+                selectedPlanName.length === 0
+              ) {
                 alert("Please enter a name for the plan");
                 return;
               }
-              if (selectedTerm.length === 0) {
+              if (selectedTerm === undefined || selectedTerm.length === 0) {
                 alert("Please select a term for the plan");
                 return;
               }
