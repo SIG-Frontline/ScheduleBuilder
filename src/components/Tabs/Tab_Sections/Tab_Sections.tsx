@@ -76,53 +76,66 @@ const Tab_Sections = () => {
           return (
             <Accordion.Item key={courseCode} value={courseCode}>
               {/* <div key={courseCode} className="mx-6"> */}
-              <Accordion.Control>
-                <Group>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Popover
-                      width={300}
-                      position="bottom"
-                      withArrow
-                      shadow="md"
-                    >
-                      <Popover.Target>
-                        <ColorSwatch color={item.color ?? "#00aa00"} />
-                      </Popover.Target>
-                      <Popover.Dropdown>
-                        <div>
-                          <ColorPicker
-                            format="rgba"
-                            onChange={(val) => {
-                              updateCourseColor(item, val);
-                            }}
-                            value={item.color ?? "#fff"}
+              <Group>
+                <Accordion.Control>
+                  <Group>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Popover
+                        width={300}
+                        position="bottom"
+                        withArrow
+                        shadow="md"
+                      >
+                        <Popover.Target>
+                          <ColorSwatch
+                            component="a"
+                            href="javascript:void(0)"
+                            aria-label="change color"
+                            color={item.color ?? "#00aa00"}
                           />
-                        </div>
-                      </Popover.Dropdown>
-                    </Popover>
-                  </div>
-                  <Tooltip label="Remove Course">
-                    <ActionIcon
-                      // pos={"absolute"}
-                      className="m-1"
-                      variant="outline"
-                      aria-label="remove"
-                      color="red"
-                      component="a"
-                      onClick={() => deleteCourseFromPlan(courseCode)}
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                          <div>
+                            <ColorPicker
+                              format="rgba"
+                              onChange={(val) => {
+                                updateCourseColor(item, val);
+                              }}
+                              value={item.color ?? "#fff"}
+                            />
+                          </div>
+                        </Popover.Dropdown>
+                      </Popover>
+                    </div>
+                    <Tooltip label="Remove Course">
+                      <ActionIcon
+                        // pos={"absolute"}
+                        className="m-1"
+                        variant="outline"
+                        aria-label="remove"
+                        color="red"
+                        component="a"
+                        href="javascript:void(0)"
+                        onKeyDown={(e) => {
+                          if (e.key === "Space" || e.key === "Enter") {
+                            deleteCourseFromPlan(courseCode);
+                          }
+                        }}
+                        onClick={() => deleteCourseFromPlan(courseCode)}
+                      >
+                        <Icon>delete</Icon>
+                      </ActionIcon>
+                    </Tooltip>
+                    <Text
+                      size="md"
+                      fw={600}
+                      className="overflow-ellipsis overflow-hidden whitespace-nowrap"
                     >
-                      <Icon>delete</Icon>
-                    </ActionIcon>
-                  </Tooltip>
-                  <Text
-                    size="md"
-                    fw={600}
-                    className="overflow-ellipsis overflow-hidden whitespace-nowrap"
-                  >
-                    {courseCode}
-                  </Text>
-                </Group>
-              </Accordion.Control>
+                      {courseCode}
+                    </Text>
+                  </Group>
+                </Accordion.Control>
+              </Group>
               <Accordion.Panel>
                 <Section
                   courseCode={courseCode}
