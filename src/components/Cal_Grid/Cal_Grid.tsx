@@ -72,6 +72,7 @@ const Cal_Grid = () => {
     <>
       <FullCalendar
         height={"90%"}
+        expandRows={true}
         plugins={[timeGridPlugin]}
         slotLabelClassNames={`transform -translate-y-1/2 ${
           computedColorScheme === "dark" ? "bg-[#242424]" : "bg-white"
