@@ -1,7 +1,15 @@
 import { Plan, planStore } from "@/lib/planStore";
 import React, { useEffect, useState } from "react";
 import Section from "./SectionSelection";
-import { Accordion, ActionIcon, Group, Text } from "@mantine/core";
+import {
+  Accordion,
+  ActionIcon,
+  ColorPicker,
+  ColorSwatch,
+  Group,
+  Popover,
+  Text,
+} from "@mantine/core";
 import Icon from "@/components/Icon/Icon";
 // import { Accordion } from "@mantine/core";
 //this will be the tab that shows an accordion for each course, and each acordion will have a list of sections and a radio button to select the section
@@ -41,7 +49,7 @@ const Tab_Sections = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
-
+  const updateCourseColor = planStore((state) => state.updateCourseColor);
   // return <p>{JSON.stringify(currentSelectedPlan)}</p>;
   return (
     <Accordion>
@@ -69,6 +77,29 @@ const Tab_Sections = () => {
               {/* <div key={courseCode} className="mx-6"> */}
               <Accordion.Control>
                 <Group>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Popover
+                      width={300}
+                      position="bottom"
+                      withArrow
+                      shadow="md"
+                    >
+                      <Popover.Target>
+                        <ColorSwatch color={item.color ?? "#00aa00"} />
+                      </Popover.Target>
+                      <Popover.Dropdown>
+                        <div>
+                          <ColorPicker
+                            format="rgba"
+                            onChange={(val) => {
+                              updateCourseColor(item, val);
+                            }}
+                            value={item.color ?? "#fff"}
+                          />
+                        </div>
+                      </Popover.Dropdown>
+                    </Popover>
+                  </div>
                   <ActionIcon
                     // pos={"absolute"}
                     className="m-1"

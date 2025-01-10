@@ -138,6 +138,10 @@ export default function Search({
                 chipValue
               )
                 .then((data) => {
+                  data.color = `rgba(
+                  ${Math.floor(Math.random() * 256)},
+                  ${Math.floor(Math.random() * 256)},
+                  ${Math.floor(Math.random() * 256)},0.9)`;
                   addCourseToPlan(data);
                 })
                 .then(() => {

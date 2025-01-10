@@ -75,6 +75,7 @@ export type Course = {
   prerequisites: string[];
   credits: number;
   sections: Section[];
+  color?: string;
 };
 
 export type Section = {
@@ -103,6 +104,7 @@ export type Event = {
   startTime: string;
   endTime: string;
   daysOfWeek: number[];
+  color?: string;
 };
 
 interface PlanStoreState {
@@ -119,6 +121,7 @@ interface PlanStoreState {
   deleteCourseFromPlan: (course: string) => void;
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
+  updateCourseColor: (course: Course, color: string) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -259,6 +262,20 @@ export const planStore = create<PlanStoreState>()(
         );
         set({ plans: newPlans });
       },
+      updateCourseColor: (course, color) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.map((c) =>
+                  c.code === course.code ? { ...c, color } : c
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      }
     }),
     {
       name: "plan-store",

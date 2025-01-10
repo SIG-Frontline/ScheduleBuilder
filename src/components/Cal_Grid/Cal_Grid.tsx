@@ -57,7 +57,7 @@ const Cal_Grid = () => {
           daysOfWeek: [
             ["U", "M", "T", "W", "R", "F", "S"].indexOf(meetingTime.day),
           ],
-          backgroundColor: "#00aa00",
+          backgroundColor: item.color ?? "#00aa00",
         };
       });
     });
