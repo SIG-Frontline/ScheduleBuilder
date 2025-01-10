@@ -1,4 +1,14 @@
-import { Button, MultiSelect, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  ColorPicker,
+  ColorSwatch,
+  Group,
+  MultiSelect,
+  Popover,
+  Text,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { TimeInput } from "@mantine/dates";
 import { planStore } from "@/lib/planStore";
@@ -18,6 +28,7 @@ const Tab_Events = () => {
     startTime: "",
     endTime: "",
     daysOfWeek: [] as number[],
+    color: "#00aa00",
   });
 
   function addEvent() {
@@ -35,6 +46,14 @@ const Tab_Events = () => {
     }
     if (event.daysOfWeek.length === 0) {
       alert("Please select at least one day of the week");
+      return;
+    }
+    if (event.startTime >= event.endTime) {
+      alert("Start time must be before end time");
+      return;
+    }
+    if (event.color === "") {
+      alert("Please select a color");
       return;
     }
 
@@ -110,9 +129,30 @@ const Tab_Events = () => {
             setEvent({ ...event, daysOfWeek: days.map((day) => parseInt(day)) })
           }
         />
+        <div onClick={(e) => e.stopPropagation()}>
+          <Popover width={300} position="bottom" withArrow shadow="md">
+            <Popover.Target>
+              <Group my={"sm"}>
+                <Text>Color:</Text>
+                <ColorSwatch color={event.color} />
+              </Group>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <div>
+                <ColorPicker
+                  format="rgba"
+                  onChange={(val) => {
+                    setEvent({ ...event, color: val });
+                  }}
+                  value={event.color}
+                />
+              </div>
+            </Popover.Dropdown>
+          </Popover>
+        </div>
         <Button variant="filled" onClick={addEvent}>
           Add Event
-        </Button>{" "}
+        </Button>
       </div>
 
       <br />
