@@ -71,6 +71,24 @@ export async function GET(request: NextRequest) {
         sections: { $push: "$$ROOT" },
       },
     },
+    {
+      $lookup: {
+        from: "Course_Static",
+        localField: "_id",
+        foreignField: "_id",
+        as: "course_static",
+      },
+    },
+    {
+      $addFields: {
+        description: {
+          $arrayElemAt: ["$course_static.description", 0],
+        },
+      },
+    },
+    {
+      $unset: "course_static", // Hide the course_static field
+    },
   ];
   try {
     // Attempt to get the sections from the sectionsCollection using the query
