@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import Icon from "@/components/Icon/Icon";
+import Link from "next/link";
 // import { Accordion } from "@mantine/core";
 //this will be the tab that shows an accordion for each course, and each acordion will have a list of sections and a radio button to select the section
 
@@ -85,12 +86,12 @@ const Tab_Sections = () => {
                         position="bottom"
                         withArrow
                         shadow="md"
-                        clickOutsideEvents={["mouseup", "touchend"]}
+                        trapFocus
                       >
                         <Popover.Target>
                           <ColorSwatch
-                            component="a"
-                            onClick={(e) => e.stopPropagation()}
+                            component={Link} // this is a hack to make the color swatch clickable, and avoid react warnings
+                            href="javascript:void(0)"
                             aria-label="change color"
                             color={item.color ?? "#00aa00"}
                           />
@@ -107,6 +108,12 @@ const Tab_Sections = () => {
                               format="rgba"
                               onChange={(val) => {
                                 updateCourseColor(item, val);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  //close the popover
+                                  e.currentTarget.blur();
+                                }
                               }}
                             />
                           </div>
