@@ -1,5 +1,5 @@
 import Icon from "@/components/Icon/Icon";
-import { ActionIcon, Drawer } from "@mantine/core";
+import { ActionIcon, Drawer, SegmentedControl } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Checkbox, Group, Text } from "@mantine/core";
 import { filterStore } from "@/lib/filterStore";
@@ -27,7 +27,6 @@ function FiltersDrawer() {
         position={matches ? "right" : "bottom"}
       >
         {/* Drawer content */}
-
         {/* 
         
         filter for the following:
@@ -59,6 +58,57 @@ function FiltersDrawer() {
             </div>
           </Group>
         </Checkbox.Card>
+        <SegmentedControl
+          data={[
+            {
+              label: "All Options",
+              value: "all",
+            },
+            {
+              label: "Graduate Only",
+              value: "graduate",
+            },
+            {
+              label: "Undergraduate Only",
+              value: "undergraduate",
+            },
+          ]}
+          value={(() => {
+            if (filter_store.filters.graduate) {
+              return "graduate";
+            } else if (filter_store.filters.undergraduate) {
+              return "undergraduate";
+            } else {
+              return "all";
+            }
+          })()}
+          onChange={(value) => {
+            if (value === "graduate") {
+              filter_store.setFilters({
+                ...filter_store.filters,
+                graduate: true,
+                undergraduate: false,
+              });
+            } else if (value === "undergraduate") {
+              filter_store.setFilters({
+                ...filter_store.filters,
+                graduate: false,
+                undergraduate: true,
+              });
+            } else {
+              filter_store.setFilters({
+                ...filter_store.filters,
+                graduate: false,
+                undergraduate: false,
+              });
+            }
+          }}
+        ></SegmentedControl>
+        <Text size="sm" c={"dimmed"}>
+          * Architecture 500 courses may be grouped with graduate courses -
+          please confirm with your advisor that the course is appropriate for
+          your program.
+        </Text>
       </Drawer>
     </>
   );

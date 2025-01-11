@@ -11,6 +11,12 @@ export async function getClasses(
   if (filters.honors) {
     URL += "&honors=true";
   }
+  if (filters.graduate) {
+    URL += "&level=g";
+  }
+  if (filters.undergraduate) {
+    URL += "&level=u";
+  }
   console.log(URL);
 
   const data = fetch(URL)

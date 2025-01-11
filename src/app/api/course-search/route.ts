@@ -37,7 +37,28 @@ export async function GET(request: NextRequest) {
     addQuery(query, "CREDITS", searchParams.get("credits") as string);
   }
   if (searchParams.has("level")) {
-    addQuery(query, "COURSE_LEVEL", searchParams.get("level") as string);
+    const undergraduate = {
+      start: 1,
+      end: 4,
+    };
+    const graduate = {
+      start: 5,
+      end: 7,
+    };
+    const levels = searchParams.get("level")?.split(",");
+    if (levels?.includes("g")) {
+      addQuery(
+        query,
+        "COURSE_LEVEL",
+        `range!${graduate.start}|${graduate.end}`
+      );
+    } else if (levels?.includes("u")) {
+      addQuery(
+        query,
+        "COURSE_LEVEL",
+        `range!${undergraduate.start}|${undergraduate.end}`
+      );
+    }
   }
   if (searchParams.has("summer")) {
     addQuery(query, "SUMMER_PERIOD", searchParams.get("summer") as string);
