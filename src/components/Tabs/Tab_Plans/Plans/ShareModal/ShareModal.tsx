@@ -1,6 +1,6 @@
 import { planStore } from "@/lib/planStore";
 import { Button, Group, Modal } from "@mantine/core";
-
+import html2canvas from "html2canvas";
 export default function ShareModal({
   opened,
   onClose,
@@ -25,6 +25,21 @@ export default function ShareModal({
     a.click();
     URL.revokeObjectURL(url);
   }
+  function imageSave() {
+    const elm: HTMLDivElement = document.querySelector(
+      ".fc-timeGridWeek-view.fc-view.fc-timegrid"
+    ) as HTMLDivElement;
+    html2canvas(elm).then((canvas) => {
+      // Get the data URL for the image
+      const dataURL = canvas.toDataURL("image/png");
+
+      // Create a temporary download link
+      const downloadLink = document.createElement("a");
+      downloadLink.href = dataURL;
+      downloadLink.download = "capture.png";
+      downloadLink.click();
+    });
+  }
 
   return (
     <>
@@ -36,7 +51,9 @@ export default function ShareModal({
           </Button>
           <br />
           <br />
-          <Button variant="filled">[not working] Save as Image</Button>
+          <Button variant="filled" onClick={imageSave}>
+            Save as Image
+          </Button>
           <Button variant="filled">[not working] Save as ICS</Button>
           <Button variant="filled">[not working] Copy Link</Button>
         </Group>

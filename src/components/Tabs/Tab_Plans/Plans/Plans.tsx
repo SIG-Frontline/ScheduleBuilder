@@ -7,6 +7,7 @@ import {
   Radio,
   Stack,
   Text,
+  useComputedColorScheme,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import ShareModal from "./ShareModal/ShareModal";
@@ -37,6 +38,9 @@ export function humanReadableTerm(term: string) {
 
 const Plans = () => {
   const [ShareModalOpen, setShareModalOpen] = useState<boolean>(false);
+  const computedColorScheme = useComputedColorScheme("light", {
+    getInitialValueInEffect: true,
+  });
 
   type MenuElmsProps = {
     tabInfo: { value: string; label: string };
@@ -165,7 +169,19 @@ const Plans = () => {
       }}
     >
       <Group justify="space-between">
-        <Text c={plan.uuid === value ? "dark" : "dimmed"}>{plan.name}</Text>
+        <Text
+          c={
+            plan.uuid === value
+              ? computedColorScheme === "light"
+                ? "dark"
+                : "dimmed"
+              : computedColorScheme === "light"
+              ? "dimmed"
+              : "dark"
+          }
+        >
+          {plan.name}
+        </Text>
         <Group>
           <Badge variant="light">
             <Text>{humanReadableTerm(plan.term.toString())}</Text>

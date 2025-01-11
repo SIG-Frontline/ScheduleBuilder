@@ -3,12 +3,9 @@ import { dayStore } from "@/lib/dayStore";
 import { Plan, planStore } from "@/lib/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { Group, Text, useComputedColorScheme } from "@mantine/core";
+import { Group, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 const Cal_Grid = () => {
-  const computedColorScheme = useComputedColorScheme("light", {
-    getInitialValueInEffect: true,
-  });
   const plan_store = planStore();
   const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
     Plan | undefined
@@ -78,12 +75,11 @@ const Cal_Grid = () => {
   return (
     <>
       <FullCalendar
+        viewClassNames={`dark:bg-[#242424] bg-white`}
         height={"90%"}
         expandRows={true}
         plugins={[timeGridPlugin]}
-        slotLabelClassNames={`transform -translate-y-1/2 ${
-          computedColorScheme === "dark" ? "bg-[#242424]" : "bg-white"
-        } data-[time="06:00:00"]:opacity-0`}
+        slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
         timeZone="America/New_York"
         initialView="timeGridWeek"
         headerToolbar={false}
