@@ -42,7 +42,14 @@ const Cal_Grid = () => {
     const theReturnData = selectedSections.map((section) => {
       return section.meetingTimes.map((meetingTime) => {
         return {
-          title: courseCode + " " + courseTitle,
+          title: `${courseCode} - ${section.sectionNumber} (${item.credits}) `,
+          extendedProps: {
+            title: courseTitle,
+            crn: section.crn,
+            instructor: section.instructor,
+            location: meetingTime.building + " " + meetingTime.room,
+            credits: item.credits,
+          },
           startTime:
             new Date(meetingTime.startTime)
               .toISOString()
@@ -89,12 +96,29 @@ const Cal_Grid = () => {
         allDaySlot={false}
         nowIndicator={false}
         eventContent={(eventContent) => (
-          <div className="!overflow-scroll !no-scrollbar h-full">
-            <b className="whitespace-nowrap">{eventContent.event.title}</b>
+          <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
+            <b className=" w-full text-xs ">{eventContent.event.title}</b>
+            <span className="text-xs">
+              {eventContent.event.extendedProps.title}
+            </span>
             <br />
-            <i>{eventContent?.timeText}</i>
+            <span className="text-xs">{eventContent.timeText}</span> @
+            <span className="text-xs">
+              {eventContent.event.extendedProps.location}
+            </span>
+            <br />
+            <span className="text-xs">
+              {eventContent.event.extendedProps.instructor}
+            </span>
+            <br />
           </div>
         )}
+        eventTimeFormat={{
+          hour: "numeric",
+          minute: "2-digit",
+          omitZeroMinute: false,
+          meridiem: "short",
+        }}
         businessHours={[
           {
             daysOfWeek: [0, 1, 2, 4, 6],

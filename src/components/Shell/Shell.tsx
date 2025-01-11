@@ -18,16 +18,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         <AppShell.Header>
           <Header />
         </AppShell.Header>
-        {/* {matches ? (
-        <AppShell.Aside>
-          <Nav />
-        </AppShell.Aside>
-      ) : (
-        <AppShell.Footer>
-          <Nav />
-        </AppShell.Footer>
-      )} */}
-        {matches ? (
+        {matches === true ? (
           <AppShell.Aside>
             <Nav />
           </AppShell.Aside>
@@ -42,7 +33,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div className="flex flex-col h-[calc(100vh_-_60px)]">
             <div className="flex-grow">{children} </div>
             <div className="h-max w-screen sticky left-0">
-              {!matches && <Nav />}
+              {matches === false && <Nav />}
             </div>
           </div>
         </AppShell.Main>

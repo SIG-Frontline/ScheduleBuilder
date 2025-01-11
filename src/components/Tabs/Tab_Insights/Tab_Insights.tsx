@@ -1,5 +1,5 @@
 import { planStore } from "@/lib/planStore";
-import { Card, Space, Spoiler, Text, Title } from "@mantine/core";
+import { Card, Spoiler, Text, Title } from "@mantine/core";
 import React from "react";
 
 const Tab_Insights = () => {
@@ -12,30 +12,34 @@ const Tab_Insights = () => {
 
   return (
     <>
-      <Card withBorder shadow="sm" mx={"md"} radius="md">
+      <Card
+        withBorder
+        shadow="sm"
+        mx={"md"}
+        radius="md"
+        mb={"xs"}
+        key="current_plan"
+      >
         <Title order={5}>Your Plan</Title>
         <Text>{cur_plan?.name}</Text>
         <Text>{cur_plan_credit_hours ?? ""}</Text>
       </Card>
-      <Space h="xs" />
       {cur_plan?.courses?.map((course) => {
         return (
-          <>
-            <Card
-              withBorder
-              shadow="sm"
-              mx={"md"}
-              radius="md"
-              key={course.code}
-            >
-              <Title order={5}>{course.code}</Title>
-              <Text>{course.title}</Text>
-              <Spoiler maxHeight={120} showLabel="Show more" hideLabel="Hide">
-                <Text>{course.description}</Text>
-              </Spoiler>
-            </Card>
-            <Space h="xs" key={course.code + "space"} />
-          </>
+          <Card
+            withBorder
+            shadow="sm"
+            mx={"md"}
+            radius="md"
+            mb={"xs"}
+            key={course.code}
+          >
+            <Title order={5}>{course.code}</Title>
+            <Text>{course.title}</Text>
+            <Spoiler maxHeight={120} showLabel="Show more" hideLabel="Hide">
+              <Text>{course.description}</Text>
+            </Spoiler>
+          </Card>
         );
       })}
     </>
