@@ -1,7 +1,7 @@
 import {
   Button,
+  ColorInput,
   ColorPicker,
-  ColorSwatch,
   Group,
   MultiSelect,
   Popover,
@@ -134,7 +134,18 @@ const Tab_Events = () => {
             <Popover.Target>
               <Group my={"sm"}>
                 <Text>Color:</Text>
-                <ColorSwatch color={event.color} />
+                {/* <ColorSwatch component="button" color={event.color} /> */}
+                <ColorInput
+                  variant="unstyled"
+                  size="xs"
+                  radius="xl"
+                  placeholder="Input placeholder"
+                  value={event.color}
+                  format="rgba"
+                  onChange={(val) => {
+                    setEvent({ ...event, color: val });
+                  }}
+                />
               </Group>
             </Popover.Target>
             <Popover.Dropdown>

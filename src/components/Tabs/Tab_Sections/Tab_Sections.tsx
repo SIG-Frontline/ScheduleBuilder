@@ -4,7 +4,7 @@ import Section from "./SectionSelection";
 import {
   Accordion,
   ActionIcon,
-  ColorPicker,
+  ColorInput,
   ColorSwatch,
   Group,
   Popover,
@@ -85,23 +85,29 @@ const Tab_Sections = () => {
                         position="bottom"
                         withArrow
                         shadow="md"
+                        clickOutsideEvents={["mouseup", "touchend"]}
                       >
                         <Popover.Target>
                           <ColorSwatch
                             component="a"
-                            href="javascript:void(0)"
+                            onClick={(e) => e.stopPropagation()}
                             aria-label="change color"
                             color={item.color ?? "#00aa00"}
                           />
                         </Popover.Target>
                         <Popover.Dropdown>
                           <div>
-                            <ColorPicker
+                            <ColorInput
+                              data-autofocus
+                              variant="unstyled"
+                              size="xs"
+                              radius="xl"
+                              placeholder="Input placeholder"
+                              value={item.color ?? "#fff"}
                               format="rgba"
                               onChange={(val) => {
                                 updateCourseColor(item, val);
                               }}
-                              value={item.color ?? "#fff"}
                             />
                           </div>
                         </Popover.Dropdown>
