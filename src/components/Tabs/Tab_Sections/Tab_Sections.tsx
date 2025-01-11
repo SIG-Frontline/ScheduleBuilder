@@ -87,6 +87,7 @@ const Tab_Sections = () => {
                         withArrow
                         shadow="md"
                         trapFocus
+                        clickOutsideEvents={["mouseup", "touchend"]}
                       >
                         <Popover.Target>
                           <ColorSwatch
