@@ -6,6 +6,7 @@ import { getSectionData } from "@/actions/getSectionData";
 import { planStore } from "@/lib/planStore";
 import { useClickOutside } from "@mantine/hooks";
 import { subjectStore } from "@/lib/subjectStore";
+import { filterStore } from "@/lib/filterStore";
 
 export default function Search({
   onFocused,
@@ -59,6 +60,8 @@ export default function Search({
   const chipOptions = selectedSubject
     ? filteredClassOptions
     : filteredSubjectOptions;
+  const filter_store = filterStore();
+
   useEffect(() => {
     //when the textbox value changes
     setTextBoxValue(textBoxValue.toUpperCase()); //make the input uppercase
@@ -66,7 +69,11 @@ export default function Search({
     if (subjectOptions.includes(textBoxValue)) {
       //if there is a subject in the textbox like CS, and it is not set as the selected subject
       setSelectedSubject(textBoxValue);
-      getClasses(selectedPlan?.term ?? 202490, textBoxValue).then((classes) => {
+      getClasses(
+        selectedPlan?.term ?? 202490,
+        textBoxValue,
+        filter_store.filters
+      ).then((classes) => {
         //server side fn to get classes for the subject - only called when a subject is selected
         setClassOptions(classes);
         console.log("classes", classes);
@@ -84,6 +91,7 @@ export default function Search({
     selectedSubject,
     searchWithoutSubject,
     selectedPlan?.term,
+    filter_store.filters,
   ]);
   return (
     <div ref={ref}>
