@@ -80,6 +80,26 @@ const Tab_Sections = () => {
               <Group>
                 <Accordion.Control>
                   <Group>
+                    {" "}
+                    <Tooltip label="Remove Course">
+                      <ActionIcon
+                        // pos={"absolute"}
+                        className="m-1"
+                        variant="outline"
+                        aria-label="remove"
+                        color="red"
+                        component="a"
+                        href="javascript:void(0)"
+                        onKeyDown={(e) => {
+                          if (e.key === "Space" || e.key === "Enter") {
+                            deleteCourseFromPlan(courseCode);
+                          }
+                        }}
+                        onClick={() => deleteCourseFromPlan(courseCode)}
+                      >
+                        <Icon>delete</Icon>
+                      </ActionIcon>
+                    </Tooltip>
                     <div onClick={(e) => e.stopPropagation()}>
                       <Popover
                         width={300}
@@ -121,25 +141,6 @@ const Tab_Sections = () => {
                         </Popover.Dropdown>
                       </Popover>
                     </div>
-                    <Tooltip label="Remove Course">
-                      <ActionIcon
-                        // pos={"absolute"}
-                        className="m-1"
-                        variant="outline"
-                        aria-label="remove"
-                        color="red"
-                        component="a"
-                        href="javascript:void(0)"
-                        onKeyDown={(e) => {
-                          if (e.key === "Space" || e.key === "Enter") {
-                            deleteCourseFromPlan(courseCode);
-                          }
-                        }}
-                        onClick={() => deleteCourseFromPlan(courseCode)}
-                      >
-                        <Icon>delete</Icon>
-                      </ActionIcon>
-                    </Tooltip>
                     <Text
                       size="md"
                       fw={600}
