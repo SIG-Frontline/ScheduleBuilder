@@ -29,6 +29,17 @@ export const metadata: Metadata = {
     icon: "/frontline.png",
     shortcut: "/frontline.png",
   },
+  // metadataBase: new URL("http://localhost:3000"),
+  openGraph: {
+    images: [
+      {
+        url: "/api/og-img",
+        width: 1200,
+        height: 600,
+        alt: "Schedule Builder for SIG-Frontline",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
