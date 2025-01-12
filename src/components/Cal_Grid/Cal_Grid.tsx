@@ -3,6 +3,7 @@ import { dayStore } from "@/lib/dayStore";
 import { Plan, planStore } from "@/lib/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import { Group, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 const Cal_Grid = () => {
@@ -78,7 +79,12 @@ const Cal_Grid = () => {
         viewClassNames={`dark:bg-[#242424] bg-white`}
         height={"90%"}
         expandRows={true}
-        plugins={[timeGridPlugin]}
+        plugins={[timeGridPlugin, interactionPlugin]}
+        // selectable={true}
+        // selectMirror={true}
+        // select={() => {
+        //   console.log("select");
+        // }}
         slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
         timeZone="America/New_York"
         initialView="timeGridWeek"
