@@ -84,13 +84,16 @@ const Tab_Sections = () => {
                         aria-label="remove"
                         color="red"
                         component="a"
-                        href="javascript:void(0)"
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          deleteCourseFromPlan(courseCode);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === "Space" || e.key === "Enter") {
                             deleteCourseFromPlan(courseCode);
                           }
                         }}
-                        onClick={() => deleteCourseFromPlan(courseCode)}
                       >
                         <Icon>delete</Icon>
                       </ActionIcon>
@@ -106,8 +109,9 @@ const Tab_Sections = () => {
                       >
                         <Popover.Target>
                           <ColorSwatch
-                            component={Link} // this is a hack to make the color swatch clickable and accessible via tab
-                            href="javascript:void(0)" //there will be a warning (when in the dev server) from react about using a link with a javascript:void(0) href, but react does not have a better way to do this to my knowledge 🥲
+                            component={Link}
+                            href="#"
+                            onClick={(e) => e.preventDefault()}
                             aria-label="change color"
                             color={item.color ?? "#00aa00"}
                           />
@@ -123,7 +127,9 @@ const Tab_Sections = () => {
                               size="xs"
                               radius="xl"
                               placeholder="Input placeholder"
-                              value={item.color ?? "#fff"}
+                              value={
+                                item.color?.replaceAll(/\s/g, "") ?? "#f0f"
+                              }
                               format="rgba"
                               onChange={(val) => {
                                 updateCourseColor(item, val);
