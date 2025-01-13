@@ -1,40 +1,25 @@
 "use server";
 
-/*
+import { NextResponse } from "next/server";
 
-export type Course = {
-  title: string; - yes
-  code: string; - yes
-  description: string;         - NO
-  prerequisites: string[];    - NO
-  credits: number; - yes
-  sections: Section[]; - yes
-};
-
-export type Section = {
-  meetingTimes: MeetingTime[];
-  instructor: string;
-  seats: number;
-  CRN: string;
-  currentEnrollment: number;
-  status: string;
-  is_honors: boolean;
-  is_async: boolean;
-};
-export type MeetingTime = {
-  day: string;
-  startTime: string;
-  endTime: string;
-  building: string;
-  room: string;
-};
-*/
-
+/**
+ *
+ * @param term the term the limit the search to - in the form of a number like 202210
+ * @param subject the subject to limit the search to - in the form of a string like "CS"
+ * @param courseCode the course code to limit the search to - its in rhe form of a string like "CS 100"
+ * @returns the data for the course including the sections in an array
+ */
 export async function getSectionData(
   term: number,
   subject: string,
   courseCode: string
 ) {
+  if (!term || !subject || !courseCode) {
+    return NextResponse.json(
+      { error: "term, subject, and courseCode are required" },
+      { status: 400 }
+    );
+  }
   const URL = `http://localhost:3000/api/courses?term=${term}&course=${
     subject + " " + courseCode
   }`;
@@ -48,6 +33,7 @@ export async function getSectionData(
       course.code = course._id;
       delete course._id;
       course.sections = course.sections.map(
+        //format the data for each section and make it match the schema... this is a bit of a mess
         (section: {
           INSTRUCTOR?: string;
           instructor: string | undefined;

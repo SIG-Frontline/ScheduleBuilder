@@ -15,6 +15,9 @@ import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
 import Tab_Sections from "../Tabs/Tab_Sections/Tab_Sections";
 
 const tabData = [
+  //this array contains the data for each tab
+  //to add a new tab, add a new object to this array in the same format as the others
+  //make sure the component you want to render is imported at the top of this file
   {
     value: "plans",
     label: "plans",
@@ -127,7 +130,6 @@ export default function Nav() {
               duration={400}
               timingFunction="ease"
             >
-              {/* {(styles) => <div style={styles}>Your modal</div>} */}
               {(styles) => (
                 <Tabs.Panel value={tab.value} pb="xs" style={styles}>
                   <ScrollAreaAutosize scrollbars="y" mah={"48dvh"}>

@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import Icon from "@/components/Icon/Icon";
 import Link from "next/link";
-// import { Accordion } from "@mantine/core";
+
 //this will be the tab that shows an accordion for each course, and each acordion will have a list of sections and a radio button to select the section
 
 const Tab_Sections = () => {
@@ -52,7 +52,6 @@ const Tab_Sections = () => {
   }, []);
   const deleteCourseFromPlan = planStore((state) => state.deleteCourseFromPlan);
   const updateCourseColor = planStore((state) => state.updateCourseColor);
-  // return <p>{JSON.stringify(currentSelectedPlan)}</p>;
   return (
     <Accordion>
       <>
@@ -69,21 +68,17 @@ const Tab_Sections = () => {
           </>
         )}
 
-        {/* <ScrollArea h={"100vh"} scrollbars="y"> */}
         {currentSelectedPlan?.courses?.map((item) => {
           const courseCode = item.code;
           const sections = item.sections;
           const courseTitle = item.title;
           return (
             <Accordion.Item key={courseCode} value={courseCode}>
-              {/* <div key={courseCode} className="mx-6"> */}
               <Group>
                 <Accordion.Control>
                   <Group>
-                    {" "}
                     <Tooltip label="Remove Course">
                       <ActionIcon
-                        // pos={"absolute"}
                         className="m-1"
                         variant="outline"
                         aria-label="remove"
@@ -111,8 +106,8 @@ const Tab_Sections = () => {
                       >
                         <Popover.Target>
                           <ColorSwatch
-                            component={Link} // this is a hack to make the color swatch clickable, and avoid react warnings
-                            href="javascript:void(0)"
+                            component={Link} // this is a hack to make the color swatch clickable and accessible via tab
+                            href="javascript:void(0)" //there will be a warning (when in the dev server) from react about using a link with a javascript:void(0) href, but react does not have a better way to do this to my knowledge 🥲
                             aria-label="change color"
                             color={item.color ?? "#00aa00"}
                           />
@@ -158,11 +153,9 @@ const Tab_Sections = () => {
                   courseTitle={courseTitle}
                 />
               </Accordion.Panel>
-              {/* </div> */}
             </Accordion.Item>
           );
         })}
-        {/* </ScrollArea> */}
       </>
     </Accordion>
   );

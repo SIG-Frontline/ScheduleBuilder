@@ -34,7 +34,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             {/* using dvh unit above to factor in the mobile browser address bar*/}
             <div className="flex-grow">{children} </div>
             <div className="h-max w-screen sticky left-0">
-              {matches === false && <Nav />}
+              {matches === false && <Nav />}{" "}
+              {/* matches === false is intentional, !matches would be true if matches is undefined */}
             </div>
           </div>
         </AppShell.Main>

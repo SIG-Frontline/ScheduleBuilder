@@ -28,7 +28,7 @@ const Tab_Events = () => {
     startTime: "",
     endTime: "",
     daysOfWeek: [] as number[],
-    color: "#00aa00",
+    color: "#00aa00", //default color
   });
 
   function addEvent() {

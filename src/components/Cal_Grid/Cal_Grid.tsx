@@ -6,6 +6,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import { Group, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
+/**
+ *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
+ *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
+ */
 const Cal_Grid = () => {
   const plan_store = planStore();
   const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<

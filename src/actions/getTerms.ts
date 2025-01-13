@@ -1,5 +1,8 @@
 "use server";
-
+/**
+ *
+ * @returns a list of terms
+ */
 export async function getTerms() {
   const URL = `http://localhost:3000/api/terms`;
   const data = fetch(URL)
