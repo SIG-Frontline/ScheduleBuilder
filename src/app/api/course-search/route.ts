@@ -60,6 +60,19 @@ export async function GET(request: NextRequest) {
       );
     }
   }
+  const credits = searchParams.get("credits");
+  if (credits) {
+    const [min, max] = credits.split("|");
+    if (min === "1" && max === "6") {
+      addQuery(query, "CREDITS", "range!0|50");
+    } else if (min === "1") {
+      addQuery(query, "CREDITS", `lte!${max}`);
+    } else if (max === "6") {
+      addQuery(query, "CREDITS", `gte!${min}`);
+    } else {
+      addQuery(query, "CREDITS", `range!${min}|${max}`);
+    }
+  }
   if (searchParams.has("summer")) {
     addQuery(query, "SUMMER_PERIOD", searchParams.get("summer") as string);
   }

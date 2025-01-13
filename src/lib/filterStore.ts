@@ -5,7 +5,7 @@ export type Filters = {
   modality: string;
   graduate: boolean;
   undergraduate: boolean;
-  creditCount: number | undefined;
+  creditRange: [number, number];
   dayOfWeek: string;
 };
 
@@ -20,7 +20,7 @@ export const filterStore = create<FilterStoreState>((set) => ({
     modality: "",
     graduate: false,
     undergraduate: false,
-    creditCount: undefined,
+    creditRange: [0, 6],
     dayOfWeek: "",
   },
   setFilters: (filters) => set({ filters }),

@@ -33,6 +33,9 @@ export async function getClasses(
   if (filters.undergraduate) {
     URL += "&level=u";
   }
+  if (filters.creditRange[0] !== 0 || filters.creditRange[1] !== 6) {
+    URL += `&credits=${filters.creditRange[0]}|${filters.creditRange[1]}`;
+  }
   console.log(URL);
 
   const data = fetch(URL)

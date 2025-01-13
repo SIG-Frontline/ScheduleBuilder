@@ -4,7 +4,7 @@ import { getSubjects } from "@/actions/getSubjects";
 import { getClasses } from "@/actions/getClasses";
 import { getSectionData } from "@/actions/getSectionData";
 import { planStore } from "@/lib/planStore";
-import { useClickOutside } from "@mantine/hooks";
+import { useClickOutside, useThrottledValue } from "@mantine/hooks";
 import { subjectStore } from "@/lib/subjectStore";
 import { filterStore } from "@/lib/filterStore";
 
@@ -61,7 +61,10 @@ export default function Search({
     ? filteredClassOptions
     : filteredSubjectOptions;
   const filter_store = filterStore();
-
+  const throttledfilter_storeValue = useThrottledValue(
+    filter_store.filters,
+    1000
+  );
   useEffect(() => {
     //when the textbox value changes
     setTextBoxValue(textBoxValue.toUpperCase()); //make the input uppercase
@@ -72,7 +75,7 @@ export default function Search({
       getClasses(
         selectedPlan?.term ?? 202490,
         textBoxValue,
-        filter_store.filters
+        throttledfilter_storeValue
       ).then((classes) => {
         //server side fn to get classes for the subject - only called when a subject is selected
         setClassOptions(classes);
@@ -91,7 +94,7 @@ export default function Search({
     selectedSubject,
     searchWithoutSubject,
     selectedPlan?.term,
-    filter_store.filters,
+    throttledfilter_storeValue,
   ]);
   return (
     <div ref={ref}>

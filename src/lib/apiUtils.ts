@@ -143,6 +143,12 @@ export function addQuery(
         },
       };
       break;
+    case "gte":
+      query[key] = { $gte: convertString(operand) };
+      break;
+    case "lte":
+      query[key] = { $lte: convertString(operand) };
+      break;
     case "in":
       query[key] = {
         $in: operands.map((op) => convertString(op)),

@@ -1,5 +1,10 @@
 import Icon from "@/components/Icon/Icon";
-import { ActionIcon, Drawer, SegmentedControl } from "@mantine/core";
+import {
+  ActionIcon,
+  Drawer,
+  RangeSlider,
+  SegmentedControl,
+} from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Checkbox, Group, Text } from "@mantine/core";
 import { filterStore } from "@/lib/filterStore";
@@ -109,6 +114,33 @@ function FiltersDrawer() {
           please confirm with your advisor that the course is appropriate for
           your program.
         </Text>
+
+        <br />
+        <RangeSlider
+          mt="xl"
+          label={null}
+          thumbSize={26}
+          minRange={1}
+          min={1}
+          max={6}
+          step={1}
+          value={filter_store.filters.creditRange}
+          onChange={(value) => {
+            filter_store.setFilters({
+              ...filter_store.filters,
+              creditRange: value,
+            });
+          }}
+          defaultValue={[1, 6]}
+          marks={[
+            { value: 1, label: "1cr/less" },
+            { value: 2, label: "2cr" },
+            { value: 3, label: "3cr" },
+            { value: 4, label: "4cr" },
+            { value: 5, label: "5cr" },
+            { value: 6, label: "6cr/more" },
+          ]}
+        />
       </Drawer>
     </>
   );
