@@ -70,14 +70,17 @@ const Tab_Insights = () => {
         <Text>Credits {cur_plan_credit_hours ?? ""}</Text>
         <Group>
           <Text>CRN List:</Text>
-          <List unstyled display={"flex"}>
+          <List unstyled lh={".5"}>
             {cur_plan_crn_list?.length && cur_plan_crn_list?.length > 0 ? (
               cur_plan_crn_list.map((crn, i) => {
                 return (
-                  <List.Item key={crn[0]}>
-                    {i === 0 ? "" : ", "}
-                    {crn}
-                  </List.Item>
+                  <div key={i}>
+                    <List.Item>
+                      {i === 0 ? "" : ", "}
+                      {crn}
+                    </List.Item>
+                    <br />
+                  </div>
                 );
               })
             ) : (

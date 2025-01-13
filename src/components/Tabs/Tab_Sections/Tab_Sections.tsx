@@ -102,7 +102,7 @@ const Tab_Sections = () => {
                         withArrow
                         shadow="md"
                         trapFocus
-                        clickOutsideEvents={["mouseup", "touchend"]}
+                        id="color-picker-popover"
                       >
                         <Popover.Target>
                           <ColorSwatch
@@ -115,6 +115,9 @@ const Tab_Sections = () => {
                         <Popover.Dropdown>
                           <div>
                             <ColorInput
+                              popoverProps={{
+                                withinPortal: false,
+                              }}
                               data-autofocus
                               variant="unstyled"
                               size="xs"
