@@ -48,7 +48,19 @@ const Tab_Plans = () => {
             }
             return uuidv4();
           })();
-
+          //validate the plan
+          const plan_keys = ["name", "description", "term", "courses"];
+          for (const key of plan_keys) {
+            if (!(key in plan)) {
+              alert("The plan is missing the key: " + key);
+              return;
+            }
+          }
+          //validate the term
+          if (typeof plan.term !== "number") {
+            alert("The term must be a number");
+            return;
+          }
           addPlan(plan);
         }
       };
