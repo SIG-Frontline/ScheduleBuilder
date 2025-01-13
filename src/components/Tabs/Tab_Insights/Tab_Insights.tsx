@@ -1,5 +1,6 @@
 import { planStore } from "@/lib/planStore";
-import { Card, Group, List, Spoiler, Text, Title } from "@mantine/core";
+import { Button, Card, Group, List, Spoiler, Text, Title } from "@mantine/core";
+import Link from "next/link";
 import React from "react";
 
 const Tab_Insights = () => {
@@ -181,6 +182,32 @@ const Tab_Insights = () => {
           >
             <Title order={5}>{course.code}</Title>
             <Text>{course.title}</Text>
+            <Group grow={true} gap={5} justify={"center"}>
+              <Button
+                href={`https://catalog.njit.edu/search/?P=${course.code.replace(
+                  " ",
+                  "%20"
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                component={Link}
+                variant="filled"
+              >
+                Course Catalog
+              </Button>
+              <Button
+                href={`https://www.google.com/search?q=NJIT+${course.code.replace(
+                  " ",
+                  "+"
+                )}+syllabus`}
+                target="_blank"
+                rel="noreferrer"
+                component={Link}
+                variant="filled"
+              >
+                Google Syllabus
+              </Button>
+            </Group>
             <Spoiler maxHeight={120} showLabel="Show more" hideLabel="Hide">
               <Text>{course.description}</Text>
             </Spoiler>
