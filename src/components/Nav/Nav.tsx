@@ -132,7 +132,10 @@ export default function Nav() {
             >
               {(styles) => (
                 <Tabs.Panel value={tab.value} pb="xs" style={styles}>
-                  <ScrollAreaAutosize scrollbars="y" mah={"48dvh"}>
+                  <ScrollAreaAutosize
+                    scrollbars="y"
+                    mah={matches ? "90dvh" : "48dvh"}
+                  >
                     {/* using dvh unit above to factor in the mobile browser address bar*/}
                     <tab.component />
                   </ScrollAreaAutosize>
