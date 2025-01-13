@@ -26,11 +26,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
         <AppShell.Main
           style={{
-            maxHeight: "100vh",
+            maxHeight: "100dvh", // using dvh unit above to factor in the mobile browser address bar
             minWidth: "50em",
           }}
         >
-          <div className="flex flex-col h-[calc(100vh_-_60px)]">
+          <div className="flex flex-col h-[calc(100dvh_-_60px)]">
+            {/* using dvh unit above to factor in the mobile browser address bar*/}
             <div className="flex-grow">{children} </div>
             <div className="h-max w-screen sticky left-0">
               {matches === false && <Nav />}

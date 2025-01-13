@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 // All packages except `@mantine/hooks` require styles imports
@@ -19,7 +19,12 @@ import {
   mantineHtmlProps,
 } from "@mantine/core";
 import Shell from "@/components/Shell/Shell";
-
+export const viewport: Viewport = {
+  themeColor: "#1c7ed6",
+  initialScale: 1,
+  height: "device-height",
+  width: "device-width",
+};
 export const metadata: Metadata = {
   title: "Schedule Builder",
   description: "Schedule Builder for SIG-Frontline",
@@ -30,6 +35,7 @@ export const metadata: Metadata = {
     shortcut: "/frontline.png",
   },
   // metadataBase: new URL("http://localhost:3000"),
+  manifest: "/manifest.webmanifest",
   openGraph: {
     images: [
       {

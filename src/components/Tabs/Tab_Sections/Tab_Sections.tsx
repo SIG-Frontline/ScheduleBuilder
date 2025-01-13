@@ -62,7 +62,7 @@ const Tab_Sections = () => {
             <Text className="text-center !mt-8" c="dimmed" size="xl">
               <Icon className="!text-4xl">info</Icon>
             </Text>
-            <Text className="text-center !mx-10 " c="dimmed">
+            <Text className="text-center !mb-10 !mx-10 " c="dimmed">
               No courses have been added to this plan yet. Search for courses to
               add them.
             </Text>

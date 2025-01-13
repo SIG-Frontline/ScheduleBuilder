@@ -121,7 +121,8 @@ export default function Nav() {
           </Tabs.List>
           {tabData.map((tab) => (
             <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
-              <ScrollAreaAutosize scrollbars="y" mah={"78vh"}>
+              <ScrollAreaAutosize scrollbars="y" mah={"48dvh"}>
+                {/* using dvh unit above to factor in the mobile browser address bar*/}
                 <tab.component />
               </ScrollAreaAutosize>
             </Tabs.Panel>
