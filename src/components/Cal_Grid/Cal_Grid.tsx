@@ -4,7 +4,7 @@ import { Plan, planStore } from "@/lib/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
-import { Group, Text } from "@mantine/core";
+import { Group, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 const Cal_Grid = () => {
   const plan_store = planStore();
@@ -75,116 +75,128 @@ const Cal_Grid = () => {
 
   return (
     <>
-      <FullCalendar
-        viewClassNames={`dark:bg-[#242424] bg-white`}
-        height={"90%"}
-        expandRows={true}
-        plugins={[timeGridPlugin, interactionPlugin]}
-        // selectable={true}
-        // selectMirror={true}
-        // select={() => {
-        //   console.log("select");
-        // }}
-        slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
-        timeZone="America/New_York"
-        initialView="timeGridWeek"
-        headerToolbar={false}
-        stickyHeaderDates={true}
-        dayHeaderFormat={{
-          weekday: "long",
-        }}
-        hiddenDays={day_store.days}
-        events={events_and_classes}
-        allDaySlot={false}
-        nowIndicator={false}
-        eventContent={(eventContent) => (
-          <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
-            <b className=" w-full text-xs ">{eventContent.event.title}</b>
-            <span className="text-xs">
-              {eventContent.event.extendedProps.title}
-            </span>
-            <br />
-            <span className="text-xs">{eventContent.timeText}</span> @
-            <span className="text-xs">
-              {eventContent.event.extendedProps.location}
-            </span>
-            <br />
-            <span className="text-xs">
-              {eventContent.event.extendedProps.instructor}
-            </span>
-            <br />
-          </div>
-        )}
-        eventTimeFormat={{
-          hour: "numeric",
-          minute: "2-digit",
-          omitZeroMinute: false,
-          meridiem: "short",
-        }}
-        businessHours={[
-          {
-            daysOfWeek: [0, 1, 2, 4, 6],
-            startTime: "06:00:00",
-            endTime: "22:00:00",
-          },
-          {
-            daysOfWeek: [3],
-            startTime: "06:00:00",
-            endTime: "14:30:00",
-          },
-          {
-            daysOfWeek: [3],
-            startTime: "18:00:00",
-            endTime: "22:00:00",
-          },
-          {
-            daysOfWeek: [5],
-            startTime: "06:00:00",
-            endTime: "11:30:00",
-          },
-          {
-            daysOfWeek: [5],
-            startTime: "13:00:00",
-            endTime: "22:00:00",
-          },
-        ]}
-        slotMinTime={"06:00:00"}
-        slotMaxTime={"22:00:00"}
-        // eventClassNames="!bg-green-500"
-      />
-      <Group>
-        {/* online courses */}
-        {currentSelectedPlanObj?.courses?.map((item) => {
-          const courseCode = item.code;
-          const sections = item.sections;
-          const courseTitle = item.title;
-          const onlineSections = sections.filter(
-            (section) => section.selected && section.meetingTimes.length === 0
-          );
-          return onlineSections.map((section) => {
-            return (
-              <div
-                key={section.crn}
-                className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
-              >
-                <div
-                  style={{ backgroundColor: item.color ?? "#00aa00" }}
-                  className="w-4 h-4 rounded-full"
-                ></div>
-                <div>
-                  <Text size="md">{courseCode + " " + courseTitle}</Text>
-                  <Group justify="space-between">
-                    <Text size="sm">{section.instructor}</Text>
-                    <Text size="xs" c="dimmed">
-                      Online
-                    </Text>
-                  </Group>
-                </div>
-              </div>
-            );
-          });
-        })}
-      </Group>
+      <Stack style={{ height: "100%" }}>
+        <FullCalendar
+          viewClassNames={`dark:bg-[#242424] bg-white`}
+          height={"100%"}
+          expandRows={true}
+          plugins={[timeGridPlugin, interactionPlugin]}
+          // selectable={true}
+          // selectMirror={true}
+          // select={() => {
+          //   console.log("select");
+          // }}
+          slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
+          timeZone="America/New_York"
+          initialView="timeGridWeek"
+          headerToolbar={false}
+          stickyHeaderDates={true}
+          dayHeaderFormat={{
+            weekday: "long",
+          }}
+          hiddenDays={day_store.days}
+          events={events_and_classes}
+          allDaySlot={false}
+          nowIndicator={false}
+          eventContent={(eventContent) => (
+            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
+              <b className=" w-full text-xs ">{eventContent.event.title}</b>
+              <span className="text-xs">
+                {eventContent.event.extendedProps.title}
+              </span>
+              <br />
+              <span className="text-xs">{eventContent.timeText}</span> @
+              <span className="text-xs">
+                {eventContent.event.extendedProps.location}
+              </span>
+              <br />
+              <span className="text-xs">
+                {eventContent.event.extendedProps.instructor}
+              </span>
+              <br />
+            </div>
+          )}
+          eventTimeFormat={{
+            hour: "numeric",
+            minute: "2-digit",
+            omitZeroMinute: false,
+            meridiem: "short",
+          }}
+          businessHours={[
+            {
+              daysOfWeek: [0, 1, 2, 4, 6],
+              startTime: "06:00:00",
+              endTime: "22:00:00",
+            },
+            {
+              daysOfWeek: [3],
+              startTime: "06:00:00",
+              endTime: "14:30:00",
+            },
+            {
+              daysOfWeek: [3],
+              startTime: "18:00:00",
+              endTime: "22:00:00",
+            },
+            {
+              daysOfWeek: [5],
+              startTime: "06:00:00",
+              endTime: "11:30:00",
+            },
+            {
+              daysOfWeek: [5],
+              startTime: "13:00:00",
+              endTime: "22:00:00",
+            },
+          ]}
+          slotMinTime={"06:00:00"}
+          slotMaxTime={"22:00:00"}
+          // eventClassNames="!bg-green-500"
+        />
+
+        <Group>
+          <Group className="sticky left-0 !flex-nowrap overflow-x-auto bg-white dark:bg-[#242424]">
+            {/* online courses */}
+            {currentSelectedPlanObj?.courses?.map((item) => {
+              const courseCode = item.code;
+              const sections = item.sections;
+              const courseTitle = item.title;
+              const onlineSections = sections.filter(
+                (section) =>
+                  section.selected && section.meetingTimes.length === 0
+              );
+
+              return onlineSections.map((section) => {
+                return (
+                  <div
+                    key={section.crn}
+                    className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
+                  >
+                    <div
+                      style={{ backgroundColor: item.color ?? "#00aa00" }}
+                      className="w-4 h-4 rounded-full"
+                    ></div>
+                    <div>
+                      <Text
+                        className="overflow-ellipsis overflow-x-hidden whitespace-nowrap max-w-52"
+                        size="md"
+                      >
+                        {courseCode + " " + courseTitle}
+                      </Text>
+                      <Group justify="space-between">
+                        <Text size="sm">{section.instructor}</Text>
+                        <Text size="xs" c="dimmed">
+                          Online
+                        </Text>
+                      </Group>
+                    </div>
+                  </div>
+                );
+              });
+            })}
+          </Group>
+        </Group>
+      </Stack>
     </>
   );
 };
