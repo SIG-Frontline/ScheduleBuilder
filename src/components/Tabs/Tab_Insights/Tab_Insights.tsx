@@ -28,7 +28,16 @@ const Tab_Insights = () => {
           : 0)
       );
     }, 0) || 0;
-
+  const comments = cur_plan?.courses?.map((course) => {
+    return course.sections
+      .filter((section) => section.selected)
+      .map((sect) => {
+        return {
+          course: course.code + "-" + sect.sectionNumber,
+          comments: sect.comments,
+        };
+      });
+  });
   const undergraduate_level_credits =
     cur_plan?.courses?.reduce((sum, course) => {
       const split = course.code.split(" ")[1];
@@ -139,6 +148,24 @@ const Tab_Insights = () => {
           </Text>
         </Card>
       )}
+      {comments?.map((course) => {
+        return course.map((section) => {
+          if (section.comments === null || section.comments === "") return null;
+          return (
+            <Card
+              withBorder
+              shadow="sm"
+              mx={"md"}
+              radius="md"
+              mb={"xs"}
+              key={section.course}
+            >
+              <Title order={5}>{section.course} has a comment</Title>
+              <Text>{section.comments.replaceAll("<br />", " ")}</Text>
+            </Card>
+          );
+        });
+      })}
       {cur_plan?.courses?.map((course) => {
         return (
           <Card
