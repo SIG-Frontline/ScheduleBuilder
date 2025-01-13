@@ -1,6 +1,6 @@
 "use client";
 
-import { ScrollAreaAutosize, Tabs } from "@mantine/core";
+import { ScrollAreaAutosize, Tabs, Transition } from "@mantine/core";
 import Icon from "../Icon/Icon";
 import Tab_Events from "@/components/Tabs/Tab_Events/Tab_Events";
 import Tab_Insights from "@/components/Tabs/Tab_Insights/Tab_Insights";
@@ -120,12 +120,23 @@ export default function Nav() {
             ))}
           </Tabs.List>
           {tabData.map((tab) => (
-            <Tabs.Panel key={tab.value} value={tab.value} pb="xs">
-              <ScrollAreaAutosize scrollbars="y" mah={"48dvh"}>
-                {/* using dvh unit above to factor in the mobile browser address bar*/}
-                <tab.component />
-              </ScrollAreaAutosize>
-            </Tabs.Panel>
+            <Transition
+              mounted={activeTab === tab.value}
+              transition="fade"
+              key={tab.value}
+              duration={400}
+              timingFunction="ease"
+            >
+              {/* {(styles) => <div style={styles}>Your modal</div>} */}
+              {(styles) => (
+                <Tabs.Panel value={tab.value} pb="xs" style={styles}>
+                  <ScrollAreaAutosize scrollbars="y" mah={"48dvh"}>
+                    {/* using dvh unit above to factor in the mobile browser address bar*/}
+                    <tab.component />
+                  </ScrollAreaAutosize>
+                </Tabs.Panel>
+              )}
+            </Transition>
           ))}
         </Tabs>
       </div>
