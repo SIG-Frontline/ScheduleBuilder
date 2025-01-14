@@ -110,6 +110,7 @@ const Plans = () => {
           onClose={() => setShareModalOpen(false)}
         ></ShareModal>
         <Menu
+          menuItemTabIndex={0}
           onClose={() => {
             setOpenMenu(null);
           }}
@@ -122,10 +123,14 @@ const Plans = () => {
         >
           <Menu.Target>
             <ActionIcon
-              onClick={() => setOpenMenu(tabInfo.value)}
+              onClick={(e) => {
+                e.preventDefault();
+                setOpenMenu(tabInfo.value);
+              }}
               variant="subtle"
               radius={"lg"}
               component="a"
+              href="#"
               aria-label="more"
             >
               <Icon>more_vert</Icon>
