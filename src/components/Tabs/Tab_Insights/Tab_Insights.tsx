@@ -20,6 +20,7 @@ const Tab_Insights = () => {
   const graduate_level_credits =
     cur_plan?.courses?.reduce((sum, course) => {
       const split = course.code.split(" ")[1];
+      if (!split) return sum;
       return (
         sum +
         ((split.charAt(0) === "5" && split.toUpperCase().endsWith("G")) || //ARCH 5xxG are graduate level while ARCH 5xx are undergraduate level... thanks HCAD
@@ -42,6 +43,7 @@ const Tab_Insights = () => {
   const undergraduate_level_credits =
     cur_plan?.courses?.reduce((sum, course) => {
       const split = course.code.split(" ")[1];
+      if (!split) return sum;
       return (
         sum +
         ((split.charAt(0) === "5" && !split.toUpperCase().endsWith("G")) ||
