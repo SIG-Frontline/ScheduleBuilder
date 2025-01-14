@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     shortcut: "/frontline.png",
   },
   // metadataBase: new URL("http://localhost:3000"),
-  manifest: "/manifest.webmanifest",
+  manifest: "/manifest.json",
   openGraph: {
     images: [
       {
