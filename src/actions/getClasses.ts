@@ -21,7 +21,10 @@ export async function getClasses(
       { status: 400 }
     );
   }
-  let URL = `http://localhost:3000/api/course-search?term=${term}&subject=${subject}`;
+  const baseURL = Boolean(process.env.IS_DOCKER)
+    ? "http://nextjs-docker:3000"
+    : "http://localhost:3000";
+  let URL = `${baseURL}/api/course-search?term=${term}&subject=${subject}`;
 
   //adding url parameters based on the filters
   if (filters.honors) {

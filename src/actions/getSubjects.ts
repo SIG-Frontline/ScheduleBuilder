@@ -11,7 +11,10 @@ export async function getSubjects(term: number) {
   if (!term) {
     return NextResponse.json({ error: "term is required" }, { status: 400 });
   }
-  const URL = `http://localhost:3000/api/subjects/?term=${term}`;
+  const baseURL = Boolean(process.env.IS_DOCKER)
+    ? "http://nextjs-docker:3000"
+    : "http://localhost:3000";
+  const URL = `${baseURL}/api/subjects/?term=${term}`;
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => data.subjects)

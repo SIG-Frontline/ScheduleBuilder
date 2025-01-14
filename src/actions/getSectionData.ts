@@ -20,7 +20,10 @@ export async function getSectionData(
       { status: 400 }
     );
   }
-  const URL = `http://localhost:3000/api/courses?term=${term}&course=${
+  const baseURL = Boolean(process.env.IS_DOCKER)
+    ? "http://nextjs-docker:3000"
+    : "http://localhost:3000";
+  const URL = `${baseURL}/api/courses?term=${term}&course=${
     subject + " " + courseCode
   }`;
   const data = fetch(URL)

@@ -4,7 +4,10 @@
  * @returns a list of terms
  */
 export async function getTerms() {
-  const URL = `http://localhost:3000/api/terms`;
+  const baseURL = Boolean(process.env.IS_DOCKER)
+    ? "http://nextjs-docker:3000"
+    : "http://localhost:3000";
+  const URL = `${baseURL}/api/terms`;
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => data.courses)
