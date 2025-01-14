@@ -1,4 +1,5 @@
 import { Collection, MongoClient } from "mongodb";
+import { Plan } from "./planStore";
 // import { SCHEDULEBUILDER_DB_URI, BUILDER_NS } from '$env/static/private';
 const SCHEDULEBUILDER_DB_URI = process.env.SCHEDULEBUILDER_DB_URI;
 if (!SCHEDULEBUILDER_DB_URI) {
@@ -247,14 +248,20 @@ export interface CourseDocument {
    */
   tree: ReqTree;
 }
-
+export interface UserPlan {
+  uuid: string;
+  userId: string;
+  plandata: Plan;
+}
 export const sectionsCollection = client
   .db(BUILDER_NS)
   .collection<SectionDocument>("Sections");
 export const coursesCollection = client
   .db(BUILDER_NS)
   .collection<CourseDocument>("Course_Static");
-
+export const userPlanCollection = client
+  .db(BUILDER_NS)
+  .collection<UserPlan>("User_Plans");
 class CourseCache {
   private courses: CourseDocument[] = [];
   private lastRetrieved: Date | null = null;
