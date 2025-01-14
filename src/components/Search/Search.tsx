@@ -7,6 +7,25 @@ import { planStore } from "@/lib/planStore";
 import { useClickOutside, useThrottledValue } from "@mantine/hooks";
 import { subjectStore } from "@/lib/subjectStore";
 import { filterStore } from "@/lib/filterStore";
+// the below subjects are stored in the database as just one subject and no code - so when the subject is selected, just add the course to the plan
+const specialSubjects = [
+  "FYSSEM",
+  "CENEXT",
+  "FRSHSEM",
+  "HUMELEC",
+  "MRBMED",
+  "MREXCH",
+  "MRFRSH",
+  "MRFTF",
+  "MRGLBL",
+  "MRGRAD",
+  "MRINTL",
+  "MRMIL",
+  "MRRBHS",
+  "MRREG",
+  "MRRUTG",
+  "MRUMD",
+];
 
 export default function Search({
   onFocused,
@@ -70,7 +89,6 @@ export default function Search({
     setTextBoxValue(textBoxValue.toUpperCase()); //make the input uppercase
 
     if (subjectOptions.includes(textBoxValue)) {
-      //if there is a subject in the textbox like CS, and it is not set as the selected subject
       setSelectedSubject(textBoxValue);
       getClasses(
         selectedPlan?.term ?? 202490,
@@ -141,8 +159,12 @@ export default function Search({
             } else {
               setTextBoxValue(selectedSubject + chipValue);
             }
+
             //if the chip is a class, and there is a subject selected, and the subject is in the textbox
-            if (selectedSubject && textBoxValue.startsWith(selectedSubject)) {
+            if (
+              (selectedSubject && textBoxValue.startsWith(selectedSubject)) ||
+              specialSubjects.includes(chipValue)
+            ) {
               getSectionData(
                 selectedPlan?.term ?? 202490,
                 selectedSubject,

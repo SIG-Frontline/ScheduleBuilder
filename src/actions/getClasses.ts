@@ -1,7 +1,6 @@
 "use server";
 
 import { Filters } from "@/lib/filterStore";
-import { NextResponse } from "next/server";
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -16,10 +15,9 @@ export async function getClasses(
 ) {
   //assuming that there is a term and subject, if there isn't we should throw an error
   if (!term || !subject) {
-    return NextResponse.json(
-      { error: "term and subject are required" },
-      { status: 400 }
-    );
+    return {
+      error: "term and subject are required",
+    };
   }
   const baseURL = Boolean(process.env.IS_DOCKER)
     ? "http://nextjs-docker:3000"

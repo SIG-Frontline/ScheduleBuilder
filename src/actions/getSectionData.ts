@@ -1,7 +1,5 @@
 "use server";
 
-import { NextResponse } from "next/server";
-
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -14,12 +12,6 @@ export async function getSectionData(
   subject: string,
   courseCode: string
 ) {
-  if (!term || !subject || !courseCode) {
-    return NextResponse.json(
-      { error: "term, subject, and courseCode are required" },
-      { status: 400 }
-    );
-  }
   const baseURL = Boolean(process.env.IS_DOCKER)
     ? "http://nextjs-docker:3000"
     : "http://localhost:3000";

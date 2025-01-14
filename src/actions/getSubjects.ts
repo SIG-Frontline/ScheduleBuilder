@@ -1,7 +1,5 @@
 "use server";
 
-import { NextResponse } from "next/server";
-
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -9,7 +7,7 @@ import { NextResponse } from "next/server";
  */
 export async function getSubjects(term: number) {
   if (!term) {
-    return NextResponse.json({ error: "term is required" }, { status: 400 });
+    return { error: "term is required" };
   }
   const baseURL = Boolean(process.env.IS_DOCKER)
     ? "http://nextjs-docker:3000"
