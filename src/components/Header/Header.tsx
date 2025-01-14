@@ -1,8 +1,11 @@
-import { Button, Flex, Title } from "@mantine/core";
+import { Avatar, Button, Flex, Group, Title } from "@mantine/core";
 import React from "react";
 import Icon from "../Icon/Icon";
+import { useUser } from "@auth0/nextjs-auth0/client";
 
 const Header = () => {
+  const { user } = useUser();
+  const isLoggedIn = Boolean(user);
   return (
     <>
       <Flex justify="space-between" py={10} px={20}>
@@ -12,7 +15,26 @@ const Header = () => {
         >
           Schedule Builder
         </Title>
-        <Button rightSection={<Icon>login</Icon>}>Login</Button>
+        {isLoggedIn ? (
+          <Group>
+            <Button
+              component={"a"}
+              href={"/api/auth/logout"}
+              rightSection={<Icon>logout</Icon>}
+            >
+              Logout
+            </Button>
+            <Avatar src={user?.picture} alt={user?.name ?? ""} />
+          </Group>
+        ) : (
+          <Button
+            component={"a"}
+            href={"/api/auth/login"}
+            rightSection={<Icon>login</Icon>}
+          >
+            Login
+          </Button>
+        )}
       </Flex>
     </>
   );

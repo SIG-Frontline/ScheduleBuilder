@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-
-// All packages except `@mantine/hooks` require styles imports
+import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "material-symbols";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
@@ -59,11 +58,13 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <MantineProvider>
-          <div style={{ overflow: "auto" }}>
-            <Shell>{children}</Shell>
-          </div>
-        </MantineProvider>
+        <UserProvider>
+          <MantineProvider>
+            <div style={{ overflow: "auto" }}>
+              <Shell>{children}</Shell>
+            </div>
+          </MantineProvider>
+        </UserProvider>
       </body>
     </html>
   );
