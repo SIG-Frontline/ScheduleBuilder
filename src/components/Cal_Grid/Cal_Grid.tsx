@@ -120,6 +120,7 @@ const Cal_Grid = () => {
               <br />
             </div>
           )}
+          slotEventOverlap={false}
           eventTimeFormat={{
             hour: "numeric",
             minute: "2-digit",

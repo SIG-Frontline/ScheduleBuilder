@@ -1,4 +1,4 @@
-import { planStore } from "@/lib/planStore";
+import { Course, MeetingTime, Plan, planStore } from "@/lib/planStore";
 import { Button, Card, Group, List, Spoiler, Text, Title } from "@mantine/core";
 import Link from "next/link";
 import React from "react";
@@ -53,7 +53,128 @@ const Tab_Insights = () => {
           : 0)
       );
     }, 0) || 0;
+  const isTimeOverlapping = (time1: MeetingTime, time2: MeetingTime) => {
+    const start1 = new Date(time1.startTime);
+    const end1 = new Date(time1.endTime);
+    const start2 = new Date(time2.startTime);
+    const end2 = new Date(time2.endTime);
 
+    return time1.day === time2.day && start1 < end2 && end1 > start2;
+  };
+
+  const getSelectedMeetingTimes = (course: Course) => {
+    return course.sections
+      .filter((section) => section.selected)
+      .flatMap((section) => section.meetingTimes);
+  };
+
+  const findOverlappingCourses = (course: Course, otherCourses: Course[]) => {
+    const meetingTimes = getSelectedMeetingTimes(course);
+    const overlaps: {
+      course1: {
+        code: string;
+        times: {
+          day: string;
+          startTime: string;
+          endTime: string;
+        };
+      };
+      course2: {
+        code: string;
+        times: {
+          day: string;
+          startTime: string;
+          endTime: string;
+        };
+      };
+    }[] = [];
+
+    otherCourses.forEach((otherCourse) => {
+      otherCourse.sections
+        .filter((section) => section.selected)
+        .forEach((section) => {
+          section.meetingTimes.forEach((otherTime) => {
+            meetingTimes.forEach((time) => {
+              if (isTimeOverlapping(time, otherTime)) {
+                overlaps.push({
+                  course1: {
+                    code: course.code,
+                    times: {
+                      day: otherTime.day,
+                      startTime: otherTime.startTime,
+                      endTime: otherTime.endTime,
+                    },
+                  },
+
+                  course2: {
+                    code: otherCourse.code,
+                    times: {
+                      day: otherTime.day,
+                      startTime: otherTime.startTime,
+                      endTime: otherTime.endTime,
+                    },
+                  },
+                });
+              }
+            });
+          });
+        });
+    });
+
+    return overlaps;
+  };
+
+  const checkForOverlappingCourses = (plan: Plan) => {
+    if (!plan?.courses?.length) {
+      return {
+        hasOverlaps: false,
+        overlappingCourses: [],
+      };
+    }
+
+    const allOverlaps: { course1: Course; course2: Course }[] = [];
+
+    plan.courses.forEach((course) => {
+      const otherCourses = plan?.courses?.filter(
+        (otherCourse) => otherCourse.code !== course.code
+      );
+
+      if (otherCourses?.length) {
+        const courseOverlaps = findOverlappingCourses(course, otherCourses);
+        allOverlaps.push(
+          ...(courseOverlaps as unknown as {
+            course1: Course;
+            course2: Course;
+          }[])
+        );
+      }
+    });
+
+    // Remove duplicate overlaps (e.g., if A overlaps with B, we don't need B overlaps with A)
+    const uniqueOverlaps = allOverlaps.filter((overlap, index) => {
+      return (
+        allOverlaps.findIndex(
+          (o) =>
+            (o.course1.code === overlap.course1.code &&
+              o.course2.code === overlap.course2.code) ||
+            (o.course1.code === overlap.course2.code &&
+              o.course2.code === overlap.course1.code)
+        ) === index
+      );
+    });
+
+    return {
+      hasOverlaps: uniqueOverlaps.length > 0,
+      overlappingCourses: uniqueOverlaps,
+    };
+  };
+
+  const plan_overlaping_courses = cur_plan
+    ? checkForOverlappingCourses(cur_plan).hasOverlaps
+    : false;
+  const overlappingCourses = cur_plan
+    ? checkForOverlappingCourses(cur_plan).overlappingCourses
+    : [];
   return (
     <>
       <Card
@@ -150,6 +271,42 @@ const Tab_Insights = () => {
             {undergraduate_level_credits} undergraduate credits in your plan.
             Make sure you are eligible to take take both types of courses.
           </Text>
+        </Card>
+      )}
+      {plan_overlaping_courses && (
+        <Card
+          withBorder
+          shadow="sm"
+          mx={"md"}
+          radius="md"
+          mb={"xs"}
+          key="overlapping_courses"
+          bd={"1px solid #c00"}
+        >
+          <Title ta={"center"} order={5}>
+            Overlapping Courses
+          </Title>
+          <Text>
+            You have overlapping courses in your plan. Please make sure you can
+            attend all of them.
+          </Text>
+          <List unstyled>
+            {overlappingCourses.map((overlap, i) => {
+              const course1 = overlap.course1 as unknown as {
+                code: string;
+                times: { day: string; startTime: string; endTime: string };
+              };
+              const course2 = overlap.course2 as unknown as {
+                code: string;
+                times: { day: string; startTime: string; endTime: string };
+              };
+              return (
+                <List.Item key={i}>
+                  {course1.code} overlaps with {course2.code}
+                </List.Item>
+              );
+            })}
+          </List>
         </Card>
       )}
       {comments?.map((course) => {
