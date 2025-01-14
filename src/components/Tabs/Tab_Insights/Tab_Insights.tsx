@@ -253,6 +253,51 @@ const Tab_Insights = () => {
             </Text>
           </Card>
         )}
+      {undergraduate_level_credits > graduate_level_credits &&
+        cur_plan_credit_hours &&
+        cur_plan_credit_hours < 12 && (
+          <Card
+            withBorder
+            shadow="sm"
+            mx={"md"}
+            radius="md"
+            mb={"xs"}
+            key="undergraduate_level_overload"
+            bd={"1px solid #c00"}
+          >
+            <Title ta={"center"} order={5}>
+              Undergraduate Part Time!
+            </Title>
+            <Text>
+              You have planned {cur_plan_credit_hours} credits, which is less
+              than 12. You may want to discuss what is best for you with an
+              advisor and the financial aid office.
+            </Text>
+          </Card>
+        )}
+      {graduate_level_credits > undergraduate_level_credits &&
+        cur_plan_credit_hours &&
+        cur_plan_credit_hours < 9 && (
+          <Card
+            withBorder
+            shadow="sm"
+            mx={"md"}
+            radius="md"
+            mb={"xs"}
+            key="graduate_level_overload"
+            bd={"1px solid #c00"}
+          >
+            <Title ta={"center"} order={5}>
+              Graduate Part Time!
+            </Title>
+            <Text>
+              You have planned {cur_plan_credit_hours} credits, which is less
+              than 9. You may want to discuss what is best for you with an
+              advisor and the financial aid office.
+            </Text>
+          </Card>
+        )}
+
       {undergraduate_level_credits > 0 && graduate_level_credits > 0 && (
         <Card
           withBorder
