@@ -1,28 +1,284 @@
-import { browser } from '$app/environment';
-import { writable } from 'svelte/store';
-import { termStore } from './termStore';
-const defaultData = [] as Array<unknown>;
-const PLAN_KEY = 'SB_plans'; // key for local storage
-export const planStore = writable(
-	browser && localStorage.getItem(PLAN_KEY) !== null // check if the key exists in local storage
-		? JSON.parse(localStorage.getItem(PLAN_KEY) as string) // if it does, parse the value
-		: defaultData // if it doesn't, use the default value in the store
-);
-planStore.subscribe((value) => {
-	if (browser) {
-		// if the browser is available, set the value in local storage
-		//if the old value is null, set the default value
-		localStorage.setItem(PLAN_KEY, JSON.stringify(value) ?? JSON.stringify(defaultData));
-	}
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+/*
+plan object
 
-	//when a plan is selected, update the term store
-	if (value.length > 0) {
-		//find the active plan
-		const activePlan = value.find((plan: { active: boolean }) => plan.active);
-		//if the active plan is found, update the term store
-		if (activePlan) {
-			termStore.set(activePlan.term);
-		}
-	}
-});
-// https://svelte.dev/docs/svelte-store
+[
+{
+uuid:crypto.randomUUID() //auto generated at creation
+name:"Plan Name",
+description:"Plan Description",
+term:202490
+courses:[
+
+]
+events:[
+]
+}]
+
+course object
+{
+title:"Course Title",
+code: "CS 100",
+description:"Course Description",
+prerequisites: ["CS 101","CS 102"],
+credits: 3,
+sections:[
+]
+}
+
+section object
+{
+meetingTimes:[
+{
+day:"M",
+startTime:"1900-01-01T14:30:00.000Z"
+endTime:"1900-01-01T15:45:00.000Z"
+building:"Building Name",
+room:"Room Number"
+}
+]
+instructor:"Instructor Name",
+seats:30,
+currentEnrollment:30,
+status:"Open"
+is_honors:true
+is_async:true
+}
+
+event object
+
+{
+title:"Event Title",
+description:"Event Description",
+startTime:"1900-01-01T14:30:00.000Z",
+endTime:"1900-01-01T15:45:00.000Z",
+daysOfWeek:[1,2,3,4,5]
+}
+
+*/
+
+export type Plan = {
+  uuid: string;
+  name: string;
+  description: string;
+  term: number;
+  courses?: Course[];
+  events?: Event[];
+  selected: boolean;
+};
+
+export type Course = {
+  title: string;
+  code: string;
+  description: string;
+  prerequisites: string[];
+  credits: number;
+  sections: Section[];
+  color?: string;
+};
+
+export type Section = {
+  meetingTimes: MeetingTime[];
+  instructor: string;
+  crn: string;
+  currentEnrollment: number;
+  maxEnrollment: number;
+  status: string;
+  is_honors: boolean;
+  is_async: boolean;
+  sectionNumber: string;
+  comments: string;
+  selected: boolean;
+};
+export type MeetingTime = {
+  day: string;
+  startTime: string;
+  endTime: string;
+  building: string;
+  room: string;
+};
+export type Event = {
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  daysOfWeek: number[];
+  color?: string;
+};
+
+interface PlanStoreState {
+  plans: Plan[];
+  currentSelectedPlan: string | null;
+  setPlans: (plans: Plan[]) => void;
+  addPlan: (newPlan: Plan) => void;
+  updatePlan: (updatedPlan: Plan, uuid: string) => void;
+  removePlan: (uuid: string) => void;
+  getPlan: (uuid: string) => Plan | undefined;
+  selectPlan: (uuid: string) => void;
+  addCourseToPlan: (course: Course) => void;
+  selectSection: (course: string, crn: string) => void;
+  deleteCourseFromPlan: (course: string) => void;
+  addEventToPlan: (event: Event) => void;
+  removeEventFromPlan: (event: Event) => void;
+  updateCourseColor: (course: Course, color: string) => void;
+}
+
+export const planStore = create<PlanStoreState>()(
+  persist(
+    (set, get) => ({
+      plans: [],
+      currentSelectedPlan: null,
+      setPlans: (plans) => set({ plans }),
+      addPlan: (newPlan) => {
+        const { plans } = get();
+        if (plans.length === 0) {
+          newPlan.selected = true;
+        }
+        set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
+      },
+      selectPlan: (uuid) => {
+        const { plans } = get();
+        const newplans = plans.map((plan) => ({
+          ...plan,
+          selected: plan.uuid === uuid,
+        }));
+        set({
+          plans: newplans,
+          currentSelectedPlan: uuid,
+        });
+      },
+      updatePlan: (updatedPlan, uuid) => {
+        const { plans } = get();
+        set({
+          plans: plans.map((plan) => (plan.uuid === uuid ? updatedPlan : plan)),
+        });
+      },
+      removePlan: (uuid) => {
+        const { plans, currentSelectedPlan } = get();
+        let newSelectedPlan = currentSelectedPlan;
+        if (currentSelectedPlan === uuid && plans.length > 1) {
+          newSelectedPlan = plans[0].uuid;
+        } else if (currentSelectedPlan === uuid && plans.length === 1) {
+          newSelectedPlan = null;
+        }
+        set({
+          plans: plans.filter((plan) => plan.uuid !== uuid),
+          currentSelectedPlan: newSelectedPlan,
+        });
+      },
+      getPlan: (uuid) => {
+        const { plans } = get();
+        return plans.find((plan) => plan.uuid === uuid);
+      },
+      addCourseToPlan: (course) => {
+        const { plans, currentSelectedPlan } = get();
+        const currentPlan = plans.find(
+          (plan) => plan.uuid === currentSelectedPlan
+        );
+        const currentPlanHasCourse = currentPlan?.courses?.find(
+          (c) => c.code === course.code
+        );
+        if (currentPlanHasCourse) {
+          alert("Course already in plan");
+          return;
+        }
+        set({
+          plans: plans.map((plan) =>
+            plan.uuid === currentSelectedPlan
+              ? {
+                  ...plan,
+                  courses: plan.courses
+                    ? plan.courses.concat(course)
+                    : [course],
+                }
+              : plan
+          ),
+        });
+      },
+      selectSection: (course, crn) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.map((c) =>
+                  c.code === course
+                    ? {
+                        ...c,
+                        sections: c.sections.map((s) =>
+                          s.crn === crn
+                            ? { ...s, selected: true }
+                            : { ...s, selected: false }
+                        ),
+                      }
+                    : c
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      },
+      addEventToPlan: (event) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                events: plan.events ? plan.events.concat(event) : [event],
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      },
+      removeEventFromPlan: (event) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                events: plan.events?.filter(
+                  (e) =>
+                    e.title !== event.title &&
+                    e.startTime !== event.startTime &&
+                    e.endTime !== event.endTime &&
+                    e.daysOfWeek !== event.daysOfWeek &&
+                    e.description !== event.description
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      },
+      deleteCourseFromPlan: (course) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.filter((c) => c.code !== course),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      },
+      updateCourseColor: (course, color) => {
+        const { plans, currentSelectedPlan } = get();
+        const newPlans = plans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.map((c) =>
+                  c.code === course.code ? { ...c, color } : c
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans });
+      }
+    }),
+    {
+      name: "plan-store",
+    }
+  )
+);

@@ -1,36 +1,54 @@
-# SIG Frontline - Frontend
+# Schedule Builder
 
-## Tools
+## Overview
 
-- [svelte](https://svelte.dev/)
-- [sveltekit](https://kit.svelte.dev/)
-- [tailwindcss](https://tailwindcss.com/)
-- [skeleton](https://www.skeleton.dev/)
-- [pnpm](https://pnpm.io/)
-- [vite](https://vitejs.dev/)
-- [prettier](https://prettier.io/)
-- [eslint](https://eslint.org/)
-- [typescript](https://www.typescriptlang.org/)
+Schedule Builder is a web application designed to help users create and manage their schedules efficiently.
 
-## Getting Started
+## Features
 
-**Before anything, make sure you have the environment variables set up, you can find the `.env.example` file in the root of the project, you can copy it and rename it to `.env.local` and fill in the values.**
+- Mobile-friendly modern design
+- Multiple plans for different schedules
+- Dark mode
+- Export schedule [coming soon]
+- Share schedule with others [coming soon]
+- Add custom events [coming soon]
 
-Then you can run the following commands:
+## Installation
+
+To get started with the project, follow these steps:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/SIG-Frontline/ScheduleBuilder-Frontend.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd ScheduleBuilder-Frontend
+   ```
+3. Install the dependencies:
+   ```bash
+   pnpm install # or yarn install or npm install
+   ```
+
+## Usage
+
+To run the application locally, use the following command:
 
 ```bash
-pnpm install # this will install all dependencies, make sure you have pnpm installed - https://pnpm.io/installation
-pnpm dev # this will start the development server, it will print the url in the console
+pnpm start # or yarn start or npm start
 ```
 
-## Folder Structure
+Open your browser and navigate to `http://localhost:3000` to view the application.
 
-`/src` - Contains all the source code for the project
-`/src/lib` - Contains all the utility functions and TS files
-`src/components` - Contains all the components for the project
-`src/routes` - Contains all the routes for the project
+## Technologies
 
-- `src/routes/api` - Contains all the api routes
-
-`src/themes` - Contains all the custom theme files for the project  
-`/static` - Contains all the static files for the project, whrn accessing the URL for these don't inclide the /static in the path
+- React
+- TypeScript
+- Tailwind CSS
+- FullCalendar
+- Mantine UI
+- MongoDB
+- Zustand
+- Material Symbols
+- ESLint
+- PostCSS
