@@ -68,6 +68,8 @@ Open your browser and navigate to `http://localhost:3000` to view the applicatio
 - [FullCalendar documentation](https://fullcalendar.io/docs)
 - [Mantine UI documentation](https://mantine.dev/getting-started)
 - [MongoDB documentation](https://docs.mongodb.com/)
+- [Zustand documentation](https://zustand.docs.pmnd.rs)
+- [MongoDB documentation](https://docs.mongodb.com/)
 
 ## File Structure
 
