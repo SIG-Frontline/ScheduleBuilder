@@ -238,6 +238,7 @@ export const planStore = create<PlanStoreState>()(
 planStore.subscribe(
   debounce(async () => {
     const user = await fetch("/api/auth/me");
+    if (!(user.status === 200)) return;
     const json_user = await user.json();
     if (json_user?.sub) {
       uploadPlan();
@@ -273,23 +274,28 @@ async function uploadPlan() {
     ).setPlans
   )
     return;
-  //clear the plans
-  planStore.getState().setPlans([]);
-  await fetch("/api/user_plans")
-    .then((res) => res.json())
-    .then((data) => {
-      let i = 0;
-      for (const plan of data) {
-        data.selected = i === 0;
-        planStore.getState().addPlan(plan.plandata);
-        i++;
-      }
-    })
-    .finally(() => {
-      (
-        globalThis as unknown as {
-          setPlans: boolean;
+  const user = await fetch("/api/auth/me");
+  if (!(user.status === 200)) return;
+  const json_user = await user.json();
+  if (json_user?.sub) {
+    //clear the plans
+    planStore.getState().setPlans([]);
+    await fetch("/api/user_plans")
+      .then((res) => res.json())
+      .then((data) => {
+        let i = 0;
+        for (const plan of data) {
+          data.selected = i === 0;
+          planStore.getState().addPlan(plan.plandata);
+          i++;
         }
-      ).setPlans = true;
-    });
+      })
+      .finally(() => {
+        (
+          globalThis as unknown as {
+            setPlans: boolean;
+          }
+        ).setPlans = true;
+      });
+  }
 })();
