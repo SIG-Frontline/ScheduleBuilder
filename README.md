@@ -7,16 +7,16 @@
 
 ## Overview
 
-Schedule Builder is a web application designed to help users create and manage their schedules efficiently.
+Schedule Builder is a web application designed to help users create and manage their course schedules at NJIT. It is based on the [current NJIT schedule builder](https://myhub.njit.edu/scbldr/), but with a more modern and user-friendly interface. Users can create multiple schedules for different scenarios, such as different semesters or different majors. The application also supports dark mode and will soon support exporting schedules and sharing schedules with others.
 
 ## Features
 
 - Mobile-friendly modern design
 - Multiple plans for different schedules
 - Dark mode
-- Export schedule [coming soon]
-- Share schedule with others [coming soon]
-- Add custom events [coming soon]
+- Export schedule
+- Share schedule with others
+- Add custom events
 
 ## Installation
 
