@@ -1,4 +1,4 @@
-import { planStore } from "@/lib/planStore";
+import { planStore } from "@/lib/client/planStore";
 import { Button, Group, Modal } from "@mantine/core";
 import html2canvas from "html2canvas";
 export default function ShareModal({

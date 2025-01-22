@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import React, { useState } from "react";
 import { TimeInput } from "@mantine/dates";
-import { planStore } from "@/lib/planStore";
+import { planStore } from "@/lib/client/planStore";
 const Tab_Events = () => {
   /**
    *   title: string;

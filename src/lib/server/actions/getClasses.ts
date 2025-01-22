@@ -1,6 +1,6 @@
 "use server";
 
-import { Filters } from "@/lib/filterStore";
+import { Filters } from "@/lib/client/filterStore";
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210

@@ -7,7 +7,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { Checkbox, Group, Text } from "@mantine/core";
-import { filterStore } from "@/lib/filterStore";
+import { filterStore } from "@/lib/client/filterStore";
 function FiltersDrawer() {
   const filter_store = filterStore();
   const [filtersOpened, { open, close }] = useDisclosure(false);

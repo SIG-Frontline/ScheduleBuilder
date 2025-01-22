@@ -2,17 +2,17 @@
 
 import { ScrollAreaAutosize, Tabs, Transition } from "@mantine/core";
 import Icon from "../Icon/Icon";
-import Tab_Events from "@/components/Tabs/Tab_Events/Tab_Events";
-import Tab_Insights from "@/components/Tabs/Tab_Insights/Tab_Insights";
-import Tab_Optimizer from "@/components/Tabs/Tab_Optimizer/Tab_Optimizer";
-import Tab_Plans from "@/components/Tabs/Tab_Plans/Tab_Plans";
-import Tab_Settings from "@/components/Tabs/Tab_Settings/Tab_Settings";
+import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
+import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
+import Tab_Optimizer from "./Tabs/Tab_Optimizer/Tab_Optimizer";
+import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
+import Tab_Settings from "./Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
-import Search from "../Search/Search";
+import Search from "./Search/Search";
 import { createRef, useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
-import Tab_Sections from "../Tabs/Tab_Sections/Tab_Sections";
+import Tab_Sections from "./Tabs/Tab_Sections/Tab_Sections";
 
 const tabData = [
   //this array contains the data for each tab

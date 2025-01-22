@@ -1,4 +1,4 @@
-import { Plan, planStore } from "@/lib/planStore";
+import { Plan, planStore } from "@/lib/client/planStore";
 import React, { useEffect, useState } from "react";
 import Section from "./SectionSelection";
 import {

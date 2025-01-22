@@ -1,6 +1,6 @@
 "use client";
-import { dayStore } from "@/lib/dayStore";
-import { Plan, planStore } from "@/lib/planStore";
+import { dayStore } from "@/lib/client/dayStore";
+import { Plan, planStore } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable

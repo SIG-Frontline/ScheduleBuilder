@@ -1,6 +1,6 @@
 // Import the sectionsCollection from the mongoClient
-import { addQuery } from "@/lib/apiUtils";
-import { sectionsCollection } from "@/lib/mongoClient";
+import { addQuery } from "@/lib/server/apiUtils";
+import { sectionsCollection } from "@/lib/server/mongoClient";
 import { NextRequest } from "next/server";
 
 // Define an asynchronous GET function that takes a request object as a parameter

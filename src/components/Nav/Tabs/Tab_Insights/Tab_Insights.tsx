@@ -1,4 +1,4 @@
-import { Course, MeetingTime, Plan, planStore } from "@/lib/planStore";
+import { Course, MeetingTime, Plan, planStore } from "@/lib/client/planStore";
 import { Button, Card, Group, List, Spoiler, Text, Title } from "@mantine/core";
 import Link from "next/link";
 import React from "react";
