@@ -1,6 +1,5 @@
-import { planStore, Section } from "@/lib/planStore";
+import { planStore, Section } from "@/lib/client/planStore";
 import {
-  
   Badge,
   Group,
   Text,

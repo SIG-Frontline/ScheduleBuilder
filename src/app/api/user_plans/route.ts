@@ -1,4 +1,4 @@
-import { userPlanCollection } from "@/lib/mongoClient";
+import { userPlanCollection } from "@/lib/server/mongoClient";
 import { getSession } from "@auth0/nextjs-auth0";
 import { NextRequest, NextResponse } from "next/server";
 

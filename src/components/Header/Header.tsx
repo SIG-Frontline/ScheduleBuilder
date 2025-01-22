@@ -2,7 +2,7 @@ import { Avatar, Button, Flex, Group, Title } from "@mantine/core";
 import React from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { planStore } from "@/lib/planStore";
+import { planStore } from "@/lib/client/planStore";
 
 const Header = () => {
   const { user } = useUser();

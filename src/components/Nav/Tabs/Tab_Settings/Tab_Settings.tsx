@@ -1,5 +1,5 @@
 import Icon from "@/components/Icon/Icon";
-import { dayStore } from "@/lib/dayStore";
+import { dayStore } from "@/lib/client/dayStore";
 import {
   ActionIcon,
   Group,
