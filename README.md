@@ -37,10 +37,10 @@ To get started with the project, follow these steps:
 
 ## Usage
 
-To run the application locally, use the following command:
+To run the application dev server locally, use the following command:
 
 ```bash
-pnpm start # or yarn start or npm start
+pnpm dev # or yarn dev or npm dev
 ```
 
 Open your browser and navigate to `http://localhost:3000` to view the application.
