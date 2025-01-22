@@ -247,12 +247,12 @@ planStore.subscribe(
   }, 2500)
 );
 
-function uploadPlan() {
+async function uploadPlan() {
   const currentPlanUUID = planStore.getState().currentSelectedPlan;
   if (currentPlanUUID) {
     const currentPlan = planStore.getState().getPlan(currentPlanUUID);
     if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-      fetch("/api/user_plans", {
+      await fetch("/api/user_plans", {
         method: "POST",
         body: JSON.stringify(currentPlan),
       })
@@ -263,3 +263,33 @@ function uploadPlan() {
     }
   }
 }
+
+(async function syncPlans() {
+  if (
+    (
+      globalThis as unknown as {
+        setPlans: boolean;
+      }
+    ).setPlans
+  )
+    return;
+  //clear the plans
+  planStore.getState().setPlans([]);
+  await fetch("/api/user_plans")
+    .then((res) => res.json())
+    .then((data) => {
+      let i = 0;
+      for (const plan of data) {
+        data.selected = i === 0;
+        planStore.getState().addPlan(plan.plandata);
+        i++;
+      }
+    })
+    .finally(() => {
+      (
+        globalThis as unknown as {
+          setPlans: boolean;
+        }
+      ).setPlans = true;
+    });
+})();

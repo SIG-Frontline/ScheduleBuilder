@@ -7,6 +7,7 @@ export const GET = async (req: NextRequest) => {
   const session = await getSession(req, nextResponse);
   console.log(`${new URL(req.url).origin}/api/auth/login?returnTo=${req.url}`);
   if (!session) {
+    //if the user is not authenticated
     return NextResponse.redirect(
       `${new URL(req.url).origin}/api/auth/login?returnTo=${req.url}`
     );
