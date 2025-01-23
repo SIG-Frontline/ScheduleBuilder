@@ -23,7 +23,7 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   const body = await req?.body?.getReader().read(); //readableStream
   const plan = JSON.parse(new TextDecoder().decode(body?.value));
-  console.log(plan);
+  // console.log(plan);
   if (!plan) {
     return NextResponse.json("Plan ID is required", { status: 400 });
   }

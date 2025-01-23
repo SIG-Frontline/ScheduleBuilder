@@ -237,6 +237,7 @@ export const planStore = create<PlanStoreState>()(
 //run code on plan update
 planStore.subscribe(
   debounce(async () => {
+    if (!globalThis.location) return;
     const user = await fetch("/api/auth/me");
     if (!(user.status === 200)) return;
     const json_user = await user.json();
@@ -274,6 +275,7 @@ async function uploadPlan() {
     ).setPlans
   )
     return;
+  if (!globalThis.location) return;
   const user = await fetch("/api/auth/me");
   if (!(user.status === 200)) return;
   const json_user = await user.json();
