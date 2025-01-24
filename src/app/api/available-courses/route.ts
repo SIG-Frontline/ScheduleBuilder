@@ -6,7 +6,6 @@ import {
 import { check_tree } from "@/lib/server/apiUtils";
 import { NextRequest } from "next/server";
 
-//http://localhost:XXXX/api/availableCourses?taken=CS100
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 

@@ -12,9 +12,7 @@ export async function getSectionData(
   subject: string,
   courseCode: string
 ) {
-  const baseURL = Boolean(process.env.IS_DOCKER)
-    ? "http://nextjs-docker:3000"
-    : "http://localhost:3000";
+  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
   const URL = `${baseURL}/api/courses?term=${term}&course=${
     subject + " " + courseCode
   }`;
