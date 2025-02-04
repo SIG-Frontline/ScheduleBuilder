@@ -1,5 +1,6 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
+import InfoCard from "../InfoCard/InfoCard";
 import { Plan, planStore } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -11,11 +12,16 @@ import { useEffect, useState } from "react";
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
  */
 const Cal_Grid = () => {
+
   const plan_store = planStore();
-  const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
-    Plan | undefined
-  >(plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined);
+  
+  const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<Plan | undefined >(
+    plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined
+  );
   //use effect to log the current selected plan
+  
+  const [cardVisible, setCardVisibility] = useState<boolean>(false);
+
   useEffect(() => {
     setCurrentSelectedPlan(
       plan_store.getPlan(
@@ -23,12 +29,15 @@ const Cal_Grid = () => {
       )
     );
   }, [plan_store.currentSelectedPlan, plan_store]);
+  
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
     setCurrentSelectedPlan(
       plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
     );
   });
+  
   const day_store = dayStore();
+  
   useEffect(() => {
     return () => {
       unsubscribe();
@@ -80,6 +89,7 @@ const Cal_Grid = () => {
   return (
     <>
       <Stack style={{ height: "100%" }}>
+        
         <FullCalendar
           viewClassNames={`dark:bg-[#242424] bg-white`}
           height={"100%"}
@@ -103,7 +113,7 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => (
-            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
+            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden" onClick={() => setCardVisibility(!cardVisible)}>
               <b className=" w-full text-xs ">{eventContent.event.title}</b>
               <span className="text-xs">
                 {eventContent.event.extendedProps.title}
@@ -158,7 +168,10 @@ const Cal_Grid = () => {
           slotMaxTime={"22:00:00"}
           // eventClassNames="!bg-green-500"
         />
-
+        <InfoCard 
+          cardVisible={cardVisible}
+          onClose={() => setCardVisibility(false)}
+        />
         <Group>
           <Group className="sticky left-0 !flex-nowrap overflow-x-auto bg-white dark:bg-[#242424]">
             {/* online courses */}
@@ -177,8 +190,10 @@ const Cal_Grid = () => {
                     key={section.crn}
                     className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
                   >
+
+                  
                     <div
-                      style={{ backgroundColor: item.color ?? "#00aa00" }}
+                      style={{ backgroundColor: item.color ?? "#00000" }}
                       className="w-4 h-4 rounded-full"
                     ></div>
                     <div>
