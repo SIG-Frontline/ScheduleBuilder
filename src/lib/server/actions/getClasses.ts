@@ -26,11 +26,9 @@ export async function getClasses(
 
   if (subject) {
     URL += `&subject=${subject}`;
-    console.log(URL);
   }
   if (title) {
     URL += `&title=${title}`;
-    console.log(URL);
   }
 
   //adding url parameters based on the filters

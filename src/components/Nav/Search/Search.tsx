@@ -46,7 +46,11 @@ export default function Search({
   const subjectOptions = subject_store.subjects;
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
-    return textBoxValue.replace(selectedSubject, "").trim();
+    if (specialSubjects.includes(selectedSubject)){
+      return textBoxValue.trim();
+    } else {
+      return textBoxValue.replace(selectedSubject, "").trim();
+    }
   }, [textBoxValue, selectedSubject]);
   const plan_store = planStore();
   const selectedPlanuuid = plan_store.currentSelectedPlan;
@@ -84,6 +88,10 @@ export default function Search({
         option.title.includes(searchWithoutSubject) ||
         idTitle.includes(searchWithoutSubject)
       );
+    } else if (option.id) {
+      return option.id;
+    } else if (option.title) {
+      return option.title;
     }
   });
   const addCourseToPlan = planStore((state) => state.addCourseToPlan);
@@ -244,7 +252,7 @@ export default function Search({
               return (
                 <UnstyledButton
                   data-list-item
-                  key={option.id}
+                  key={index}
                   value={option.id}
                   onClick={() => {
                     if (option.id) {
@@ -269,7 +277,7 @@ export default function Search({
               return (
                 <UnstyledButton
                   data-list-item
-                  key={option}
+                  key={index}
                   value={option}
                   onClick={() => handleClassSelection(option)}
                   w={"100%"}

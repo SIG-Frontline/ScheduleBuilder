@@ -13,9 +13,16 @@ export async function getSectionData(
   courseCode: string
 ) {
   const baseURL = `http://0.0.0.0:${process.env.PORT}`;
-  const URL = `${baseURL}/api/courses?term=${term}&course=${
-    subject + " " + courseCode
-  }`;
+  let URL = `${baseURL}/api/courses?term=${term}&course=`;
+
+  if (subject && courseCode) {
+    URL += `${subject} ${courseCode}`;
+  } else if (subject) {
+    URL += `${subject}`;    
+  } else if (courseCode) {
+    URL += `${courseCode}`;
+  }
+
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => {
