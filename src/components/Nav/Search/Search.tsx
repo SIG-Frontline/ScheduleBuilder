@@ -1,5 +1,5 @@
 import { createRef, useEffect, useMemo, useRef, useState } from "react";
-import { Chip, Group, TextInput } from "@mantine/core";
+import { ScrollArea, TextInput, UnstyledButton } from "@mantine/core";
 import { getSubjects } from "@/lib/server/actions/getSubjects";
 import { getClasses } from "@/lib/server/actions/getClasses";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
@@ -40,9 +40,10 @@ export default function Search({
   const subject_store = subjectStore();
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const textBoxRef = useRef<HTMLInputElement>(null);
-  // const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
+  const [classOptions, setClassOptions] = useState<
+    { id: string; title: string }[]
+  >([]);
   const subjectOptions = subject_store.subjects;
-  const [classOptions, setClassOptions] = useState<string[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
     return textBoxValue.replace(selectedSubject, "").trim();
@@ -52,8 +53,11 @@ export default function Search({
   const selectedPlan = plan_store.plans.find(
     (plan) => plan.uuid === selectedPlanuuid
   );
+  // state to track if enter has been pressed once, resulting in auto completed class title
+  const [autoCompletedText, setAutoCompletedText] = useState(false);
+  const [textHovered, setTextHovered] = useState(-1);
+  const scrollAreaRef = createRef<HTMLDivElement>();
 
-  const chipGroupRef = createRef<HTMLDivElement>();
   useEffect(() => {
     //if the term changes, get the subjects again
     if (
@@ -67,16 +71,23 @@ export default function Search({
     }
   }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
 
+  //filter the subject options based on the search value
   const filteredSubjectOptions = subjectOptions.filter((option) =>
-    //filter the subject options based on the search value
     option.includes(textBoxValue)
   );
-  const filteredClassOptions = classOptions.filter((option) =>
-    //filter the class options based on the search value without the subject
-    option.includes(searchWithoutSubject)
-  );
+  //filter the class options based on the search value without the subject
+  const filteredClassOptions = classOptions.filter((option) => {
+    const idTitle = option.id + ": " + option.title;
+    if (option.id && option.title) {
+      return (
+        option.id.includes(searchWithoutSubject) ||
+        option.title.includes(searchWithoutSubject) ||
+        idTitle.includes(searchWithoutSubject)
+      );
+    }
+  });
   const addCourseToPlan = planStore((state) => state.addCourseToPlan);
-  const chipOptions = selectedSubject
+  const searchOptions = selectedSubject
     ? filteredClassOptions
     : filteredSubjectOptions;
   const filter_store = filterStore();
@@ -93,6 +104,7 @@ export default function Search({
       getClasses(
         selectedPlan?.term ?? 202490,
         textBoxValue,
+        "",
         throttledfilter_storeValue
       ).then((classes) => {
         //server side fn to get classes for the subject - only called when a subject is selected
@@ -114,12 +126,39 @@ export default function Search({
     selectedPlan?.term,
     throttledfilter_storeValue,
   ]);
+
+  const handleClassSelection = (searchResult: string) => {
+    //if the option is a class, and there is a subject selected, and the subject is in the textbox
+    if (
+      (selectedSubject && textBoxValue.startsWith(selectedSubject)) ||
+      specialSubjects.includes(searchResult)
+    ) {
+      getSectionData(
+        selectedPlan?.term ?? 202490,
+        selectedSubject,
+        searchResult
+      )
+        .then((data) => {
+          data.color = `rgba(
+          ${Math.floor(Math.random() * 256)},
+          ${Math.floor(Math.random() * 256)},
+          ${Math.floor(Math.random() * 256)},0.9)`;
+          addCourseToPlan(data);
+        })
+        .then(() => {
+          setTextBoxValue("");
+        });
+    }
+    //focus the textbox after selecting a chip
+    setTimeout(() => {
+      textBoxRef.current?.focus();
+    }, 10);
+  };
+
   return (
     <div ref={ref}>
-      {/* {selectedSubject && sectionOptions.length > 0 ? ( */}
       <TextInput
         ref={textBoxRef}
-        // className={"max-w-screen" + (!matches ? " w-screen" : "")}
         onFocus={(e) => {
           onFocused();
           //scroll to the elm immediately on focus
@@ -135,83 +174,119 @@ export default function Search({
         value={textBoxValue}
         onChange={(e) => {
           setTextBoxValue(e.currentTarget.value);
+          setTextHovered(-1);
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
-            const firstOption = chipOptions[0];
-            if (firstOption && textBoxValue.length > 0) {
-              if (selectedSubject) {
-                setTextBoxValue(selectedSubject + firstOption);
+            const firstOption = searchOptions[0];
+            const hoveredOption = searchOptions[textHovered] ?? firstOption;
+            // Pressing Enter once will autocomplete to the hovered option in search results
+            if (!autoCompletedText) {
+              setAutoCompletedText(true);
+              setTextHovered(-1);
+              if (hoveredOption && textBoxValue.length > 0) {
+                if (selectedSubject) {
+                  setTextBoxValue(selectedSubject);
+                  if (typeof hoveredOption === "object") {
+                    setTextBoxValue(
+                      selectedSubject +
+                        " " +
+                        hoveredOption.id +
+                        ": " +
+                        hoveredOption.title
+                    );
+                  }
+                } else {
+                  if (typeof hoveredOption === "string") {
+                    setTextBoxValue(hoveredOption);
+                  }
+                }
+              }
+            } else {
+              // Pressing Enter a second time will add the first option in search results to your plan
+              setAutoCompletedText(false);
+              const hoveredOption = searchOptions[textHovered] ?? firstOption;
+              if (typeof hoveredOption === "object") {
+                handleClassSelection(hoveredOption.id);
               } else {
-                setTextBoxValue(firstOption);
+                handleClassSelection(hoveredOption);
               }
             }
+          }
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setTextHovered((current) => {
+              const nextIndex =
+                current + 1 >= searchOptions.length ? current : current + 1;
+              scrollAreaRef.current
+                ?.querySelectorAll("[data-list-item")
+                ?.[nextIndex]?.scrollIntoView({ block: "nearest" });
+              return nextIndex;
+            });
+          }
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setTextHovered((current) => {
+              const nextIndex = current - 1 < 0 ? current : current - 1;
+              scrollAreaRef.current
+                ?.querySelectorAll("[data-list-item")
+                ?.[nextIndex]?.scrollIntoView({ block: "nearest" });
+              return nextIndex;
+            });
           }
         }}
       />
       {(textBoxValue.length > 0 ||
         (selectedSubject && filteredClassOptions.length === 1)) && (
-        <Chip.Group
-          multiple={false}
-          onChange={(chipValue) => {
-            if (textBoxValue.startsWith(chipValue)) {
-              setTextBoxValue(chipValue);
+        <ScrollArea h={200} type="hover" ref={scrollAreaRef}>
+          {searchOptions.map((option, index) => {
+            if (typeof option === "object") {
+              return (
+                <UnstyledButton
+                  data-list-item
+                  key={option.id}
+                  value={option.id}
+                  onClick={() => {
+                    if (option.id) {
+                      handleClassSelection(option.id);
+                    } else {
+                      handleClassSelection(option.title);
+                    }
+                  }}
+                  w={"100%"}
+                  px={12}
+                  py={6}
+                  bg={
+                    index === textHovered
+                      ? "var(--mantine-color-blue-light)"
+                      : undefined
+                  }
+                >
+                  {selectedSubject} {option.id}: {option.title}
+                </UnstyledButton>
+              );
             } else {
-              setTextBoxValue(selectedSubject + chipValue);
+              return (
+                <UnstyledButton
+                  data-list-item
+                  key={option}
+                  value={option}
+                  onClick={() => handleClassSelection(option)}
+                  w={"100%"}
+                  px={12}
+                  py={6}
+                  bg={
+                    index === textHovered
+                      ? "var(--mantine-color-blue-light)"
+                      : undefined
+                  }
+                >
+                  {option}
+                </UnstyledButton>
+              );
             }
-
-            //if the chip is a class, and there is a subject selected, and the subject is in the textbox
-            if (
-              (selectedSubject && textBoxValue.startsWith(selectedSubject)) ||
-              specialSubjects.includes(chipValue)
-            ) {
-              getSectionData(
-                selectedPlan?.term ?? 202490,
-                selectedSubject,
-                chipValue
-              )
-                .then((data) => {
-                  data.color = `rgba(
-                  ${Math.floor(Math.random() * 256)},
-                  ${Math.floor(Math.random() * 256)},
-                  ${Math.floor(Math.random() * 256)},0.9)`;
-                  addCourseToPlan(data);
-                })
-                .then(() => {
-                  setTextBoxValue("");
-                });
-            }
-            //focus the textbox after selecting a chip
-            setTimeout(() => {
-              textBoxRef.current?.focus();
-            }, 10);
-          }}
-          value={null} //no value selected for visible chips
-        >
-          <Group
-            className="flex flex-row !flex-nowrap py-2 overflow-x-auto no-scrollbar"
-            ref={chipGroupRef}
-            onWheel={(e) => {
-              // comment out to preserve default scrolling:
-              // e.preventDefault();
-              if (e.deltaY > 0 && chipGroupRef.current) {
-                chipGroupRef.current.scrollLeft += 100;
-              } else if (e.deltaY < 0 && chipGroupRef.current) {
-                chipGroupRef.current.scrollLeft -= 100;
-              }
-            }}
-          >
-            {chipOptions.map((option) => (
-              <Chip
-                key={option}
-                className="flex items-center justify-center"
-                value={option}
-              >
-                {option}
-              </Chip>
-            ))}
-          </Group>
-        </Chip.Group>
+          })}
+        </ScrollArea>
       )}
     </div>
   );

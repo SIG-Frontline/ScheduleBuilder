@@ -11,16 +11,27 @@ import { Filters } from "@/lib/client/filterStore";
 export async function getClasses(
   term: number,
   subject: string,
+  title: string,
   filters: Filters
 ) {
-  //assuming that there is a term and subject, if there isn't we should throw an error
-  if (!term || !subject) {
+  //assuming that there is a term and subject or a term and title, if there isn't we should throw an error
+  if (!term || (!subject && !title)) {
     return {
       error: "term and subject are required",
     };
   }
   const baseURL = `http://0.0.0.0:${process.env.PORT}`;
-  let URL = `${baseURL}/api/course-search?term=${term}&subject=${subject}`;
+
+  let URL = `${baseURL}/api/course-search?term=${term}`;
+
+  if (subject) {
+    URL += `&subject=${subject}`;
+    console.log(URL);
+  }
+  if (title) {
+    URL += `&title=${title}`;
+    console.log(URL);
+  }
 
   //adding url parameters based on the filters
   if (filters.honors) {
@@ -41,8 +52,14 @@ export async function getClasses(
     .then((res) => res.json())
     .then((data) => data.courses)
     .then((courses) => {
-      const courseIds = courses.map((course: { _id: string }) => course._id); // this is how we get the course ids from the data
-      return courseIds;
+      const courseData = courses.map(
+        (course: { _id: string; title: string }) => ({
+          // retrieves both course id and course title
+          id: course._id,
+          title: course.title,
+        })
+      );
+      return courseData;
     })
     .catch((err) => {
       console.error(err);
