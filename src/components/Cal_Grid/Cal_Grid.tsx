@@ -12,14 +12,14 @@ import { useEffect, useState } from "react";
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
  */
 const Cal_Grid = () => {
-
   const plan_store = planStore();
-  
-  const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<Plan | undefined >(
-    plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined
-  );
+
+  const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
+    Plan | undefined
+  >(plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined);
   //use effect to log the current selected plan
-  
+
+  const [courseInfo, setCourseInfo] = useState<Map<String, String>>();
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
@@ -29,15 +29,15 @@ const Cal_Grid = () => {
       )
     );
   }, [plan_store.currentSelectedPlan, plan_store]);
-  
+
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
     setCurrentSelectedPlan(
       plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
     );
   });
-  
+
   const day_store = dayStore();
-  
+
   useEffect(() => {
     return () => {
       unsubscribe();
@@ -89,7 +89,6 @@ const Cal_Grid = () => {
   return (
     <>
       <Stack style={{ height: "100%" }}>
-        
         <FullCalendar
           viewClassNames={`dark:bg-[#242424] bg-white`}
           height={"100%"}
@@ -113,7 +112,7 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => (
-            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden" onClick={() => setCardVisibility(!cardVisible)}>
+            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
               <b className=" w-full text-xs ">{eventContent.event.title}</b>
               <span className="text-xs">
                 {eventContent.event.extendedProps.title}
@@ -130,6 +129,23 @@ const Cal_Grid = () => {
               <br />
             </div>
           )}
+          eventClick={(info) => {
+            setCardVisibility(true);
+            setCourseInfo(
+              new Map([
+                ["title", info.event.extendedProps.title],
+                ["crn", info.event.extendedProps.crn],
+                ["instructor", info.event.extendedProps.instructor],
+                ["location", info.event.extendedProps.location],
+              ])
+            );
+          }}
+          dateClick={() => {
+            setCardVisibility(false);
+          }}
+          eventMouseEnter={(info) => {
+            info.el.style.cursor = "pointer";
+          }}
           slotEventOverlap={false}
           eventTimeFormat={{
             hour: "numeric",
@@ -168,8 +184,9 @@ const Cal_Grid = () => {
           slotMaxTime={"22:00:00"}
           // eventClassNames="!bg-green-500"
         />
-        <InfoCard 
+        <InfoCard
           cardVisible={cardVisible}
+          courseInfo={courseInfo ?? new Map()}
           onClose={() => setCardVisibility(false)}
         />
         <Group>
@@ -190,10 +207,8 @@ const Cal_Grid = () => {
                     key={section.crn}
                     className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
                   >
-
-                  
                     <div
-                      style={{ backgroundColor: item.color ?? "#00000" }}
+                      style={{ backgroundColor: item.color ?? "#0aa00" }}
                       className="w-4 h-4 rounded-full"
                     ></div>
                     <div>
