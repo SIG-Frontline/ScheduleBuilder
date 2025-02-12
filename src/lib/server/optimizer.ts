@@ -1,35 +1,36 @@
 "use server"
 
-import { Plan, Course, Section, MeetingTime } from "@/lib/client/planStore";
-import { Filters } from "@/lib/client/filterStore";
-import { getSectionData } from "@/lib/server/actions/getSectionData";
+import { Plan, Section, MeetingTime } from "@/lib/client/planStore";
+
+export interface optimizerSettings {
+	isCommuter: boolean; // If the user is a commuter
+	commuteTimeHours: number; // The time it takes to commute to campus in hours
+}
+
+// Extra logging information for timing purposes
+let verifyTime = 0;
+let testTime = 0;
+let convertTime = 0;
 
 /**
  *
  * @param classes A list of class strings in the form of "CS 100"
  * @param filters A list of Filters to apply to the search (to match the same filters as the search bar)
- * @param isCommuter A boolean to determine if the user is a commuter for ranking purposes
+ * @param settings A list of settings to apply to the optimizer
  * @returns A Plan object with the most optimal schedule generated based on the 'ratePlan' function, undefined if none can be generated with the given inputs
  */ 
-export async function optimizePlan(classes : string[], filters: Filters, term: number, isCommuter : boolean) : Promise<Plan | undefined> {
-	// FIX: logging for the generator
+export async function optimizePlan(currentPlan: Plan, settings: optimizerSettings) : Promise<Plan | undefined> {
+	// FIX: logging
+	console.log("\nStarting optimizer...");
 	const start = Date.now();
 
-	if(classes.length == 0 || classes[0] == "") {
-		console.log("no classes selected");
-		return;
-	}
-
-	// Gets the sections of the selected classes (using a similar process to the search bar)
-	const courses = await getCourses(classes, filters, term);
-
-	if(!courses) {
-		console.log("cannot search for a better schedule with those filters");
-		return;
-	}
-
 	// Generate all possible schedule combinations as plans
-	const allPossiblePlans = generatePlans(courses, term);
+	const allPossiblePlans = generatePlans(currentPlan);
+	const end1 = Date.now();
+	console.log((end1 - start) / 1000, "s to generate plans total");
+	console.log("\t", verifyTime / 1000, "s to verify plans");
+	console.log("\t", testTime / 1000, "s to test plans");
+	console.log("\t", convertTime / 1000, "s to convert plans");
 
 	if(allPossiblePlans.length == 0) {
 		console.log("no valid schedules can be made")
@@ -37,77 +38,19 @@ export async function optimizePlan(classes : string[], filters: Filters, term: n
 	}
 
 	// Rank the plans using ratePlan.ts	
-	const bestPlan = findBestPlan(allPossiblePlans, isCommuter);	
+	const bestPlan = findBestPlan(allPossiblePlans, settings);	
+	const end2 = Date.now();
+	console.log((end2 - end1) / 1000, "s to rate plans");
 	
-	// FIX: logging for the generator
-	console.log(`Took: ${(Date.now() - start)/1000}s to generate`);
+	console.log((Date.now() - start)/1000, "s in total\n");
 
 	// Return most optimal schedule
 	return bestPlan;
 }
 
-// Searches for each course, storing a dictionary of their sections
-async function getCourses(classes: string[], filters: Filters, term: number) : Promise<{[key: string]: Section[]} | undefined> {
-	const courses : {[key: string]: Section[] }= {};
-
-	// Searches for each course
-	for(const c of classes) {
-		if(c == "") continue;
-		const course = await getSectionData(term, c.split(" ")[0], c.split(" ")[1]);
-
-		// No valid schedule for that course, so abort early
-		// TEST: make sure this works
-		if(course.length == 0) return;
-
-		const courseName : string = course.title;
-		const sections : Section[] = course.sections;
-
-		// TODO: Perform proper filters of the sections
-		//const filteredSections = filterSections(filters, sections);
-	 	const filteredSections = sections;
-
-		// No valid sections for that course, so abort early
-		if(filteredSections.length == 0) return;
-
-		courses[courseName] = filteredSections;
-	}
-
-	return courses;
-}
-
-// Filters out sections that do not follow the filters
-function filterSections(filters: Filters, sections: Section[]) : Section[] {
-	const validSections = [];
-
-	// Loops through all meetings and filters to determine if they are valid
-	for(const section of sections) {
-		let valid = true;
-		for(const meeting of section.TIMES) {
-			for(const filter of filters) {
-					// Not on the same day
-					if(meeting.day != filter.day) continue;
-
-					// Checks if the two times overlap
-					const start1 = new Date(meeting.start);
-					const start2 = new Date(filter.start);
-					const end1 = new Date(meeting.end);
-					const end2 = new Date(filter.end);
-
-					if(start1 < end2 && end1 > start2) valid = false;
-			}
-		}
-
-		if(!valid) continue;
-
-		validSections.push(section);
-	}
-
-	return validSections;
-}
-
 // Creates every possible combination of plans 
 // Filters out any plan that has classes that conflict
-function generatePlans(courses : {[key: string]: Section[]}, term: number) : Plan[] {
+function generatePlans(plan: Plan) : Plan[] {
 	const plans : Plan[] = [];
 
 	const sectionCounts: number[] = []; // A static list of indexes to reset the indexes
@@ -115,23 +58,40 @@ function generatePlans(courses : {[key: string]: Section[]}, term: number) : Pla
 
 	let total = 1;
 
+	const courses = plan.courses;
+
+	if(!courses) {
+		console.log("no courses selected");
+		return [] as Plan[];
+	}
+
+	// TODO: filter sections that interfere with events before generating plans (which can lead to massive speedups)
+
 	// Starts all the indexes at the last section in each course's list
 	for(const course of Object.values(courses)) {
-		indexes.push(course.length - 1);
-		sectionCounts.push(course.length - 1);
-		total *= course.length;
+		indexes.push(course.sections.length - 1);
+		sectionCounts.push(course.sections.length - 1);
+		total *= course.sections.length;
 	}	
+
+	console.log(total, "possible schedules");
 
 	// Loops through the total amount of combinations
 	for (let i = 0; i < total; i++) {
 		
 		// Creates a section list based on the current indexes
-		const currSectionList : Section[] = [];
+		const selectedSectionsList : Section[] = [];
+	 	const selectedSections = {} as {[key: string]: string};
 		let i = 0;
+
+		const s = Date.now();
 		for(const course of Object.values(courses)) {
-			currSectionList.push(course[indexes[i]]);
+			selectedSectionsList.push(course.sections[indexes[i]]);
+			selectedSections[Object.values(courses)[i].code] = selectedSectionsList[i].sectionNumber;
 			i++;
 		}
+		const e = Date.now();
+		testTime += e - s;
 
 		// Decrements the pointer to each section
 		// Resets the decrements the next one after it loops
@@ -142,19 +102,26 @@ function generatePlans(courses : {[key: string]: Section[]}, term: number) : Pla
 			pointer--;
 			indexes[pointer]--;
 		}
-		
-		// The current plan has a conflict, so void it
-		if(!verifySections(currSectionList)) continue;
+
+		// If the currently made plan has a class time conflict, void it
+		const start = Date.now();
+		if(!verifySections(selectedSectionsList)) continue;
+		const end = Date.now();
+		verifyTime += end - start;
 
 		// Converts it to a plan and stores it to be ranked
-		plans.push(convertSectionListToPlan(currSectionList, courses, term));
+		const s2 = Date.now();
+		plans.push(convertSectionListToPlan(plan, selectedSections));
+		const e2 = Date.now();
+		convertTime += e2 - s2;
+
 	}
 
 	return plans;
 }
 
 // Verifies if a specific plan does not have any classes that conflict
-function verifySections(sections : Section[]) : boolean {
+function verifySections(sections: Section[]) : boolean {
 	// Compares every section
 	for(let i = 0; i < sections.length - 1; i++) {
 		const section1 = sections[i];
@@ -186,14 +153,30 @@ function verifySections(sections : Section[]) : boolean {
 	return true;
 }
 
+// Converts a dictionary of selected sections into a copy of the current plan, with different sections selected
+function convertSectionListToPlan(currentPlan: Plan, sectionList: {[key: string]: string}) : Plan {
+
+	// Copies the current plan
+	// FIX: this is where most of the time is spent, so if you're trying to optimize this start here
+	const newPlan = JSON.parse(JSON.stringify(currentPlan)) as Plan;
+
+	// Selects the sections as given in sectionList	
+	for (const [courseCode, section] of Object.entries(sectionList)) {
+		const course = newPlan.courses?.find((c) => c.code == courseCode);
+		course?.sections.forEach((s) => s.selected = s.sectionNumber == section);
+	}
+
+	return newPlan;
+}
+
 // Rates and finds the best plan out of an array of plans
-function findBestPlan(plans : Plan[], isCommuter : boolean) : Plan {
+function findBestPlan(plans: Plan[], settings: optimizerSettings) : Plan {
 	let bestScore = 999999999;
 	let bestPlan = {} as Plan;
 
 	// Ranks all plans to determine which has the smallest score
 	for(const plan of plans) {
-		const score = ratePlan(plan, isCommuter);
+		const score = ratePlan(plan, settings);
 		if(score == -1) continue;
 
 		if(score < bestScore) {
@@ -203,67 +186,6 @@ function findBestPlan(plans : Plan[], isCommuter : boolean) : Plan {
 	}
 
 	return bestPlan; 
-}
-
-// Converts a list of selected sections into a proper IPlan that the schedule builder can use
-function convertSectionListToPlan(sections : Section[], allCourseSections : {[key: string]: Section[]}, term: number) : Plan {
-	// Makes a list of the selected sections
-	const selectedSectionList: {[key: string]: string} = {};
-
-	// Creaters a dictionary of classes and their selected sections
-	for(const section of Object.values(sections)) {
-		selectedSectionList[section["COURSE"]] = section["sectionNumber"];
-	}
-
-	// Adds all the courses in the proper format
-	const courses : Course[] = [];
-
-	// Creates the course object out of those sections
-	for(const [courseName, sectionList] of Object.entries(allCourseSections)) {
-		// HACK: this is disgusting, but it's the only way I found to not override the original section list
-		const selectedSections : Section[] = JSON.parse(JSON.stringify(sectionList))
-
-		// Selects the section for that specific course 
-		for(const section of selectedSections) {
-			section["selected"] = (section["sectionNumber"] == selectedSectionList[section["COURSE"]]);
-		}
-
-		const course : Course = {
-			title: courseName,
-			code: sectionList[0].COURSE,
-			description: "",
-			credits: 3,
-			sections: selectedSections,
-			prerequisites: [],
-			color: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)},0.9)`,
-		}		
-		courses.push(course);
-	}
-
-	// Creates the final plan
-	const plan = {
-		uuid: (() => {
-			function uuidv4() {
-			  return "10000000-1000-4000-8000-100000000000".replace(
-				 /[018]/g,
-				 (c) =>
-					(
-					  +c ^
-					  (crypto.getRandomValues(new Uint8Array(1))[0] &
-						 (15 >> (+c / 4)))
-					).toString(16)
-			  );
-			}
-			return uuidv4();
-		})(),
-		name: "Optimized Plan Test",
-		description: "This is an auto-generated optimized plan used for testing",
-		term: term,
-		selected: false,
-		courses: courses,
-	}
-
-	return plan;
 }
 
 // Converts a Date to time in minutes since midnight
@@ -293,7 +215,7 @@ function convertDayToIndex(day: string) : number {
 	}
 }
 
-function ratePlan(plan: Plan, isCommute: boolean) : number {
+function ratePlan(plan: Plan, settings: optimizerSettings) : number {
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 
@@ -332,7 +254,7 @@ function ratePlan(plan: Plan, isCommute: boolean) : number {
 		timeOnCampus += diff;
 
 		// Compensate for commute time (+3 hours each day on campus)
-		if (isCommute) timeOnCampus += (3 * 60);
+		if (settings.isCommuter) timeOnCampus += (settings.commuteTimeHours * 60);
 	}
 
 	return timeOnCampus;

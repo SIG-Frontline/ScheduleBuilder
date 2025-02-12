@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
-import { filterStore } from "@/lib/client/filterStore";
 import { planStore } from "@/lib/client/planStore";
 
-import { optimizePlan } from "@/lib/server/optimizer";
+import { optimizePlan, optimizerSettings } from "@/lib/server/optimizer";
 
 const Tab_Optimiser = () => {
   const [input, setInput] = useState({
-    text: "",
 	 isCommuter: false,
+	 commuteTime: "",
   });
 
-  const filter_store = filterStore();
   const plan_store = planStore();
 
   // Creates the new plan based on the term of the currently selected plan
@@ -22,14 +20,18 @@ const Tab_Optimiser = () => {
 
   async function optimizeClasses() {
 	  // Sanitizes the temp input
-	  const classes = []
+	  const commuteTime = isNaN(parseInt(input.commuteTime)) ? 2 : parseInt(input.commuteTime);
+	  const settings = {
+			isCommuter: input.isCommuter,
+			commuteTimeHours: commuteTime,
+	  } as optimizerSettings;
 
-	  const classesList = input.text.split(",");
-	  for(const c of classesList) {
-		  classes.push(c.trim());
+	  if(!selectedPlan) {
+			console.log("no selected plan");
+			return;
 	  }
 
-	  return await optimizePlan(classes, filter_store.filters, selectedPlan?.term ?? 202490, input.isCommuter);
+	  return await optimizePlan(selectedPlan, settings);
   }
 
   return (
@@ -38,14 +40,6 @@ const Tab_Optimiser = () => {
 		 Temporary Optimizer UI
       </Text>
 	  <div className="flex flex-col mx-6 gap-3"> 
-			<TextInput
-				label="Classes to Optimize"
-				description="A comma separated list of classes in the form XXX 123"
-				placeholder="CS 100, CS 280"
-				onChange={(e) =>
-				  setInput({ ...input, text: e.currentTarget.value })
-				}
-			/>
         <Checkbox.Card
           p={"sm"}
           radius="md"
@@ -64,6 +58,17 @@ const Tab_Optimiser = () => {
             </div>
           </Group>
         </Checkbox.Card>
+		 {input.isCommuter && <Group wrap="nowrap" align="flex-start">
+			<TextInput
+				label="Commute Hours"
+				description="The numbers of hours spent commuting per day"
+				placeholder="2"
+				onChange={(e) =>
+				  setInput({ ...input, commuteTime: e.currentTarget.value })
+				}
+			/>
+		 </Group>
+		 }
 		  <Button variant="filled" onClick={async () => {
 			const bestPlan = await optimizeClasses()
 
@@ -72,18 +77,16 @@ const Tab_Optimiser = () => {
 				return;
 			}
 
-			// HACK: add it to the plans store
-			const addPlan = plan_store.addPlan;
-			addPlan(bestPlan);
+			// Update the current plan to the generated one
+			// TODO: maybe ask the user if they want to create a new one to not override the current plan? 
+			const updatePlan = plan_store.updatePlan;
+			updatePlan(bestPlan, bestPlan.uuid);
 
 		  }}>
 			 Find Best Schedule
 		  </Button>
 		  <Text ta={"center"}>
-			 Input a list of classes separated by commas, then press the button. This will create a new plan (with the same term as the currently selected plan, or defaults to F' 2024)
-		  </Text>
-		  <Text ta={"center"}>
-		  	It does take a second for it to load, and it will error (currently) if it cannot find a schedule.
+				This will optimize the currently selected plan with the settings above. Plans with more courses will take longer to complete.  
 		  </Text>
 	  </div>
     </>
