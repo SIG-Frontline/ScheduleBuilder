@@ -7,10 +7,6 @@ export interface optimizerSettings {
 	commuteTimeHours: number; // The time it takes to commute to campus in hours
 }
 
-// Extra logging information for timing purposes
-let verifyTime = 0;
-let testTime = 0;
-
 /**
  *
  * @param currentPlan The currently selected plan to optimize
@@ -18,31 +14,16 @@ let testTime = 0;
  * @returns A Plan object with the most optimal schedule generated based on the 'ratePlan' function, undefined if none can be generated with the given inputs
  */ 
 export async function optimizePlan(currentPlan: Plan, settings: optimizerSettings) : Promise<Plan | undefined> {
-	verifyTime = 0;
-	testTime = 0;
-	// FIX: logging
-	console.log("\nStarting optimizer...");
-	const start = Date.now();
-
 	// Generate all possible schedule combinations as plans
 	const allPossibleSectionCombos = generateCombos(currentPlan);
-	const end1 = Date.now();
-	console.log((end1 - start) / 1000, "s to generate plans total");
-	console.log("\t", verifyTime / 1000, "s to verify plans");
-	console.log("\t", testTime / 1000, "s to test plans");
 
 	if(allPossibleSectionCombos.length == 0) {
 		console.log("no valid schedules can be made")
 		return;
 	}
 
-	// Rank the plans using ratePlan.ts	
+	// Rank the plans using rateSections()
 	const bestSections = findBestSections(allPossibleSectionCombos, currentPlan, settings);	
-	const end2 = Date.now();
-	console.log((end2 - end1) / 1000, "s to rate plans");
-	
-	console.log((Date.now() - start)/1000, "s in total\n");
-
 	const bestPlan = convertSectionListToPlan(currentPlan, bestSections);
 
 	// Return most optimal schedule
@@ -75,8 +56,6 @@ function generateCombos(plan: Plan) : {[key: string]: string}[] {
 		total *= course.sections.length;
 	}	
 
-	console.log(total, "possible schedules");
-
 	// Loops through the total amount of combinations
 	for (let i = 0; i < total; i++) {
 		
@@ -85,14 +64,11 @@ function generateCombos(plan: Plan) : {[key: string]: string}[] {
 	 	const selectedSections = {} as {[key: string]: string};
 		let i = 0;
 
-		const s = Date.now();
 		for(const course of Object.values(courses)) {
 			selectedSectionsList.push(course.sections[indexes[i]]);
 			selectedSections[Object.values(courses)[i].code] = selectedSectionsList[i].sectionNumber;
 			i++;
 		}
-		const e = Date.now();
-		testTime += e - s;
 
 		// Decrements the pointer to each section
 		// Resets the decrements the next one after it loops
@@ -105,10 +81,7 @@ function generateCombos(plan: Plan) : {[key: string]: string}[] {
 		}
 
 		// If the currently made plan has a class time conflict, void it
-		const start = Date.now();
 		if(!verifySections(selectedSectionsList)) continue;
-		const end = Date.now();
-		verifyTime += end - start;
 
 		// Converts it to a plan and stores it to be ranked
 		selectedSectionsCombo.push(selectedSections);
