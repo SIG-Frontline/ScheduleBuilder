@@ -10,39 +10,40 @@ export interface optimizerSettings {
 // Extra logging information for timing purposes
 let verifyTime = 0;
 let testTime = 0;
-let convertTime = 0;
 
 /**
  *
- * @param classes A list of class strings in the form of "CS 100"
- * @param filters A list of Filters to apply to the search (to match the same filters as the search bar)
+ * @param currentPlan The currently selected plan to optimize
  * @param settings A list of settings to apply to the optimizer
  * @returns A Plan object with the most optimal schedule generated based on the 'ratePlan' function, undefined if none can be generated with the given inputs
  */ 
 export async function optimizePlan(currentPlan: Plan, settings: optimizerSettings) : Promise<Plan | undefined> {
+	verifyTime = 0;
+	testTime = 0;
 	// FIX: logging
 	console.log("\nStarting optimizer...");
 	const start = Date.now();
 
 	// Generate all possible schedule combinations as plans
-	const allPossiblePlans = generatePlans(currentPlan);
+	const allPossibleSectionCombos = generateCombos(currentPlan);
 	const end1 = Date.now();
 	console.log((end1 - start) / 1000, "s to generate plans total");
 	console.log("\t", verifyTime / 1000, "s to verify plans");
 	console.log("\t", testTime / 1000, "s to test plans");
-	console.log("\t", convertTime / 1000, "s to convert plans");
 
-	if(allPossiblePlans.length == 0) {
+	if(allPossibleSectionCombos.length == 0) {
 		console.log("no valid schedules can be made")
 		return;
 	}
 
 	// Rank the plans using ratePlan.ts	
-	const bestPlan = findBestPlan(allPossiblePlans, settings);	
+	const bestSections = findBestSections(allPossibleSectionCombos, currentPlan, settings);	
 	const end2 = Date.now();
 	console.log((end2 - end1) / 1000, "s to rate plans");
 	
 	console.log((Date.now() - start)/1000, "s in total\n");
+
+	const bestPlan = convertSectionListToPlan(currentPlan, bestSections);
 
 	// Return most optimal schedule
 	return bestPlan;
@@ -50,8 +51,8 @@ export async function optimizePlan(currentPlan: Plan, settings: optimizerSetting
 
 // Creates every possible combination of plans 
 // Filters out any plan that has classes that conflict
-function generatePlans(plan: Plan) : Plan[] {
-	const plans : Plan[] = [];
+function generateCombos(plan: Plan) : {[key: string]: string}[] {
+	const selectedSectionsCombo = [] as {[key: string]: string}[];
 
 	const sectionCounts: number[] = []; // A static list of indexes to reset the indexes
 	const indexes : number[] = []; // A list of indexes to create the combinations
@@ -62,7 +63,7 @@ function generatePlans(plan: Plan) : Plan[] {
 
 	if(!courses) {
 		console.log("no courses selected");
-		return [] as Plan[];
+		return [];
 	}
 
 	// TODO: filter sections that interfere with events before generating plans (which can lead to massive speedups)
@@ -110,14 +111,11 @@ function generatePlans(plan: Plan) : Plan[] {
 		verifyTime += end - start;
 
 		// Converts it to a plan and stores it to be ranked
-		const s2 = Date.now();
-		plans.push(convertSectionListToPlan(plan, selectedSections));
-		const e2 = Date.now();
-		convertTime += e2 - s2;
+		selectedSectionsCombo.push(selectedSections);
 
 	}
 
-	return plans;
+	return selectedSectionsCombo;
 }
 
 // Verifies if a specific plan does not have any classes that conflict
@@ -157,7 +155,6 @@ function verifySections(sections: Section[]) : boolean {
 function convertSectionListToPlan(currentPlan: Plan, sectionList: {[key: string]: string}) : Plan {
 
 	// Copies the current plan
-	// FIX: this is where most of the time is spent, so if you're trying to optimize this start here
 	const newPlan = JSON.parse(JSON.stringify(currentPlan)) as Plan;
 
 	// Selects the sections as given in sectionList	
@@ -170,22 +167,22 @@ function convertSectionListToPlan(currentPlan: Plan, sectionList: {[key: string]
 }
 
 // Rates and finds the best plan out of an array of plans
-function findBestPlan(plans: Plan[], settings: optimizerSettings) : Plan {
+function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan, settings: optimizerSettings) : {[key: string]: string} {
 	let bestScore = 999999999;
-	let bestPlan = {} as Plan;
+	let bestSectionList = {} as {[key: string]: string};
 
 	// Ranks all plans to determine which has the smallest score
-	for(const plan of plans) {
-		const score = ratePlan(plan, settings);
+	for(const sectionList of allSectionLists) {
+		const score = rateSections(sectionList, plan, settings);
 		if(score == -1) continue;
 
 		if(score < bestScore) {
 			bestScore = score;
-			bestPlan = plan;
+			bestSectionList = sectionList;
 		}
 	}
 
-	return bestPlan; 
+	return bestSectionList; 
 }
 
 // Converts a Date to time in minutes since midnight
@@ -215,7 +212,7 @@ function convertDayToIndex(day: string) : number {
 	}
 }
 
-function ratePlan(plan: Plan, settings: optimizerSettings) : number {
+function rateSections(sectionList: {[key: string]: string}, plan: Plan, settings: optimizerSettings) : number {
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 
@@ -227,7 +224,7 @@ function ratePlan(plan: Plan, settings: optimizerSettings) : number {
 
 		// Gets the selected section for that course
 		for(const s of course.sections) {
-			if(s.selected) section = s;
+			if(sectionList[course.code] == s.sectionNumber) section = s;
 		}
 		if(!section) continue;
 
