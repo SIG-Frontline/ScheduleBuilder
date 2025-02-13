@@ -206,6 +206,19 @@ const Cal_Grid = () => {
                   <div
                     key={section.crn}
                     className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
+                    onClick={() => {
+                      setCardVisibility(true);
+                      console.log(section.meetingTimes);
+
+                      setCourseInfo(
+                        new Map([
+                          ["title", item.title],
+                          ["crn", item.code],
+                          ["instructor", section.instructor],
+                          ["location", "Online"],
+                        ])
+                      );
+                    }}
                   >
                     <div
                       style={{ backgroundColor: item.color ?? "#0aa00" }}
