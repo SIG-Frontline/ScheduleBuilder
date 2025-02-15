@@ -41,12 +41,12 @@ export default function Search({
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const textBoxRef = useRef<HTMLInputElement>(null);
   const [classOptions, setClassOptions] = useState<
-    { id: string; title: string }[]
+    { id: string; title: string; subject: string }[]
   >([]);
   const subjectOptions = subject_store.subjects;
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
-    if (specialSubjects.includes(selectedSubject)){
+    if (specialSubjects.includes(selectedSubject)) {
       return textBoxValue.trim();
     } else {
       return textBoxValue.replace(selectedSubject, "").trim();
@@ -81,7 +81,7 @@ export default function Search({
   );
   //filter the class options based on the search value without the subject
   const filteredClassOptions = classOptions.filter((option) => {
-    const idTitle = option.id + ": " + option.title;
+    const idTitle = option.id + " " + option.title;
     if (option.id && option.title) {
       return (
         option.id.includes(searchWithoutSubject) ||
@@ -106,7 +106,6 @@ export default function Search({
   useEffect(() => {
     //when the textbox value changes
     setTextBoxValue(textBoxValue.toUpperCase()); //make the input uppercase
-
     if (subjectOptions.includes(textBoxValue)) {
       setSelectedSubject(textBoxValue);
       getClasses(
@@ -119,9 +118,8 @@ export default function Search({
         setClassOptions(classes);
         console.log("classes", classes);
       });
-    }
-    //make it so that the selected subject is not reset if the textbox value includes the selected subject and the user is typing
-    else if (textBoxValue.startsWith(selectedSubject)) {
+      //make it so that the selected subject is not reset if the textbox value includes the selected subject and the user is typing
+    } else if (textBoxValue.startsWith(selectedSubject) && selectedSubject) {
       //if the selected subject is not in the textbox
     } else {
       setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
@@ -141,6 +139,9 @@ export default function Search({
       (selectedSubject && textBoxValue.startsWith(selectedSubject)) ||
       specialSubjects.includes(searchResult)
     ) {
+      if (specialSubjects.includes(selectedSubject)) {
+        searchResult = "";
+      }
       getSectionData(
         selectedPlan?.term ?? 202490,
         selectedSubject,
@@ -196,13 +197,18 @@ export default function Search({
                 if (selectedSubject) {
                   setTextBoxValue(selectedSubject);
                   if (typeof hoveredOption === "object") {
-                    setTextBoxValue(
-                      selectedSubject +
-                        " " +
-                        hoveredOption.id +
-                        ": " +
-                        hoveredOption.title
-                    );
+                    if (hoveredOption.id) {
+                      setTextBoxValue(
+                        selectedSubject +
+                          " " +
+                          hoveredOption +
+                          +hoveredOption.title
+                      );
+                    } else {
+                      setTextBoxValue(
+                        selectedSubject + " " + hoveredOption.title
+                      );
+                    }
                   }
                 } else {
                   if (typeof hoveredOption === "string") {
@@ -270,7 +276,7 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {selectedSubject} {option.id}: {option.title}
+                  {option.subject} {option.id} {option.title}
                 </UnstyledButton>
               );
             } else {

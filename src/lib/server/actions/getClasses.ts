@@ -51,10 +51,11 @@ export async function getClasses(
     .then((data) => data.courses)
     .then((courses) => {
       const courseData = courses.map(
-        (course: { _id: string; title: string }) => ({
+        (course: { _id: string; title: string, subject: string, }) => ({
           // retrieves both course id and course title
           id: course._id,
           title: course.title,
+          subject: course.subject,
         })
       );
       return courseData;

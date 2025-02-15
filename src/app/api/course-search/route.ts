@@ -106,7 +106,8 @@ export async function GET(request: NextRequest) {
     {
       $group: {
         _id: "$COURSE",
-        title: {$first: "$TITLE"}
+        title: {$first: "$TITLE"},
+        subject: {$first: "$SUBJECT"}
       },
     },
   ];
