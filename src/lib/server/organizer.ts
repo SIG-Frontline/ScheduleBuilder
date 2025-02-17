@@ -2,18 +2,18 @@
 
 import { Plan, Section, MeetingTime } from "@/lib/client/planStore";
 
-export interface optimizerSettings {
+export interface organizerSettings {
 	isCommuter: boolean; // If the user is a commuter
 	commuteTimeHours: number; // The time it takes to commute to campus in hours
 }
 
 /**
  *
- * @param currentPlan The currently selected plan to optimize
- * @param settings A list of settings to apply to the optimizer
- * @returns A Plan object with the most optimal schedule generated based on the 'ratePlan' function, undefined if none can be generated with the given inputs
+ * @param currentPlan The currently selected plan to organize
+ * @param settings A list of settings to apply to the organizer
+ * @returns A Plan object with the most optimal schedule generated based on the 'rateSections' function, undefined if none can be generated with the given inputs
  */ 
-export async function optimizePlan(currentPlan: Plan, settings: optimizerSettings) : Promise<Plan | undefined> {
+export async function organizePlan(currentPlan: Plan, settings: organizerSettings) : Promise<Plan | undefined> {
 	// Generate all possible schedule combinations as plans
 	const allPossibleSectionCombos = generateCombos(currentPlan);
 
@@ -140,7 +140,7 @@ function convertSectionListToPlan(currentPlan: Plan, sectionList: {[key: string]
 }
 
 // Rates and finds the best plan out of an array of plans
-function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan, settings: optimizerSettings) : {[key: string]: string} {
+function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan, settings: organizerSettings) : {[key: string]: string} {
 	let bestScore = 999999999;
 	let bestSectionList = {} as {[key: string]: string};
 
@@ -185,7 +185,7 @@ function convertDayToIndex(day: string) : number {
 	}
 }
 
-function rateSections(sectionList: {[key: string]: string}, plan: Plan, settings: optimizerSettings) : number {
+function rateSections(sectionList: {[key: string]: string}, plan: Plan, settings: organizerSettings) : number {
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 

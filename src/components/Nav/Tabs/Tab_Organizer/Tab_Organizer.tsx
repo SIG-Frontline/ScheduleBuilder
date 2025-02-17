@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
 import { planStore } from "@/lib/client/planStore";
 
-import { optimizePlan, optimizerSettings } from "@/lib/server/optimizer";
+import {  organizePlan, organizerSettings } from "@/lib/server/organizer";
 
 const Tab_Optimiser = () => {
   const [input, setInput] = useState({
@@ -18,26 +18,26 @@ const Tab_Optimiser = () => {
     (plan) => plan.uuid === selectedPlanuuid
   );
 
-  async function optimizeClasses() {
+  async function organizeClasses() {
 	  // Sanitizes the temp input
 	  const commuteTime = isNaN(parseInt(input.commuteTime)) ? 2 : parseInt(input.commuteTime);
 	  const settings = {
 			isCommuter: input.isCommuter,
 			commuteTimeHours: commuteTime,
-	  } as optimizerSettings;
+	  } as organizerSettings;
 
 	  if(!selectedPlan) {
 			console.log("no selected plan");
 			return;
 	  }
 
-	  return await optimizePlan(selectedPlan, settings);
+	  return await organizePlan(selectedPlan, settings);
   }
 
   return (
     <>
       <Text size="md" ta={"center"}>
-		 Temporary Optimizer UI
+		 Temporary Organizer UI
       </Text>
 	  <div className="flex flex-col mx-6 gap-3"> 
         <Checkbox.Card
@@ -53,7 +53,7 @@ const Tab_Optimiser = () => {
             <div>
               <Text fw={500}>Commuter</Text>
               <Text size="xs" c="dimmed">
-				  	Bias the optimizer towards commuter schedules by including commute times
+				  	Bias the organizer towards commuter schedules by including commute times
               </Text>
             </div>
           </Group>
@@ -70,7 +70,7 @@ const Tab_Optimiser = () => {
 		 </Group>
 		 }
 		  <Button variant="filled" onClick={async () => {
-			const bestPlan = await optimizeClasses()
+			const bestPlan = await organizeClasses()
 
 			if(!bestPlan) {
 				console.error("No plan found");
@@ -86,7 +86,7 @@ const Tab_Optimiser = () => {
 			 Find Best Schedule
 		  </Button>
 		  <Text ta={"center"}>
-				This will optimize the currently selected plan with the settings above. Plans with more courses will take longer to complete.  
+				This will optimize the currently selected plan with the settings above to have the least amount of time on campus. Plans with more courses will take longer to complete.  
 		  </Text>
 	  </div>
     </>
