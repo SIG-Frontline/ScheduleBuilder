@@ -16,7 +16,7 @@ export interface organizerSettings {
 export async function organizePlan(currentPlan: Plan, settings: organizerSettings) : Promise<Plan | undefined> {
 	// Generate all possible schedule combinations as plans
 	const allPossibleSectionCombos = generateCombos(currentPlan);
-
+	
 	if(allPossibleSectionCombos.length == 0) {
 		console.log("no valid schedules can be made")
 		return;
@@ -42,7 +42,7 @@ function generateCombos(plan: Plan) : {[key: string]: string}[] {
 
 	const courses = plan.courses;
 
-	if(!courses) {
+	if(!courses || courses.length == 0) {
 		console.log("no courses selected");
 		return [];
 	}

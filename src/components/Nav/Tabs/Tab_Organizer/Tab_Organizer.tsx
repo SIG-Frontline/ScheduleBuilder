@@ -8,6 +8,7 @@ const Tab_Optimiser = () => {
   const [input, setInput] = useState({
 	 isCommuter: false,
 	 commuteTime: "",
+	 error: "",
   });
 
   const plan_store = planStore();
@@ -26,10 +27,7 @@ const Tab_Optimiser = () => {
 			commuteTimeHours: commuteTime,
 	  } as organizerSettings;
 
-	  if(!selectedPlan) {
-			console.log("no selected plan");
-			return;
-	  }
+	  if(!selectedPlan) return;
 
 	  return await organizePlan(selectedPlan, settings);
   }
@@ -73,7 +71,7 @@ const Tab_Optimiser = () => {
 			const bestPlan = await organizeClasses()
 
 			if(!bestPlan) {
-				console.error("No plan found");
+				setInput({ ...input, error: "No plan could be generated!" })
 				return;
 			}
 
@@ -87,6 +85,9 @@ const Tab_Optimiser = () => {
 		  </Button>
 		  <Text ta={"center"}>
 				This will optimize the currently selected plan with the settings above to have the least amount of time on campus. Plans with more courses will take longer to complete.  
+		  </Text>
+		  <Text ta={"center"} color="red">
+		  	{ input.error }	
 		  </Text>
 	  </div>
     </>
