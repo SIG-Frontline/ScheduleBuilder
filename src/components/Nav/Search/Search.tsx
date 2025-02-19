@@ -1,12 +1,12 @@
 import { createRef, useEffect, useMemo, useRef, useState } from "react";
 import { Chip, Group, TextInput } from "@mantine/core";
 import { getSubjects } from "@/lib/server/actions/getSubjects";
-import { getClasses } from "@/lib/server/actions/getClasses";
-import { getSectionData } from "@/lib/server/actions/getSectionData";
 import { planStore } from "@/lib/client/planStore";
 import { useClickOutside, useThrottledValue } from "@mantine/hooks";
 import { subjectStore } from "@/lib/client/subjectStore";
 import { filterStore } from "@/lib/client/filterStore";
+import { getClassesAction } from "@/lib/server/actions/getClasses/getClassesAction";
+import { getSectionData } from "@/lib/server/actions/getSectionData";
 // the below subjects are stored in the database as just one subject and no code - so when the subject is selected, just add the course to the plan
 const specialSubjects = [
   "FYSSEM",
@@ -90,7 +90,7 @@ export default function Search({
 
     if (subjectOptions.includes(textBoxValue)) {
       setSelectedSubject(textBoxValue);
-      getClasses(
+      getClassesAction(
         selectedPlan?.term ?? 202490,
         textBoxValue,
         throttledfilter_storeValue
