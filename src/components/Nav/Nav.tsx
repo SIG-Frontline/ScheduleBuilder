@@ -61,7 +61,7 @@ export default function Nav() {
     "only screen and (orientation: landscape) and (min-width: 1201px)" //same as in Shell.tsx
   );
   const tabRef = createRef<HTMLDivElement>();
-
+  const [tabsHidden, setTabsHidden] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(tabData[0].value);
   return (
     <>
@@ -70,14 +70,16 @@ export default function Nav() {
           <Search
             onFocused={() => {
               //deselct the tab on mobile when search is focused
-              if (matches) return;
+              if (matches || tabsHidden) return;
               localStorage.setItem("lastTab", activeTab || tabData[0].value);
               setActiveTab(null);
+              setTabsHidden(true);
             }}
             onBlurred={() => {
               //reselect the last tab on mobile when search is out of focus
-              if (matches || activeTab) return;
+              if (matches || activeTab || !tabsHidden) return;
               setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
+              setTabsHidden(false);
             }}
           />
 
