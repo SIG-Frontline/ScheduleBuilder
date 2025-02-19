@@ -65,7 +65,7 @@ test.describe("organizer", () => {
 
 		await page.waitForTimeout(1000); // TODO: Change to when the organizer completes
 
-		expect(page.getByText("No plan could be generated!")).toBeVisible();
+		await expect(page.getByText("No plan could be generated!")).toBeVisible();
 	});
 
 	test("do not organize a schedule with no classes", async ({ page }) => {
@@ -75,7 +75,7 @@ test.describe("organizer", () => {
 
 		await page.waitForTimeout(1000); // TODO: Change to when the organizer completes
 		
-		expect(page.getByText("No plan could be generated!")).toBeVisible();
+		await expect(page.getByText("No plan could be generated!")).toBeVisible();
 	});
 
 	test("return correct schedule when only one schedule exists", async ({ page }) => {
