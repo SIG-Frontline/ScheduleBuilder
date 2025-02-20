@@ -1,13 +1,62 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+/*
+plan object
 
-function debounce(callback: () => void, delay: number) {
-  let timeout: NodeJS.Timeout;
-  return function () {
-    clearTimeout(timeout);
-    timeout = setTimeout(callback, delay);
-  };
+[
+{
+uuid:crypto.randomUUID() //auto generated at creation
+name:"Plan Name",
+description:"Plan Description",
+term:202490
+courses:[
+
+]
+events:[
+]
+}]
+
+course object
+{
+title:"Course Title",
+code: "CS 100",
+description:"Course Description",
+prerequisites: ["CS 101","CS 102"],
+credits: 3,
+sections:[
+]
 }
+
+section object
+{
+meetingTimes:[
+{
+day:"M",
+startTime:"1900-01-01T14:30:00.000Z"
+endTime:"1900-01-01T15:45:00.000Z"
+building:"Building Name",
+room:"Room Number"
+}
+]
+instructor:"Instructor Name",
+seats:30,
+currentEnrollment:30,
+status:"Open"
+is_honors:true
+is_async:true
+}
+
+event object
+
+{
+title:"Event Title",
+description:"Event Description",
+startTime:"1900-01-01T14:30:00.000Z",
+endTime:"1900-01-01T15:45:00.000Z",
+daysOfWeek:[1,2,3,4,5]
+}
+
+*/
 
 export type Plan = {
   uuid: string;
@@ -42,6 +91,7 @@ export type Section = {
   comments: string;
   selected: boolean;
 };
+
 export type MeetingTime = {
   day: string;
   startTime: string;
@@ -49,7 +99,9 @@ export type MeetingTime = {
   building: string;
   room: string;
 };
+
 export type Event = {
+  id: string;
   title: string;
   description: string;
   startTime: string;
@@ -61,6 +113,18 @@ export type Event = {
 interface PlanStoreState {
   plans: Plan[];
   currentSelectedPlan: string | null;
+  newEventData?: {
+    startTime: string;
+    endTime: string;
+    daysOfWeek: number[];
+    title: string;
+  };
+  setNewEventData: (data: {
+    startTime: string;
+    endTime: string;
+    daysOfWeek: number[];
+    title: string;
+  } | undefined) => void;
   setPlans: (plans: Plan[]) => void;
   addPlan: (newPlan: Plan) => void;
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
@@ -71,7 +135,8 @@ interface PlanStoreState {
   selectSection: (course: string, crn: string) => void;
   deleteCourseFromPlan: (course: string) => void;
   addEventToPlan: (event: Event) => void;
-  removeEventFromPlan: (event: Event) => void;
+  removeEventFromPlan: (eventId: string) => void;
+  getEvent: (uuid: string) => Event | undefined;
   updateCourseColor: (course: Course, color: string) => void;
 }
 
@@ -80,6 +145,8 @@ export const planStore = create<PlanStoreState>()(
     (set, get) => ({
       plans: [],
       currentSelectedPlan: null,
+      newEventData: undefined,
+      setNewEventData: (data) => set({ newEventData: data }),
       setPlans: (plans) => set({ plans }),
       addPlan: (newPlan) => {
         const { plans } = get();
@@ -121,6 +188,12 @@ export const planStore = create<PlanStoreState>()(
       getPlan: (uuid) => {
         const { plans } = get();
         return plans.find((plan) => plan.uuid === uuid);
+      },
+      getEvent: (uuid) => {
+        const { plans } = get();
+  return plans
+    .flatMap(plan => plan.events)
+    .find(event => event && event.id === uuid);
       },
       addCourseToPlan: (course) => {
         const { plans, currentSelectedPlan } = get();
@@ -182,20 +255,13 @@ export const planStore = create<PlanStoreState>()(
         );
         set({ plans: newPlans });
       },
-      removeEventFromPlan: (event) => {
+      removeEventFromPlan: (eventId: string) => {
         const { plans, currentSelectedPlan } = get();
         const newPlans = plans.map((plan) =>
           plan.uuid === currentSelectedPlan
             ? {
                 ...plan,
-                events: plan.events?.filter(
-                  (e) =>
-                    e.title !== event.title &&
-                    e.startTime !== event.startTime &&
-                    e.endTime !== event.endTime &&
-                    e.daysOfWeek !== event.daysOfWeek &&
-                    e.description !== event.description
-                ),
+                events: plan.events?.filter((event) => event.id !== eventId),
               }
             : plan
         );
@@ -226,78 +292,10 @@ export const planStore = create<PlanStoreState>()(
             : plan
         );
         set({ plans: newPlans });
-      },
+      }
     }),
     {
       name: "plan-store",
     }
   )
 );
-
-//run code on plan update
-planStore.subscribe(
-  debounce(async () => {
-    if (!globalThis.location) return;
-    const user = await fetch("/api/auth/me");
-    if (!(user.status === 200)) return;
-    const json_user = await user.json();
-    if (json_user?.sub) {
-      uploadPlan();
-    } else {
-      console.log("User is not authenticated");
-    }
-  }, 2500)
-);
-
-async function uploadPlan() {
-  const currentPlanUUID = planStore.getState().currentSelectedPlan;
-  if (currentPlanUUID) {
-    const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-    if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-      await fetch("/api/user_plans", {
-        method: "POST",
-        body: JSON.stringify(currentPlan),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-        });
-    }
-  }
-}
-
-(async function syncPlans() {
-  if (
-    (
-      globalThis as unknown as {
-        setPlans: boolean;
-      }
-    ).setPlans
-  )
-    return;
-  if (!globalThis.location) return;
-  const user = await fetch("/api/auth/me");
-  if (!(user.status === 200)) return;
-  const json_user = await user.json();
-  if (json_user?.sub) {
-    //clear the plans
-    planStore.getState().setPlans([]);
-    await fetch("/api/user_plans")
-      .then((res) => res.json())
-      .then((data) => {
-        let i = 0;
-        for (const plan of data) {
-          data.selected = i === 0;
-          planStore.getState().addPlan(plan.plandata);
-          i++;
-        }
-      })
-      .finally(() => {
-        (
-          globalThis as unknown as {
-            setPlans: boolean;
-          }
-        ).setPlans = true;
-      });
-  }
-})();

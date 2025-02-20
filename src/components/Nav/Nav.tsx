@@ -2,17 +2,18 @@
 
 import { ScrollAreaAutosize, Tabs, Transition } from "@mantine/core";
 import Icon from "../Icon/Icon";
-import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
-import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
-import Tab_Optimizer from "./Tabs/Tab_Optimizer/Tab_Optimizer";
-import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
-import Tab_Settings from "./Tabs/Tab_Settings/Tab_Settings";
+import Tab_Events from "@/components/Nav/Tabs/Tab_Events/Tab_Events";
+import Tab_Insights from "@/components/Nav/Tabs/Tab_Insights/Tab_Insights";
+import Tab_Optimizer from "@/components/Nav/Tabs/Tab_Optimizer/Tab_Optimizer";
+import Tab_Plans from "@/components/Nav/Tabs/Tab_Plans/Tab_Plans";
+import Tab_Settings from "@/components/Nav/Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
 import Search from "./Search/Search";
-import { createRef, useState } from "react";
+import { createRef, useState, useEffect } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
-import Tab_Sections from "./Tabs/Tab_Sections/Tab_Sections";
+import Tab_Sections from "../Nav/Tabs/Tab_Sections/Tab_Sections";
+
 
 const tabData = [
   //this array contains the data for each tab
@@ -63,6 +64,21 @@ export default function Nav() {
   const tabRef = createRef<HTMLDivElement>();
 
   const [activeTab, setActiveTab] = useState<string | null>(tabData[0].value);
+
+  // New useEffect for handling external tab change requests
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent<string>) => {
+      console.log('Tab change requested:', event.detail);
+      setActiveTab(event.detail);
+    };
+  
+    window.addEventListener('change-tab' as any, handleTabChange);
+  
+    return () => {
+      window.removeEventListener('change-tab' as any, handleTabChange);
+    };
+  }, []);
+
   return (
     <>
       <div>

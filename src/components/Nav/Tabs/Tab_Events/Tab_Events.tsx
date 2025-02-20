@@ -9,9 +9,10 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TimeInput } from "@mantine/dates";
 import { planStore } from "@/lib/client/planStore";
+import type { Event } from "@/lib/client/planStore";
 const Tab_Events = () => {
   /**
    *   title: string;
@@ -22,43 +23,86 @@ const Tab_Events = () => {
 
    */
   const plan_store = planStore();
-  const [event, setEvent] = useState({
-    title: "",
-    description: "",
-    startTime: "",
-    endTime: "",
-    daysOfWeek: [] as number[],
-    color: "#00aa00", //default color
+  const [eventID, setEventID] = useState("");
+  const currentPlan = plan_store.getPlan(plan_store.currentSelectedPlan + "");
+
+  const [event, setEvent] = useState<Event>({ // Initialize with default values
+    id: crypto.randomUUID(),
+    title: '',
+    description: '',
+    startTime: '',
+    endTime: '',
+    daysOfWeek: [],
+    color: ''
   });
 
-  function addEvent() {
-    if (event.title === "") {
-      alert("Please enter a title");
-      return;
-    }
-    if (event.startTime === "") {
-      alert("Please enter a start time");
-      return;
-    }
-    if (event.endTime === "") {
-      alert("Please enter an end time");
-      return;
-    }
-    if (event.daysOfWeek.length === 0) {
-      alert("Please select at least one day of the week");
-      return;
-    }
-    if (event.startTime >= event.endTime) {
-      alert("Start time must be before end time");
-      return;
-    }
-    if (event.color === "") {
-      alert("Please select a color");
-      return;
-    }
+  useEffect(() => {
+  let tempEvent: any = null;
 
-    plan_store.addEventToPlan(event);
+  const handleNewEventTime = (e: CustomEvent<{ 
+    startTime: string; 
+    endTime: string; 
+    daysOfWeek: number[];
+    tempEvent: any;
+  }>) => {
+    tempEvent = e.detail.tempEvent;
+    setEvent({
+      id: crypto.randomUUID(),
+      title: '',
+      description: '',
+      startTime: e.detail.startTime,
+      endTime: e.detail.endTime,
+      daysOfWeek: e.detail.daysOfWeek,
+      color: '#00aa00'
+    });
+  };
+
+  // Update temporary event color when color changes
+  const updateTempEventColor = (color: string) => {
+    if (tempEvent) {
+      tempEvent.setProp('backgroundColor', color);
+    }
+  };
+
+  window.addEventListener('new-event-time', handleNewEventTime as EventListener);
+  return () => {
+    window.removeEventListener('new-event-time', handleNewEventTime as EventListener);
+    if (tempEvent) {
+      tempEvent.remove(); // Clean up temp event when component unmounts
+    }
+  };
+}, []);
+
+
+  function updateEvent() {
+    if (eventID && currentPlan) {
+      // Update existing event
+      const updatedEvents = currentPlan.events?.map(e => 
+        e.id === eventID ? event : e
+      ) || [];
+      
+      plan_store.updatePlan(
+        { ...currentPlan, events: updatedEvents },
+        currentPlan.uuid
+      );
+    } else {
+      // Add new event
+      plan_store.addEventToPlan(event);
+    }
+    
+    // Reset form
+    setEvent({
+      id: crypto.randomUUID(),
+      title: '',
+      description: '',
+      startTime: '',
+      endTime: '',
+      daysOfWeek: [],
+      color: ''
+    });
+    setEventID('');
   }
+
   const cur_plan = plan_store.getPlan(plan_store.currentSelectedPlan + "");
   return (
     <>
@@ -67,11 +111,13 @@ const Tab_Events = () => {
           label="Event Name"
           description="Event Name"
           placeholder="Event Name"
+          value={event.title || ''}
           onChange={(e) => setEvent({ ...event, title: e.currentTarget.value })}
         />
         <TimeInput
           label="Event Start"
           description="Start Time"
+          value={event.startTime || ''}
           onChange={(e) =>
             setEvent({ ...event, startTime: e.currentTarget.value })
           }
@@ -79,11 +125,13 @@ const Tab_Events = () => {
         <TimeInput
           label="Event End"
           description="End Time"
+          value={event.endTime || ''}
           onChange={(e) =>
             setEvent({ ...event, endTime: e.currentTarget.value })
           }
         />
         <Textarea
+          value={event.description}
           label="Description"
           description="Event Description"
           placeholder="Event Description"
@@ -92,6 +140,7 @@ const Tab_Events = () => {
           }
         />
         <MultiSelect
+          value={event.daysOfWeek.map(day => day.toString())} 
           label="Days of the Week"
           placeholder="Select Days"
           className="pb-4"
@@ -161,7 +210,7 @@ const Tab_Events = () => {
             </Popover.Dropdown>
           </Popover>
         </div>
-        <Button variant="filled" onClick={addEvent}>
+        <Button variant="filled" onClick={updateEvent}>
           Add Event
         </Button>
       </div>
@@ -173,7 +222,7 @@ const Tab_Events = () => {
           <Button
             className="my-2"
             key={i}
-            onClick={() => plan_store.removeEventFromPlan(event)}
+            onClick={() => plan_store.removeEventFromPlan(event.id)}
           >
             Remove {event.title}
           </Button>
