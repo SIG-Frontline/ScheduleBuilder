@@ -7,9 +7,6 @@ export interface organizerSettings {
 	commuteTimeHours: number; // The time it takes to commute to campus in hours
 }
 
-let verifyTime = 0;
-let testTime = 0;
-
 /**
  * Accepts a plan to organize and settings which to operate on. This will then return the list of sections which spends the least amount of time on campus and does not conflict with itself.
  *
@@ -18,28 +15,19 @@ let testTime = 0;
  * @returns A Plan object with the most optimal schedule generated based on the 'rateSections' function, undefined if none can be generated with the given inputs
  */ 
 export async function organizePlan(currentPlan: Plan, settings: organizerSettings) : Promise<Plan | undefined> {
-	verifyTime = 0;
-	testTime = 0;
 
 	// Copy the plan so we can modify some values without changing the underlying data
-	const copyPlan = JSON.parse(JSON.stringify(currentPlan)) as Plan;
-
-	// Modify all meeting time strings to be epoch time for much easier math (and avoid multiple conversions with Date)
-	copyPlan.courses?.forEach(c => c.sections.forEach(s => s.meetingTimes.forEach(m => {
-		m.startTime = new Date(m.startTime).getHours() * 60 + new Date(m.startTime).getMinutes();
-		m.endTime = new Date(m.endTime).getHours() * 60 + new Date(m.endTime).getMinutes();
-	})))
+	const copyPlan = await JSON.parse(JSON.stringify(currentPlan)) as Plan;
 
 	console.log("\nStarting optimizer...");
 	const start = Date.now();
+
+	// Filters all the sections in the current plan in place
+	filterSectionsInPlan(copyPlan);
+
 	// Generate all possible schedule combinations as plans
 	const allPossibleSectionCombos = generateCombos(copyPlan);
-	const end1 = Date.now();
 
-	console.log((end1 - start) / 1000, "s to generate plans total");
-	console.log("\t", verifyTime / 1000, "s to verify plans");
-	console.log("\t", testTime / 1000, "s to test plans");
-	
 	if(allPossibleSectionCombos.length == 0) {
 		console.log("no valid schedules can be made")
 		return;
@@ -48,39 +36,31 @@ export async function organizePlan(currentPlan: Plan, settings: organizerSetting
 	// Rank the plans using rateSections()
 	const bestSections = findBestSections(allPossibleSectionCombos, copyPlan, settings);	
 	const bestPlan = convertSectionListToPlan(currentPlan, bestSections);
-	const end2 = Date.now();
-	console.log((end2 - end1) / 1000, "s to rate plans");
 	console.log((Date.now() - start)/1000, "s in total\n");
 
 	// Return most optimal schedule
 	return bestPlan;
 }
 
-// Creates every possible combination of plans 
-// Filters out any plan that has classes that conflict
-function generateCombos(plan: Plan) : {[key: string]: string}[] {
-	const selectedSectionsCombo = [] as {[key: string]: string}[];
-
-	const sectionCounts: number[] = []; // A static list of indexes to reset the indexes
-	const indexes : number[] = []; // A list of indexes to create the combinations
-
-	let total = 1;
-
-	const courses = plan.courses;
-
-	if(!courses || courses.length == 0) {
-		console.log("no courses selected");
-		return [];
-	}
-
-	// TODO: filter sections that interfere with events before generating plans (which can lead to massive speedups)
+// Filters out sections that do not match the specified filters
+function filterSectionsInPlan(plan: Plan) : void {
 	
+	// TODO: filter sections that interfere with events before generating plans (which can lead to massive speedups)
+	// TODO: add course specific filtering
+
+	// Modify all meeting time strings to be epoch time for much easier math (and avoid multiple conversions with Date)
+	plan.courses?.forEach(c => c.sections.forEach(s => s.meetingTimes.forEach(m => {
+		// @ts-expect-error Changing ISO string to a number
+		m.startTime = new Date(m.startTime).getHours() * 60 + new Date(m.startTime).getMinutes();
+		// @ts-expect-error Changing ISO string to a number
+		m.endTime = new Date(m.endTime).getHours() * 60 + new Date(m.endTime).getMinutes();
+	})))
+	
+	// Remove extra online sections while generating
+	// If a course has 10 online sections, it might as well only have 1
 	const hasOnline: {[key: string]: boolean} = {};
 	
-	for(const course of courses) {
-
-		// Remove extra online sections while generating
-		// If a course has 10 online sections, it might as well only have 1
+	plan.courses?.forEach(course => {
 		for(let i = 0; i < course.sections.length; i++) {
 			const s = course.sections[i];
 
@@ -93,10 +73,27 @@ function generateCombos(plan: Plan) : {[key: string]: string}[] {
 				}
 			}
 		}
+	})
 
-		// Starts all the indexes at the last section in each course's list
-		indexes.push(course.sections.length - 1);
-		sectionCounts.push(course.sections.length - 1);
+}
+
+// Creates every possible combination of plans 
+// Filters out any plan that has classes that conflict
+function generateCombos(plan: Plan) : {[key: string]: string}[] {
+	const selectedSectionsCombo = [] as {[key: string]: string}[];
+
+	let total = 1;
+	const rollingProduct = [];
+
+	const courses = plan.courses;
+
+	if(!courses || courses.length == 0) {
+		console.log("no courses selected");
+		return [];
+	}
+	
+	for(const course of courses) {
+		rollingProduct.push(total);
 		total *= course.sections.length;
 	}	
 
@@ -106,40 +103,24 @@ function generateCombos(plan: Plan) : {[key: string]: string}[] {
 	for (let i = 0; i < total; i++) {
 		
 		// Creates a section map of "class code": "section number" based on the current indexes
-	 	const selectedSections = {} as {[key: string]: string};
+		const selectedSections = {} as {[key: string]: string};
 
-		// Store the meeting times as a flat array to check if any overlap
 		const meetings = [] as MeetingTime[];
 
-		const s = Date.now();
 		let v = 0;
 		for(const course of courses) {
-			course.sections[indexes[v]].meetingTimes.forEach(m => meetings.push(m));
-			selectedSections[courses[v].code] = course.sections[indexes[v]].sectionNumber;
-			v++;
-		}
-		const e = Date.now();
-		testTime += e - s;
+			// Use an explicit formula to find the current combinations and add it's section number to the list and meetings to its list
+			const index = (Math.floor(i / rollingProduct[v])) % course.sections.length;
 
-		// Decrements the pointer to each section
-		// Resets the decrements the next one after it loops
-		let pointer = indexes.length - 1;
-		indexes[pointer]--;
-		while(indexes[pointer] < 0) {
-			indexes[pointer] = sectionCounts[pointer];
-			pointer--;
-			indexes[pointer]--;
+			course.sections[index].meetingTimes.forEach(m => meetings.push(m));
+			selectedSections[courses[v].code] = course.sections[index].sectionNumber;
+			v++;
 		}
 
 		// If the currently made plan has a class time conflict, void it
-		const start = Date.now();
 		if(!verifyMeetings(meetings)) continue;
-		const end = Date.now();
-		verifyTime += end - start;
 
-		// Converts it to a plan and stores it to be ranked
 		selectedSectionsCombo.push(selectedSections);
-
 	}
 
 	return selectedSectionsCombo;
@@ -153,19 +134,14 @@ function verifyMeetings(meetings: MeetingTime[]) : boolean {
 		for(let j = i + 1; j < meetings.length; j++) {
 			const meeting2 = meetings[j];
 
-			// Compares their meeting times
-					
-			// Not on the same day
 			if(meeting1.day != meeting2.day) continue;
 
-			// Checks if the two times overlap
 			const start1 = meeting1.startTime;
 			const start2 = meeting2.startTime;
 			const end1 = meeting1.endTime;
 			const end2 = meeting2.endTime;
 
 			if(start1 < end2 && end1 > start2) return false;
-
 		}
 	}
 	
@@ -252,7 +228,9 @@ function rateSections(sectionList: {[key: string]: string}, plan: Plan, settings
 
 			const index = convertDayToIndex(meeting.day);			
 
+			// @ts-expect-error String was changed to a number earlier
 			earliestStart[index] = Math.min(earliestStart[index], start);
+			// @ts-expect-error String was changed to a number earlier
 			latestEnd[index] = Math.max(latestEnd[index], end);
 		}
 	}
