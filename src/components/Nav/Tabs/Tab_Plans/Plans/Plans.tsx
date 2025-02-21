@@ -1,4 +1,4 @@
-import { planStore } from "@/lib/planStore";
+import { planStore } from "@/lib/client/planStore";
 import {
   ActionIcon,
   Badge,

@@ -1,62 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-/*
-plan object
 
-[
-{
-uuid:crypto.randomUUID() //auto generated at creation
-name:"Plan Name",
-description:"Plan Description",
-term:202490
-courses:[
-
-]
-events:[
-]
-}]
-
-course object
-{
-title:"Course Title",
-code: "CS 100",
-description:"Course Description",
-prerequisites: ["CS 101","CS 102"],
-credits: 3,
-sections:[
-]
+function debounce(callback: () => void, delay: number) {
+  let timeout: NodeJS.Timeout;
+  return function () {
+    clearTimeout(timeout);
+    timeout = setTimeout(callback, delay);
+  };
 }
-
-section object
-{
-meetingTimes:[
-{
-day:"M",
-startTime:"1900-01-01T14:30:00.000Z"
-endTime:"1900-01-01T15:45:00.000Z"
-building:"Building Name",
-room:"Room Number"
-}
-]
-instructor:"Instructor Name",
-seats:30,
-currentEnrollment:30,
-status:"Open"
-is_honors:true
-is_async:true
-}
-
-event object
-
-{
-title:"Event Title",
-description:"Event Description",
-startTime:"1900-01-01T14:30:00.000Z",
-endTime:"1900-01-01T15:45:00.000Z",
-daysOfWeek:[1,2,3,4,5]
-}
-
-*/
 
 export type Plan = {
   uuid: string;
@@ -275,10 +226,78 @@ export const planStore = create<PlanStoreState>()(
             : plan
         );
         set({ plans: newPlans });
-      }
+      },
     }),
     {
       name: "plan-store",
     }
   )
 );
+
+//run code on plan update
+planStore.subscribe(
+  debounce(async () => {
+    if (!globalThis.location) return;
+    const user = await fetch("/api/auth/me");
+    if (!(user.status === 200)) return;
+    const json_user = await user.json();
+    if (json_user?.sub) {
+      uploadPlan();
+    } else {
+      console.log("User is not authenticated");
+    }
+  }, 2500)
+);
+
+async function uploadPlan() {
+  const currentPlanUUID = planStore.getState().currentSelectedPlan;
+  if (currentPlanUUID) {
+    const currentPlan = planStore.getState().getPlan(currentPlanUUID);
+    if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
+      await fetch("/api/user_plans", {
+        method: "POST",
+        body: JSON.stringify(currentPlan),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+        });
+    }
+  }
+}
+
+(async function syncPlans() {
+  if (
+    (
+      globalThis as unknown as {
+        setPlans: boolean;
+      }
+    ).setPlans
+  )
+    return;
+  if (!globalThis.location) return;
+  const user = await fetch("/api/auth/me");
+  if (!(user.status === 200)) return;
+  const json_user = await user.json();
+  if (json_user?.sub) {
+    //clear the plans
+    planStore.getState().setPlans([]);
+    await fetch("/api/user_plans")
+      .then((res) => res.json())
+      .then((data) => {
+        let i = 0;
+        for (const plan of data) {
+          data.selected = i === 0;
+          planStore.getState().addPlan(plan.plandata);
+          i++;
+        }
+      })
+      .finally(() => {
+        (
+          globalThis as unknown as {
+            setPlans: boolean;
+          }
+        ).setPlans = true;
+      });
+  }
+})();

@@ -1,5 +1,5 @@
 import { Collection, MongoClient } from "mongodb";
-import { Plan } from "./planStore";
+import { Plan } from "../client/planStore";
 // import { SCHEDULEBUILDER_DB_URI, BUILDER_NS } from '$env/static/private';
 const SCHEDULEBUILDER_DB_URI = process.env.SCHEDULEBUILDER_DB_URI;
 if (!SCHEDULEBUILDER_DB_URI) {

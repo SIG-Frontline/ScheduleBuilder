@@ -10,9 +10,9 @@ import {
 } from "@mantine/core";
 import Plans, { humanReadableTerm } from "./Plans/Plans";
 import Icon from "@/components/Icon/Icon";
-import { planStore } from "@/lib/planStore";
+import { planStore } from "@/lib/client/planStore";
 import { useDisclosure } from "@mantine/hooks";
-import { getTerms } from "@/actions/getTerms";
+import { getTerms } from "@/lib/server/actions/getTerms";
 import { useEffect, useState } from "react";
 
 const Tab_Plans = () => {

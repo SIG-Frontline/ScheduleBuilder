@@ -9,9 +9,7 @@ export async function getSubjects(term: number) {
   if (!term) {
     return { error: "term is required" };
   }
-  const baseURL = Boolean(process.env.IS_DOCKER)
-    ? "http://nextjs-docker:3000"
-    : "http://localhost:3000";
+  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
   const URL = `${baseURL}/api/subjects/?term=${term}`;
   const data = fetch(URL)
     .then((res) => res.json())

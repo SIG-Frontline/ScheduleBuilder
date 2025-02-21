@@ -2,11 +2,10 @@ import {
   courseCache,
   type CourseDocument,
   type ReqTree,
-} from "@/lib/mongoClient";
-import { check_tree } from "@/lib/apiUtils";
+} from "@/lib/server/mongoClient";
+import { check_tree } from "@/lib/server/apiUtils";
 import { NextRequest } from "next/server";
 
-//http://localhost:XXXX/api/availableCourses?taken=CS100
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 

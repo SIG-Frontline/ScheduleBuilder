@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     icon: "/frontline.png",
     shortcut: "/frontline.png",
   },
-  // metadataBase: new URL("http://localhost:3000"),
+
   manifest: "/manifest.json",
   openGraph: {
     images: [

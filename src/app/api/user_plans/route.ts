@@ -1,4 +1,4 @@
-import { userPlanCollection } from "@/lib/mongoClient";
+import { userPlanCollection } from "@/lib/server/mongoClient";
 import { getSession } from "@auth0/nextjs-auth0";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,6 +7,7 @@ export const GET = async (req: NextRequest) => {
   const session = await getSession(req, nextResponse);
   console.log(`${new URL(req.url).origin}/api/auth/login?returnTo=${req.url}`);
   if (!session) {
+    //if the user is not authenticated
     return NextResponse.redirect(
       `${new URL(req.url).origin}/api/auth/login?returnTo=${req.url}`
     );
@@ -22,7 +23,7 @@ export const GET = async (req: NextRequest) => {
 export const POST = async (req: NextRequest) => {
   const body = await req?.body?.getReader().read(); //readableStream
   const plan = JSON.parse(new TextDecoder().decode(body?.value));
-  console.log(plan);
+  // console.log(plan);
   if (!plan) {
     return NextResponse.json("Plan ID is required", { status: 400 });
   }

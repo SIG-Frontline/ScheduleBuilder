@@ -1,6 +1,6 @@
 "use server";
 
-import { Filters } from "@/lib/filterStore";
+import { Filters } from "@/lib/client/filterStore";
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -19,9 +19,7 @@ export async function getClasses(
       error: "term and subject are required",
     };
   }
-  const baseURL = Boolean(process.env.IS_DOCKER)
-    ? "http://nextjs-docker:3000"
-    : "http://localhost:3000";
+  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
   let URL = `${baseURL}/api/course-search?term=${term}&subject=${subject}`;
 
   //adding url parameters based on the filters

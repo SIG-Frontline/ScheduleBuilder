@@ -2,17 +2,17 @@
 
 import { ScrollAreaAutosize, Tabs, Transition } from "@mantine/core";
 import Icon from "../Icon/Icon";
-import Tab_Events from "@/components/Tabs/Tab_Events/Tab_Events";
-import Tab_Insights from "@/components/Tabs/Tab_Insights/Tab_Insights";
-import Tab_Optimizer from "@/components/Tabs/Tab_Optimizer/Tab_Optimizer";
-import Tab_Plans from "@/components/Tabs/Tab_Plans/Tab_Plans";
-import Tab_Settings from "@/components/Tabs/Tab_Settings/Tab_Settings";
+import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
+import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
+import Tab_Optimizer from "./Tabs/Tab_Optimizer/Tab_Optimizer";
+import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
+import Tab_Settings from "./Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
-import Search from "../Search/Search";
+import Search from "./Search/Search";
 import { createRef, useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
-import Tab_Sections from "../Tabs/Tab_Sections/Tab_Sections";
+import Tab_Sections from "./Tabs/Tab_Sections/Tab_Sections";
 
 const tabData = [
   //this array contains the data for each tab
@@ -61,7 +61,7 @@ export default function Nav() {
     "only screen and (orientation: landscape) and (min-width: 1201px)" //same as in Shell.tsx
   );
   const tabRef = createRef<HTMLDivElement>();
-
+  const [tabsHidden, setTabsHidden] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(tabData[0].value);
   return (
     <>
@@ -70,14 +70,16 @@ export default function Nav() {
           <Search
             onFocused={() => {
               //deselct the tab on mobile when search is focused
-              if (matches) return;
+              if (matches || tabsHidden) return;
               localStorage.setItem("lastTab", activeTab || tabData[0].value);
               setActiveTab(null);
+              setTabsHidden(true);
             }}
             onBlurred={() => {
               //reselect the last tab on mobile when search is out of focus
-              if (matches || activeTab) return;
+              if (matches || activeTab || !tabsHidden) return;
               setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
+              setTabsHidden(false);
             }}
           />
 
