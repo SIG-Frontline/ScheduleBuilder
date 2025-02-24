@@ -130,9 +130,11 @@ const Cal_Grid = () => {
             </div>
           )}
           eventClick={(info) => {
+            console.log(info);
             setCardVisibility(true);
             setCourseInfo(
               new Map([
+                // ["meetTime", info.event.recurringDef.typeData.startTime],
                 ["title", info.event.extendedProps.title],
                 ["crn", info.event.extendedProps.crn],
                 ["instructor", info.event.extendedProps.instructor],

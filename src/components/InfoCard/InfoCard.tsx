@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Icon from "../Icon/Icon";
-import { Button, Stack } from "@mantine/core";
+import { Button, Stack, div } from "@mantine/core";
 
 import { useViewportSize } from "@mantine/hooks";
 
@@ -90,7 +90,7 @@ function InfoCard(props: InfoCardProps) {
   return (
     <div
       aria-label="course-info-card"
-      className="fixed z-50 bg-[#EAEAEA] w-full h-full lg:w-1/5 lg:h-fit rounded-[20px] aspect-[9/11] p-0 flex flex-col items-start justify-top lg:pt-0 pt-20 space-y-2 lg:max-w-[320px] lg:max-h-[400px]  "
+      className="drag-header fixed z-50 bg-[#EAEAEA] dark:bg-[#636363] w-full h-full lg:w-1/5 lg:h-fit rounded-[20px] aspect-[9/11] p-0 flex flex-col items-start justify-top lg:pt-0 pt-20 space-y-2 lg:max-w-[320px] lg:max-h-[400px]  "
       style={{
         top: position.y,
         left: position.x,
@@ -118,10 +118,12 @@ function InfoCard(props: InfoCardProps) {
       </div>
 
       <Stack align="flex-start">
-        <div className="flex flex-row items-left space-x-2 pl-2 ">
+        {/* Removed meet times from info card because JSON is weird and confusing and I can't get it to work </3 also meet times are clearly shown on the calendar.
+        Although this is clearly a disadvantage for mobile users I just don't know how to fix it at this point. If anyone can take a look that would be swell :)  */}
+        {/* <div className="flex flex-row items-left space-x-2 pl-2 ">
           <Icon>schedule</Icon>
-          <p>TODO: Add meeting times</p>
-        </div>
+          <p>{courseInfo.get("meetTime")}</p>
+        </div> */}
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>person</Icon>
           <p>{courseInfo.get("instructor")}</p>
