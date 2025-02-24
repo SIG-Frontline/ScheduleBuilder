@@ -41,8 +41,9 @@ export default function Search({
   const [textBoxValue, setTextBoxValue] = useState<string>("");
   const textBoxRef = useRef<HTMLInputElement>(null);
   const [classOptions, setClassOptions] = useState<
-    { id: string; title: string; subject: string }[]
+    { id: string; title: string; subject: string }[] | string[]
   >([]);
+  const [searchByTitle, setSearchByTitle] = useState(false);
   const subjectOptions = subject_store.subjects;
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const searchWithoutSubject = useMemo(() => {
@@ -75,42 +76,55 @@ export default function Search({
     }
   }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
 
-  //filter the subject options based on the search value
-  const filteredSubjectOptions = subjectOptions.filter((option) =>
-    option.includes(textBoxValue)
-  );
   //filter the class options based on the search value without the subject
   const filteredClassOptions = classOptions.filter((option) => {
-    const idTitle = option.id + " " + option.title;
-    if (option.id && option.title) {
-      return (
-        option.id.includes(searchWithoutSubject) ||
-        option.title.includes(searchWithoutSubject) ||
-        idTitle.includes(searchWithoutSubject)
-      );
-    } else if (option.id) {
-      return option.id;
-    } else if (option.title) {
-      return option.title;
+    if (typeof option === "object") {
+      const idTitle = option.id + " " + option.title;
+      if (option.id && option.title) {
+        return (
+          option.id.includes(searchWithoutSubject) ||
+          option.title.includes(searchWithoutSubject) ||
+          idTitle.includes(searchWithoutSubject)
+        );
+      } else if (option.id) {
+        return option.id;
+      } else if (option.title) {
+        return option.title;
+      }
+    } else {
+      return option;
     }
   });
   const addCourseToPlan = planStore((state) => state.addCourseToPlan);
-  const searchOptions = selectedSubject
-    ? filteredClassOptions
-    : filteredSubjectOptions;
+  const searchOptions =
+    selectedSubject || searchByTitle ? filteredClassOptions : [];
   const filter_store = filterStore();
   const throttledfilter_storeValue = useThrottledValue(
     filter_store.filters,
     1000
   );
   useEffect(() => {
-    //when the textbox value changes
-    setTextBoxValue(textBoxValue.toUpperCase()); //make the input uppercase
-    if (subjectOptions.includes(textBoxValue)) {
-      setSelectedSubject(textBoxValue);
+    //when the textbox value changes make the input uppercase
+    setTextBoxValue(textBoxValue.toUpperCase());
+    // when the textbox value is empty reset the selected subject and class options
+    if (!textBoxValue.trim()) {
+      setSelectedSubject("");
+      setClassOptions([]);
+      setSearchByTitle(false);
+      return;
+    }
+
+    const words = textBoxValue.split(" ");
+    const firstWord = words[0];
+    const isSubject = subjectOptions.includes(firstWord) || specialSubjects.some(opt => opt.includes(firstWord));
+
+    if (isSubject) {
+      console.log("isSubject");
+      setSearchByTitle(false);
+      setSelectedSubject(firstWord);
       getClasses(
         selectedPlan?.term ?? 202490,
-        textBoxValue,
+        firstWord,
         "",
         throttledfilter_storeValue
       ).then((classes) => {
@@ -119,10 +133,21 @@ export default function Search({
         console.log("classes", classes);
       });
       //make it so that the selected subject is not reset if the textbox value includes the selected subject and the user is typing
-    } else if (textBoxValue.startsWith(selectedSubject) && selectedSubject) {
+    } else if (isSubject && selectedSubject) {
+      setSearchByTitle(false);
       //if the selected subject is not in the textbox
-    } else {
-      setSelectedSubject(""); //reset the selected subject if the textbox value does not include it
+    } else if (!isSubject && textBoxValue.trim() !== "" ) {
+      console.log("search by title");
+      getClasses(
+        selectedPlan?.term ?? 202490,
+        "",
+        textBoxValue,
+        throttledfilter_storeValue
+      ).then((classes) => {
+        setClassOptions(classes);
+        setSearchByTitle(true);
+        console.log("classes", classes);
+      });
     }
   }, [
     textBoxValue,
@@ -131,41 +156,41 @@ export default function Search({
     searchWithoutSubject,
     selectedPlan?.term,
     throttledfilter_storeValue,
+    searchByTitle,
   ]);
 
-  const handleClassSelection = (searchResult: string) => {
+  const handleClassSelection = (searchResult: {
+    id: string;
+    subject: string;
+    title: string;
+  }) => {
     //if the option is a class, and there is a subject selected, and the subject is in the textbox
-    if (
-      (selectedSubject && textBoxValue.startsWith(selectedSubject)) ||
-      specialSubjects.includes(searchResult)
-    ) {
-      if (specialSubjects.includes(selectedSubject)) {
-        searchResult = "";
-      }
-      getSectionData(
-        selectedPlan?.term ?? 202490,
-        selectedSubject,
-        searchResult
-      )
-        .then((data) => {
-          data.color = `rgba(
+    if (specialSubjects.includes(searchResult.subject)) {
+      searchResult.title = "";
+    }
+    getSectionData(
+      selectedPlan?.term ?? 202490,
+      searchResult.subject,
+      searchResult.id
+    )
+      .then((data) => {
+        data.color = `rgba(
           ${Math.floor(Math.random() * 256)},
           ${Math.floor(Math.random() * 256)},
           ${Math.floor(Math.random() * 256)},0.9)`;
-          addCourseToPlan(data);
-        })
-        .then(() => {
-          setTextBoxValue("");
-        });
-    }
-    //focus the textbox after selecting a chip
+        addCourseToPlan(data);
+      })
+      .then(() => {
+        setTextBoxValue("");
+      });
+    //focus the textbox after selecting a search option
     setTimeout(() => {
       textBoxRef.current?.focus();
     }, 10);
   };
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="flex flex-col-reverse lg:flex-col relative">
       <TextInput
         ref={textBoxRef}
         onFocus={(e) => {
@@ -194,25 +219,19 @@ export default function Search({
               setAutoCompletedText(true);
               setTextHovered(-1);
               if (hoveredOption && textBoxValue.length > 0) {
-                if (selectedSubject) {
-                  setTextBoxValue(selectedSubject);
-                  if (typeof hoveredOption === "object") {
-                    if (hoveredOption.id) {
-                      setTextBoxValue(
-                        selectedSubject +
-                          " " +
-                          hoveredOption +
-                          +hoveredOption.title
-                      );
-                    } else {
-                      setTextBoxValue(
-                        selectedSubject + " " + hoveredOption.title
-                      );
-                    }
-                  }
-                } else {
-                  if (typeof hoveredOption === "string") {
-                    setTextBoxValue(hoveredOption);
+                // if a course has subject, id, and title
+                if (typeof hoveredOption === "object") {
+                  if (hoveredOption.id) {
+                    setTextBoxValue(
+                      hoveredOption.subject +
+                        " " +
+                        hoveredOption.id +
+                        " " +
+                        hoveredOption.title
+                    );
+                  } else {
+                    // if a course doesn't have an id, mostly special subject courses
+                    setTextBoxValue(hoveredOption.subject + " " + hoveredOption.title);
                   }
                 }
               }
@@ -221,8 +240,6 @@ export default function Search({
               setAutoCompletedText(false);
               const hoveredOption = searchOptions[textHovered] ?? firstOption;
               if (typeof hoveredOption === "object") {
-                handleClassSelection(hoveredOption.id);
-              } else {
                 handleClassSelection(hoveredOption);
               }
             }
@@ -251,8 +268,8 @@ export default function Search({
         }}
       />
       {(textBoxValue.length > 0 ||
-        (selectedSubject && filteredClassOptions.length === 1)) && (
-        <ScrollArea h={200} type="hover" ref={scrollAreaRef}>
+        (searchOptions && filteredClassOptions.length === 1)) && (
+        <ScrollArea className="max-h-[200px] min-h-auto overflow-y-auto" type="hover" ref={scrollAreaRef}>
           {searchOptions.map((option, index) => {
             if (typeof option === "object") {
               return (
@@ -261,11 +278,7 @@ export default function Search({
                   key={index}
                   value={option.id}
                   onClick={() => {
-                    if (option.id) {
-                      handleClassSelection(option.id);
-                    } else {
-                      handleClassSelection(option.title);
-                    }
+                    handleClassSelection(option);
                   }}
                   w={"100%"}
                   px={12}
@@ -285,7 +298,9 @@ export default function Search({
                   data-list-item
                   key={index}
                   value={option}
-                  onClick={() => handleClassSelection(option)}
+                  onClick={() => {
+                    console.log(option);
+                  }}
                   w={"100%"}
                   px={12}
                   py={6}

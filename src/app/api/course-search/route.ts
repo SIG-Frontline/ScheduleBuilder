@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
     }
   }
   if (searchParams.has("subject")) {
-    addQuery(query, "SUBJECT", searchParams.get("subject") as string);
+    const subjectSearch = searchParams.get("subject");
+    if (subjectSearch) {
+      query["SUBJECT"] = { $regex: subjectSearch, $options: "i"};
+    }
   }
   if (searchParams.has("instructor")) {
     addQuery(query, "INSTRUCTOR", searchParams.get("instructor") as string);
