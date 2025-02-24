@@ -2,11 +2,6 @@
 
 import { Plan, MeetingTime } from "@/lib/client/planStore";
 
-export interface organizerSettings {
-	isCommuter: boolean; // If the user is a commuter
-	commuteTimeHours: number; // The time it takes to commute to campus in hours
-}
-
 /**
  * Accepts a plan to organize and settings which to operate on. This will then return the list of sections which spends the least amount of time on campus and does not conflict with itself.
  *
@@ -14,7 +9,7 @@ export interface organizerSettings {
  * @param settings A list of settings to apply to the organizer
  * @returns A Plan object with the most optimal schedule generated based on the 'rateSections' function, undefined if none can be generated with the given inputs
  */ 
-export async function organizePlan(currentPlan: Plan, settings: organizerSettings) : Promise<Plan | undefined> {
+export async function organizePlan(currentPlan: Plan) : Promise<Plan | undefined> {
 
 	// Copy the plan so we can modify some values without changing the underlying data
 	const copyPlan = await JSON.parse(JSON.stringify(currentPlan)) as Plan;
@@ -34,7 +29,7 @@ export async function organizePlan(currentPlan: Plan, settings: organizerSetting
 	}
 
 	// Rank the plans using rateSections()
-	const bestSections = findBestSections(allPossibleSectionCombos, copyPlan, settings);	
+	const bestSections = findBestSections(allPossibleSectionCombos, copyPlan);	
 	const bestPlan = convertSectionListToPlan(currentPlan, bestSections);
 	console.log((Date.now() - start)/1000, "s in total\n");
 
@@ -45,10 +40,26 @@ export async function organizePlan(currentPlan: Plan, settings: organizerSetting
 // Filters out sections that do not match the specified filters
 function filterSectionsInPlan(plan: Plan) : void {
 	
-	// TODO: filter sections that interfere with events before generating plans (which can lead to massive speedups)
-	// TODO: add course specific filtering
+	// TODO: filter sections that interfere with events
+	
+	const courseFilters = plan.organizerSettings.courseFilters;
 
-	// Modify all meeting time strings to be epoch time for much easier math (and avoid multiple conversions with Date)
+	 // Perform all the filters for the courses
+	for(const filter of courseFilters) {
+		plan.courses?.forEach(course => {
+			if(course.code !== filter.courseCode) return;
+
+			course.sections = course.sections.filter(s =>
+				(filter.instructor == null || s.instructor == filter.instructor) &&
+				(filter.honors == null || s.is_honors == filter.honors) &&
+
+				// Do some weird conditionals because we don't know if the sections are in sync with the new schema
+				(filter.online == null || (s["INSTURCTION_METHOD"] ? s["INSTRUCTION_METHOD"].toLowerCase().includes(filter.online) : s.instruction_type.toLowerCase().includes(filter.online)))
+			);
+		})
+	}
+
+	// Modify all meeting time strings to be minutes from midnight for much easier math (and avoid multiple conversions with Date)
 	plan.courses?.forEach(c => c.sections.forEach(s => s.meetingTimes.forEach(m => {
 		// @ts-expect-error Changing ISO string to a number
 		m.startTime = new Date(m.startTime).getHours() * 60 + new Date(m.startTime).getMinutes();
@@ -58,6 +69,7 @@ function filterSectionsInPlan(plan: Plan) : void {
 	
 	// Remove extra online sections while generating
 	// If a course has 10 online sections, it might as well only have 1
+	// NOTE: this optimization might be removed later
 	const hasOnline: {[key: string]: boolean} = {};
 	
 	plan.courses?.forEach(course => {
@@ -164,13 +176,13 @@ function convertSectionListToPlan(currentPlan: Plan, sectionList: {[key: string]
 }
 
 // Rates and finds the best plan out of an list of section lists
-function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan, settings: organizerSettings) : {[key: string]: string} {
+function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan) : {[key: string]: string} {
 	let bestScore = 999999999;
 	let bestSectionList = {} as {[key: string]: string};
 
 	// Ranks all plans to determine which has the smallest score
 	for(const sectionList of allSectionLists) {
-		const score = rateSections(sectionList, plan, settings);
+		const score = rateSections(sectionList, plan);
 		if(score == -1) continue;
 
 		if(score < bestScore) {
@@ -204,7 +216,9 @@ function convertDayToIndex(day: string) : number {
 	}
 }
 
-function rateSections(sectionList: {[key: string]: string}, plan: Plan, settings: organizerSettings) : number {
+function rateSections(sectionList: {[key: string]: string}, plan: Plan) : number {
+	const settings = plan.organizerSettings;
+
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
 

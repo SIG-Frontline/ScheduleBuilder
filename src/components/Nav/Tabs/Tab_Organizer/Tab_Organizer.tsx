@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
-import { planStore } from "@/lib/client/planStore";
+import { planStore, organizerSettings, instructionType } from "@/lib/client/planStore";
 
-import {  organizePlan, organizerSettings } from "@/lib/server/organizer";
+import { organizePlan } from "@/lib/server/organizer";
 
 const Tab_Optimiser = () => {
   const [input, setInput] = useState({
@@ -25,11 +25,28 @@ const Tab_Optimiser = () => {
 	  const settings = {
 			isCommuter: input.isCommuter,
 			commuteTimeHours: commuteTime,
+			courseFilters: [
+			   {
+				  courseCode: 'CS 332',
+				  instructor: 'Naik, Kamlesh',
+			   },
+			   {
+				  courseCode: 'CS 356',
+				  honors: false,
+			   },
+			   {
+				  courseCode: 'COM 313',
+				  online: instructionType.INPERSON,
+			   }
+			],
 	  } as organizerSettings;
 
 	  if(!selectedPlan) return;
 
-	  return await organizePlan(selectedPlan, settings);
+	  // HACK: inject settings into the plan 
+	  selectedPlan.organizerSettings = settings;
+
+	  return await organizePlan(selectedPlan);
   }
 
   return (
@@ -74,6 +91,9 @@ const Tab_Optimiser = () => {
 				setInput({ ...input, error: "No plan could be generated!" })
 				return;
 			}
+
+			// HACK: don't save the organizer settings to the database as things are changing a lot
+			delete bestPlan.organizerSettings;
 
 			// Update the current plan to the generated one
 			// TODO: maybe ask the user if they want to create a new one to not override the current plan? 
