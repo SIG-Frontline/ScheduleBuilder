@@ -62,6 +62,7 @@ export type Event = {
 export interface organizerSettings {
 	isCommuter: boolean;
 	commuteTimeHours: number;
+	compactPlan: boolean;
 	courseFilters: courseFilter[];
 };
 

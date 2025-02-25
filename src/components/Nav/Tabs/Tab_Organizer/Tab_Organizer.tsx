@@ -8,6 +8,7 @@ const Tab_Optimiser = () => {
   const [input, setInput] = useState({
 	 isCommuter: false,
 	 commuteTime: "",
+	 condenseSchedules: false,
 	 error: "",
   });
 
@@ -25,20 +26,8 @@ const Tab_Optimiser = () => {
 	  const settings = {
 			isCommuter: input.isCommuter,
 			commuteTimeHours: commuteTime,
-			courseFilters: [
-			   {
-				  courseCode: 'CS 332',
-				  instructor: 'Naik, Kamlesh',
-			   },
-			   {
-				  courseCode: 'CS 356',
-				  honors: false,
-			   },
-			   {
-				  courseCode: 'COM 313',
-				  online: instructionType.INPERSON,
-			   }
-			],
+			compactPlan: input.condenseSchedules,
+			courseFilters: [],
 	  } as organizerSettings;
 
 	  if(!selectedPlan) return;
@@ -84,6 +73,28 @@ const Tab_Optimiser = () => {
 			/>
 		 </Group>
 		 }
+        <Checkbox.Card
+          p={"sm"}
+          radius="md"
+			 checked={input.condenseSchedules}
+			 onChange={(checked) => {
+				   setInput({ ...input, condenseSchedules: checked, })
+				}
+			 }
+        >
+			 <Group wrap="nowrap" align="flex-start">
+			   <Checkbox.Indicator />
+			   <div>
+				 <Text fw={500}>Compact</Text>
+				 <Text size="xs" c="dimmed">
+						Bias the organized towards schedules with classes one after another
+				 </Text>
+				 <Text size="xs" c="red">
+						WARNING: It is not recommended to have too many classes back-to-back, a break is recommended in between
+				 </Text>
+			   </div>
+			 </Group>
+		   </Checkbox.Card>
 		  <Button variant="filled" onClick={async () => {
 			const bestPlan = await organizeClasses()
 

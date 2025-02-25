@@ -76,13 +76,20 @@ function filterSectionsInPlan(plan: Plan) : void {
 		for(let i = 0; i < course.sections.length; i++) {
 			const s = course.sections[i];
 
+			// FIX: ignore all online and cancelled courses for testing purposes
 			if(s.meetingTimes.length == 0) {
-				if(!hasOnline[course.code]) {
-					hasOnline[course.code] = true;
-				} else {
+				//if(!hasOnline[course.code]) {
+				//	hasOnline[course.code] = true;
+				//} else {
 					course.sections.splice(i, 1);
 					i--;
-				}
+					continue;
+				//}
+			}
+
+			if((s.comments && s.comments.includes("Cancelled")) || s.status == "Cancelled") {
+				course.sections.splice(i, 1);
+				i--;
 			}
 		}
 	})
@@ -179,6 +186,7 @@ function convertSectionListToPlan(currentPlan: Plan, sectionList: {[key: string]
 function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan) : {[key: string]: string} {
 	let bestScore = 999999999;
 	let bestSectionList = {} as {[key: string]: string};
+	let count = 0;
 
 	// Ranks all plans to determine which has the smallest score
 	for(const sectionList of allSectionLists) {
@@ -188,9 +196,14 @@ function findBestSections(allSectionLists: {[key: string]: string}[], plan: Plan
 		if(score < bestScore) {
 			bestScore = score;
 			bestSectionList = sectionList;
+			count = 1;
+		}
+		if (score == bestScore) {
+			count++;
 		}
 	}
 
+	console.log(count, "similar schedules!");
 	return bestSectionList; 
 }
 
@@ -221,6 +234,7 @@ function rateSections(sectionList: {[key: string]: string}, plan: Plan) : number
 
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes
 	const latestEnd = [0, 0, 0, 0, 0, 0, 0];
+	const totalClassTime = [0, 0, 0, 0, 0, 0, 0];
 
 	// Make sure there's courses in the plan
 	if(!plan.courses || plan.courses.length == 0) return -1;
@@ -246,21 +260,29 @@ function rateSections(sectionList: {[key: string]: string}, plan: Plan) : number
 			earliestStart[index] = Math.min(earliestStart[index], start);
 			// @ts-expect-error String was changed to a number earlier
 			latestEnd[index] = Math.max(latestEnd[index], end);
+			// @ts-expect-error String was changed to a number earlier
+			totalClassTime[index] += end - start;
 		}
 	}
 
-	// Adds together the "time on campus" for a metric on how "good" the class is
-	let timeOnCampus = 0;
+	// Calculate different metrics to rate the schedule
+	let score = 0;
 	
 	for (let i = 0; i < 7; i++) {
-		const diff = latestEnd[i] - earliestStart[i];
-		if(diff < 0) continue; // No classes on that day
-	
-		timeOnCampus += diff;
+		if(totalClassTime[i] == 0) continue; // No classes on this day
 
-		// Compensate for commute time
-		if (settings.isCommuter) timeOnCampus += (settings.commuteTimeHours * 60);
+		const totalTimeOnCampus = latestEnd[i] - earliestStart[i];
+	
+		// Penalize schedules which spend more time on campus
+		score += totalTimeOnCampus;
+
+		// Compensate for commute time (which can reduce amount of days on campus)
+		if (settings.isCommuter) score += (settings.commuteTimeHours * 60);
+
+		// Penalize schedules that spend more than 70% of their time on campus in class (to promote breaks), only if compactPlan is off
+		// Penalizes schedules in proportion to how much they take up the on campus time
+		if(!settings.compactPlan && totalClassTime[i] > 3 * 60 && totalTimeOnCampus * 0.7 < totalClassTime[i]) score += 1000 * totalClassTime[i] / totalTimeOnCampus;
 	}
 
-	return timeOnCampus
+	return score;
 }
