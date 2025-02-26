@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
-import { planStore, organizerSettings, instructionType } from "@/lib/client/planStore";
+import { planStore, organizerSettings } from "@/lib/client/planStore";
 
 import { organizePlan } from "@/lib/server/organizer";
 
@@ -33,6 +33,9 @@ const Tab_Optimiser = () => {
 	  if(!selectedPlan) return;
 
 	  // HACK: inject settings into the plan 
+	  
+	  // Saves the course filters if they are already stored (mostly for the tests, this will be changed with the new UI)
+	  if(selectedPlan.organizerSettings && selectedPlan.organizerSettings.courseFilters) settings.courseFilters = selectedPlan.organizerSettings.courseFilters
 	  selectedPlan.organizerSettings = settings;
 
 	  return await organizePlan(selectedPlan);
