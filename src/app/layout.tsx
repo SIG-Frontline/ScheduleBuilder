@@ -5,19 +5,19 @@ import "material-symbols";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/code-highlight/styles.css";
-import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
-
 import {
   ColorSchemeScript,
   MantineProvider,
   mantineHtmlProps,
 } from "@mantine/core";
+import { Notifications } from '@mantine/notifications';
 import Shell from "@/components/Shell/Shell";
+
 export const viewport: Viewport = {
   themeColor: "#1c7ed6",
   initialScale: 1,
@@ -60,6 +60,7 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
+            <Notifications /> {/*Hello*/}
             <div style={{ overflow: "auto" }}>
               <Shell>{children}</Shell>
             </div>
