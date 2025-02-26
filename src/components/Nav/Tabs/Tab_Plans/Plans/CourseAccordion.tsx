@@ -13,6 +13,7 @@ import {
 
 import Link from "next/link";
 import React from "react";
+import SectionSelection from "../../Tab_Sections/SectionSelection";
 
 const CourseAccordion = ({ course }: { course: Course }) => {
   const plan_store = planStore();
@@ -103,11 +104,11 @@ const CourseAccordion = ({ course }: { course: Course }) => {
             </Accordion.Control>
           </Group>
           <Accordion.Panel>
-            {/* <Section
-                    courseCode={courseCode}
-                    sections={sections}
-                    courseTitle={courseTitle}
-                  /> */}
+            <SectionSelection
+              courseCode={courseCode}
+              sections={course.sections}
+              courseTitle={course.title}
+            />
           </Accordion.Panel>
         </Accordion.Item>
       </Accordion>
