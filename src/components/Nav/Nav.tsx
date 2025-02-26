@@ -6,7 +6,6 @@ import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
 import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
 import Tab_Optimizer from "./Tabs/Tab_Optimizer/Tab_Optimizer";
 import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
-import Tab_Planz from "./Tabs/Tab_Plans/_Tab_Plans";
 import Tab_Settings from "./Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
 import Search from "./Search/Search";
@@ -24,12 +23,7 @@ const tabData = [
     icon: "list",
     component: Tab_Plans,
   },
-  {
-    value: "planz",
-    label: "planz",
-    icon: "list",
-    component: Tab_Planz,
-  },
+
   {
     value: "settings",
     label: "settings",

@@ -1,57 +1,50 @@
 import { planStore } from "@/lib/client/planStore";
 
-import Icon from "@/components/Icon/Icon";
-import {
-  Accordion,
-  ActionIcon,
-  AccordionControlProps,
-  Center,
-  Divider,
-} from "@mantine/core";
+import { Accordion, Divider } from "@mantine/core";
 import { prettyTermText } from "@/lib/client/prettyTermText";
+import PlanItem from "./Plans/PlanItem";
+import NewPlanButton from "./Plans/NewPlanButton";
+import CourseAccordion from "./Plans/CourseAccordion";
 const Tab_Plans = () => {
   const plan_store = planStore();
   const plans = plan_store.plans;
-  //get a list of all the terms in the plans
   const terms = Array.from(new Set(plans.map((plan) => plan.term)));
-  console.log(terms);
+  const termPlans = terms.reduce<Record<string, typeof plans>>((acc, term) => {
+    //Record is a utility type that creates an object type whose keys are of type K and values are of type T
+    acc[term] = plans.filter((plan) => plan.term === term);
+    return acc;
+  }, {});
 
   return (
-    <>
+    <div>
+      <NewPlanButton key="newplanbutton" />
       {terms.map((term) => (
-        <>
+        <span key={term}>
           <Divider my="md" label={prettyTermText(term, 2)} />
-          <Accordion chevronPosition="left" maw={400} mx="auto">
-            <Accordion.Item value="item-1">
-              <AccordionControl>Control 1</AccordionControl>
-              <Accordion.Panel>Panel 1</Accordion.Panel>
-            </Accordion.Item>
 
-            <Accordion.Item value="item-2">
-              <AccordionControl>Control 2</AccordionControl>
-              <Accordion.Panel>Panel 2</Accordion.Panel>
-            </Accordion.Item>
-
-            <Accordion.Item value="item-3">
-              <AccordionControl>Control 3</AccordionControl>
-              <Accordion.Panel>Panel 3</Accordion.Panel>
-            </Accordion.Item>
+          <Accordion
+            chevronPosition="left"
+            maw={400}
+            mx="auto"
+            onChange={(e) => {
+              plan_store.selectPlan(e);
+              console.log(plan_store.currentSelectedPlan);
+            }}
+            value={plan_store.currentSelectedPlan}
+          >
+            {termPlans[term].map((plan) => (
+              <PlanItem label={plan.name} key={plan.uuid} uuid={plan.uuid}>
+                <p>{plan.description}</p>
+                {plan?.courses?.map((course) => (
+                  <CourseAccordion key={course.code} course={course} />
+                ))}
+              </PlanItem>
+            ))}
           </Accordion>
-        </>
+        </span>
       ))}
-    </>
+    </div>
   );
 };
 
 export default Tab_Plans;
-
-function AccordionControl(props: AccordionControlProps) {
-  return (
-    <Center>
-      <Accordion.Control {...props} />
-      <ActionIcon size="lg" variant="subtle" color="gray">
-        <Icon>more_vert</Icon>
-      </ActionIcon>
-    </Center>
-  );
-}
