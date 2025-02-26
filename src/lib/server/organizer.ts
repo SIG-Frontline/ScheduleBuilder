@@ -3,10 +3,9 @@
 import { Plan, MeetingTime } from "@/lib/client/planStore";
 
 /**
- * Accepts a plan to organize and settings which to operate on. This will then return the list of sections which spends the least amount of time on campus and does not conflict with itself.
+ * Accepts a plan to organize. It will then return a plan which is scored to be the "most optimal"
  *
  * @param currentPlan The currently selected plan to organize
- * @param settings A list of settings to apply to the organizer
  * @returns A Plan object with the most optimal schedule generated based on the 'rateSections' function, undefined if none can be generated with the given inputs
  */ 
 export async function organizePlan(currentPlan: Plan) : Promise<Plan | undefined> {
@@ -41,6 +40,7 @@ export async function organizePlan(currentPlan: Plan) : Promise<Plan | undefined
 function filterSectionsInPlan(plan: Plan) : void {
 	
 	// TODO: filter sections that interfere with events
+	// TODO: filter sections that have a full seat count
 	
 	const courseFilters = plan.organizerSettings.courseFilters;
 
@@ -54,7 +54,8 @@ function filterSectionsInPlan(plan: Plan) : void {
 				(filter.honors == null || s.is_honors == filter.honors) &&
 
 				// Do some weird conditionals because we don't know if the sections are in sync with the new schema
-				(filter.online == null || (s["INSTURCTION_METHOD"] ? s["INSTRUCTION_METHOD"].toLowerCase().includes(filter.online) : s.instruction_type.toLowerCase().includes(filter.online)))
+				(filter.online == null || (s["INSTURCTION_METHOD"] ? s["INSTRUCTION_METHOD"].toLowerCase().includes(filter.online) : s.instruction_type.toLowerCase().includes(filter.online))) &&
+				(filter.section == null) || (s.sectionNumber == filter.section)
 			);
 		})
 	}
@@ -76,20 +77,14 @@ function filterSectionsInPlan(plan: Plan) : void {
 		for(let i = 0; i < course.sections.length; i++) {
 			const s = course.sections[i];
 
-			// FIX: ignore all online and cancelled courses for testing purposes
 			if(s.meetingTimes.length == 0) {
-				//if(!hasOnline[course.code]) {
-				//	hasOnline[course.code] = true;
-				//} else {
+				if(!hasOnline[course.code]) {
+					hasOnline[course.code] = true;
+				} else {
 					course.sections.splice(i, 1);
 					i--;
 					continue;
-				//}
-			}
-
-			if((s.comments && s.comments.includes("Cancelled")) || s.status == "Cancelled") {
-				course.sections.splice(i, 1);
-				i--;
+				}
 			}
 		}
 	})

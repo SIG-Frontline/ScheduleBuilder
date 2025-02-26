@@ -71,6 +71,7 @@ export interface courseFilter {
 	instructor?: string;
 	honors?: boolean;
 	online?: instructionType;
+	section?: string;
 };
 export enum instructionType { ONLINE='online', HYBRID='hybrid', INPERSON='face-to-face', ANY='any' };
 
