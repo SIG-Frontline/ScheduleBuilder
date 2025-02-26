@@ -14,7 +14,10 @@ export async function getSectionData(
 ) {
   const baseURL = `http://0.0.0.0:${process.env.PORT}`;
   let URL = `${baseURL}/api/courses?term=${term}&course=`;
-
+  
+  // If both subject and courseCode are provided, the URL includes "subject courseCode"
+  // If only subject is provided, the URL includes "subject"
+  // If only courseCode is provided, the URL includes "courseCode"
   if (subject && courseCode) {
     URL += `${subject} ${courseCode}`;
   } else if (subject) {

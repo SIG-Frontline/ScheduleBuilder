@@ -43,6 +43,8 @@ export default function Search({
   });
   const subject_store = subjectStore();
   const [textBoxValue, setTextBoxValue] = useState<string>("");
+  // this debounced text box is used to add a delay to API calls
+  // if a user is typing it will prevent API calls until 500ms after the value is set
   const [debouncedTextBoxValue] = useDebouncedValue(textBoxValue, 500);
   const textBoxRef = useRef<HTMLInputElement>(null);
   const [classOptions, setClassOptions] = useState<
@@ -75,7 +77,6 @@ export default function Search({
       !subjectOptions.length
     ) {
       getSubjects(selectedPlan?.term ?? 202490).then((courses) => {
-        // setSubjectOptions(courses);
         subject_store.setSubjects(courses, selectedPlan?.term ?? 0);
       });
     }
@@ -160,6 +161,7 @@ export default function Search({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlan?.term, throttledfilter_storeValue, debouncedTextBoxValue]);
 
+  // this function adds the course selected, to the course plan and retrieves the section data
   const handleClassSelection = (searchResult: {
     id: string;
     subject: string;
@@ -190,6 +192,7 @@ export default function Search({
     }, 10);
   };
 
+  // this function will highlight the search result characters that match the users query
   const highlightMatchingText = (searchResultText: string, searchInput: string) => {
     if (!searchInput.trim()) return searchResultText;
 
@@ -325,6 +328,8 @@ export default function Search({
                 </UnstyledButton>
               );
             } else {
+              // this button is intended for searching subjects where its only a string not an object
+              // this is currently not really visible on the frontend because matching course titles takes precedence
               return (
                 <UnstyledButton
                   data-list-item

@@ -7,7 +7,6 @@ import { Filter } from "mongodb";
 // Define an asynchronous GET function that takes a request object as a parameter
 export async function GET(request: NextRequest) {
   // Initialize an empty query object
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query: Filter<any> = {}; 
   // Extract the search parameters from the url
@@ -103,7 +102,7 @@ export async function GET(request: NextRequest) {
   // Initialize cursor and totalNumCourses variables
   let cursor, totalNumCourses;
   const pipeline = [
-    // aggregate the sections collection  
+    // aggregate the sections collection
     { $match: query },
     { $sort: { COURSE: 1 } },
     {
