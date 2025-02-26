@@ -4,7 +4,11 @@ import { getSubjects } from "@/lib/server/actions/getSubjects";
 import { getClasses } from "@/lib/server/actions/getClasses";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
 import { planStore } from "@/lib/client/planStore";
-import { useClickOutside, useThrottledValue } from "@mantine/hooks";
+import {
+  useClickOutside,
+  useThrottledValue,
+  useDebouncedValue,
+} from "@mantine/hooks";
 import { subjectStore } from "@/lib/client/subjectStore";
 import { filterStore } from "@/lib/client/filterStore";
 // the below subjects are stored in the database as just one subject and no code - so when the subject is selected, just add the course to the plan
@@ -39,6 +43,7 @@ export default function Search({
   });
   const subject_store = subjectStore();
   const [textBoxValue, setTextBoxValue] = useState<string>("");
+  const [debouncedTextBoxValue] = useDebouncedValue(textBoxValue, 500);
   const textBoxRef = useRef<HTMLInputElement>(null);
   const [classOptions, setClassOptions] = useState<
     { id: string; title: string; subject: string }[] | string[]
@@ -104,19 +109,19 @@ export default function Search({
     1000
   );
   useEffect(() => {
-    //when the textbox value changes make the input uppercase
-    setTextBoxValue(textBoxValue.toUpperCase());
     // when the textbox value is empty reset the selected subject and class options
-    if (!textBoxValue.trim()) {
+    if (!debouncedTextBoxValue.trim()) {
       setSelectedSubject("");
       setClassOptions([]);
       setSearchByTitle(false);
       return;
     }
 
-    const words = textBoxValue.split(" ");
+    const words = debouncedTextBoxValue.split(" ");
     const firstWord = words[0];
-    const isSubject = subjectOptions.includes(firstWord) || specialSubjects.some(opt => opt.includes(firstWord));
+    const isSubject =
+      subjectOptions.includes(firstWord) ||
+      specialSubjects.some((opt) => opt.includes(firstWord));
 
     if (isSubject) {
       console.log("isSubject");
@@ -136,12 +141,12 @@ export default function Search({
     } else if (isSubject && selectedSubject) {
       setSearchByTitle(false);
       //if the selected subject is not in the textbox
-    } else if (!isSubject && textBoxValue.trim() !== "" ) {
+    } else if (!isSubject && debouncedTextBoxValue.trim() !== "") {
       console.log("search by title");
       getClasses(
         selectedPlan?.term ?? 202490,
         "",
-        textBoxValue,
+        debouncedTextBoxValue,
         throttledfilter_storeValue
       ).then((classes) => {
         setClassOptions(classes);
@@ -149,15 +154,11 @@ export default function Search({
         console.log("classes", classes);
       });
     }
-  }, [
-    textBoxValue,
-    subjectOptions,
-    selectedSubject,
-    searchWithoutSubject,
-    selectedPlan?.term,
-    throttledfilter_storeValue,
-    searchByTitle,
-  ]);
+  // I disabled eslint because I need to use subject options in the hook, 
+  // But keeping it as a dependency caused an extra unneccessary api call
+  // This does not affect search behavior or cause any stale states, as far as I can tell
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPlan?.term, throttledfilter_storeValue, debouncedTextBoxValue]);
 
   const handleClassSelection = (searchResult: {
     id: string;
@@ -189,6 +190,24 @@ export default function Search({
     }, 10);
   };
 
+  const highlightMatchingText = (searchResultText: string, searchInput: string) => {
+    if (!searchInput.trim()) return searchResultText;
+
+    const searchWords = searchInput.trim().split(/\s+/).filter((word) => word.length > 0); // Split search input into words
+    if (searchWords.length === 0) return searchResultText;
+    
+    const regex = new RegExp(`(${searchWords.join("|")})`, "gi"); // Match any word from input
+    const parts = searchResultText.split(regex);
+
+    return parts.map((part, index) => {
+      return searchWords.some((word) => part.toLowerCase() === word.toLowerCase()) ? (
+        <strong key={index} className="font-bold text-black">{part}</strong>
+      ) : (
+        <span key={index}>{part}</span>
+      );
+    })
+  };
+
   return (
     <div ref={ref} className="flex flex-col-reverse lg:flex-col relative">
       <TextInput
@@ -207,8 +226,12 @@ export default function Search({
         placeholder="Search for a course"
         value={textBoxValue}
         onChange={(e) => {
-          setTextBoxValue(e.currentTarget.value);
-          setTextHovered(-1);
+          // capitalizes textbox value && changes it only if the value has changed
+          const newValue = e.currentTarget.value.toUpperCase();
+          if (newValue !== textBoxValue) {
+            setTextBoxValue(newValue);
+            setTextHovered(-1);
+          }
         }}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
@@ -231,7 +254,9 @@ export default function Search({
                     );
                   } else {
                     // if a course doesn't have an id, mostly special subject courses
-                    setTextBoxValue(hoveredOption.subject + " " + hoveredOption.title);
+                    setTextBoxValue(
+                      hoveredOption.subject + " " + hoveredOption.title
+                    );
                   }
                 }
               }
@@ -269,12 +294,19 @@ export default function Search({
       />
       {(textBoxValue.length > 0 ||
         (searchOptions && filteredClassOptions.length === 1)) && (
-        <ScrollArea className="max-h-[200px] min-h-auto overflow-y-auto" type="hover" ref={scrollAreaRef}>
+        <ScrollArea.Autosize
+          mah={200}
+          scrollbars="y"
+          type="hover"
+          ref={scrollAreaRef}
+          data-testid="search-results"
+        >
           {searchOptions.map((option, index) => {
             if (typeof option === "object") {
               return (
                 <UnstyledButton
                   data-list-item
+                  data-testid="search-result-item"
                   key={index}
                   value={option.id}
                   onClick={() => {
@@ -289,7 +321,7 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {option.subject} {option.id} {option.title}
+                  {highlightMatchingText(`${option.subject} ${option.id} ${option.title}`, textBoxValue)}
                 </UnstyledButton>
               );
             } else {
@@ -310,12 +342,12 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {option}
+                  {highlightMatchingText(`${option}`, textBoxValue)}
                 </UnstyledButton>
               );
             }
           })}
-        </ScrollArea>
+        </ScrollArea.Autosize>
       )}
     </div>
   );
