@@ -20,6 +20,7 @@ const Header = () => {
         color: 'green',
         icon: <span className="material-symbols-outlined">person</span>,
         autoClose: 3000,
+        position: 'top-right'
       });
     }
   }, [user, hasLoggedIn]);
@@ -35,6 +36,7 @@ const Header = () => {
       color: 'blue',
       icon: <span className="material-symbols-outlined">logout</span>,
       autoClose: 2000,
+      position: 'top-right'
     });
   
     // Show logged out notification before redirect
@@ -45,6 +47,7 @@ const Header = () => {
         color: 'blue',
         icon: <span className="material-symbols-outlined">logout</span>,
         autoClose: 5000,
+        position: 'top-right'
       });
     }, 1000);
   
