@@ -25,11 +25,11 @@ const Header = () => {
     }
   }, [user, hasLoggedIn]);
   
-  // Notification when user is logging out
+  // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
   
-    // Notification of logging out
+    // Notification when user is logging out
     notifications.show({
       title: 'Logging Out',
       message: 'Please wait...',
