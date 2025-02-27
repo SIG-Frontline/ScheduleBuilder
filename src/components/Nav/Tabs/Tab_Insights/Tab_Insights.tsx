@@ -200,8 +200,8 @@ const Tab_Insights = () => {
                 return (
                   <div key={i}>
                     <List.Item>
-                      {i === 0 ? "" : ", "}
                       {crn}
+                      {i === cur_plan_crn_list.length - 1 ? "" : ", "}
                     </List.Item>
                     <br />
                   </div>
