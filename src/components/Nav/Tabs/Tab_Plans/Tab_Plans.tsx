@@ -1,10 +1,11 @@
 import { planStore } from "@/lib/client/planStore";
 
-import { Accordion, Divider } from "@mantine/core";
+import { Accordion, Center, Divider, Space, Text } from "@mantine/core";
 import { prettyTermText } from "@/lib/client/prettyTermText";
 import PlanItem from "./Plans/PlanItem";
 import NewPlanButton from "./Plans/NewPlanButton";
 import CourseAccordion from "./Plans/CourseAccordion";
+import Icon from "@/components/Icon/Icon";
 const Tab_Plans = () => {
   const plan_store = planStore();
   const plans = plan_store.plans;
@@ -17,16 +18,27 @@ const Tab_Plans = () => {
 
   return (
     <div>
-      <NewPlanButton key="newplanbutton" />
+      <Center my="md">
+        <NewPlanButton key="newplanbutton" />
+      </Center>
       {terms.map((term) => (
         <span key={term}>
-          <Divider my="md" label={prettyTermText(term, 2)} />
+          <Divider
+            my="md"
+            label={
+              <>
+                <Icon>date_range</Icon> <Space w="sm" />
+                <Text fz={"md"}>{prettyTermText(term, 2)}</Text>
+              </>
+            }
+          />
 
           <Accordion
             chevronPosition="left"
             maw={400}
             mx="auto"
             onChange={(e) => {
+              if (e === null || e === undefined) return; //make sure there is a plan selected at all times
               plan_store.selectPlan(e);
               console.log(plan_store.currentSelectedPlan);
             }}

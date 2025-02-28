@@ -6,6 +6,7 @@ import {
   Center,
 } from "@mantine/core";
 import React from "react";
+import PlanMenu from "./PlanMenu";
 
 const PlanItem = ({
   label,
@@ -19,7 +20,7 @@ const PlanItem = ({
   return (
     <>
       <Accordion.Item value={uuid}>
-        <AccordionControl>{label}</AccordionControl>
+        <AccordionControl value={uuid}>{label}</AccordionControl>
         <Accordion.Panel>{children}</Accordion.Panel>
       </Accordion.Item>
     </>
@@ -32,9 +33,11 @@ function AccordionControl(props: AccordionControlProps) {
   return (
     <Center>
       <Accordion.Control {...props} />
-      <ActionIcon size="lg" variant="subtle" color="gray">
-        <Icon>more_vert</Icon>
-      </ActionIcon>
+      <PlanMenu uuid={props.value as string}>
+        <ActionIcon size="lg" variant="subtle" color="gray">
+          <Icon>more_vert</Icon>
+        </ActionIcon>
+      </PlanMenu>
     </Center>
   );
 }
