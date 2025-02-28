@@ -194,7 +194,7 @@ export default function Search({
           );
           if (
             sectionsTab instanceof HTMLElement &&
-            sectionsTab.getAttribute("aria-selected") !== "true" //ensures that the sections tab is only clicked if it is not already selected 
+            sectionsTab.getAttribute("aria-selected") !== "true" //ensures that the sections tab is only clicked if it is not already selected
           ) {
             sectionsTab.click();
           }
