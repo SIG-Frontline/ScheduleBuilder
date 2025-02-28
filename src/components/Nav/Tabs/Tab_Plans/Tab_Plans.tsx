@@ -6,6 +6,7 @@ import PlanItem from "./Plans/PlanItem";
 import NewPlanButton from "./Plans/NewPlanButton";
 import CourseAccordion from "./Plans/CourseAccordion";
 import Icon from "@/components/Icon/Icon";
+import ImportButton from "./Plans/ImportButton";
 const Tab_Plans = () => {
   const plan_store = planStore();
   const plans = plan_store.plans;
@@ -20,6 +21,8 @@ const Tab_Plans = () => {
     <div>
       <Center my="md">
         <NewPlanButton key="newplanbutton" />
+        <Space w="md" />
+        <ImportButton />
       </Center>
       {terms.map((term) => (
         <span key={term}>
