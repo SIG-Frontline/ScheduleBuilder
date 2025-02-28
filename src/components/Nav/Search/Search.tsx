@@ -118,6 +118,7 @@ export default function Search({
       return;
     }
 
+
     const words = debouncedTextBoxValue.split(" ");
     const firstWord = words[0];
     const isSubject =
@@ -254,7 +255,8 @@ export default function Search({
         value={textBoxValue}
         onChange={(e) => {
           // capitalizes textbox value && changes it only if the value has changed
-          const newValue = e.currentTarget.value.toUpperCase();
+          // also limits to only alphanumeric and - 
+          const newValue = e.currentTarget.value.toUpperCase().replace(/\\/g, '');
           if (newValue !== textBoxValue) {
             setTextBoxValue(newValue);
             setTextHovered(-1);
@@ -348,10 +350,10 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {highlightMatchingText(
+                  {option.id ? highlightMatchingText(
                     `${option.subject} ${option.id} ${option.title}`,
                     textBoxValue
-                  )}
+                  ) : highlightMatchingText(`${option.subject} ${option.title}`,textBoxValue)}
                 </UnstyledButton>
               );
             } else {
