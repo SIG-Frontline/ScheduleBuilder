@@ -155,10 +155,10 @@ export default function Search({
         console.log("classes", classes);
       });
     }
-  // I disabled eslint because I need to use subject options in the hook, 
-  // But keeping it as a dependency caused an extra unneccessary api call
-  // This does not affect search behavior or cause any stale states, as far as I can tell
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // I disabled eslint because I need to use subject options in the hook,
+    // But keeping it as a dependency caused an extra unneccessary api call
+    // This does not affect search behavior or cause any stale states, as far as I can tell
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlan?.term, throttledfilter_storeValue, debouncedTextBoxValue]);
 
   // this function adds the course selected, to the course plan and retrieves the section data
@@ -185,6 +185,20 @@ export default function Search({
       })
       .then(() => {
         setTextBoxValue("");
+
+        // Simulate a click on the navbar element that opens the sections tab
+        // This will likely need to be switched when the navbar is changed
+        setTimeout(() => {
+          const sectionsTab = document.querySelector(
+            'button[id*="tab-sections"]'
+          );
+          if (
+            sectionsTab instanceof HTMLElement &&
+            sectionsTab.getAttribute("aria-selected") !== "true" //ensures that the sections tab is only clicked if it is not already selected 
+          ) {
+            sectionsTab.click();
+          }
+        }, 100); // Add a small Delay to ensure state updates before the tab is clicked
       });
     //focus the textbox after selecting a search option
     setTimeout(() => {
@@ -193,22 +207,32 @@ export default function Search({
   };
 
   // this function will highlight the search result characters that match the users query
-  const highlightMatchingText = (searchResultText: string, searchInput: string) => {
+  const highlightMatchingText = (
+    searchResultText: string,
+    searchInput: string
+  ) => {
     if (!searchInput.trim()) return searchResultText;
 
-    const searchWords = searchInput.trim().split(/\s+/).filter((word) => word.length > 0); // Split search input into words
+    const searchWords = searchInput
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0); // Split search input into words
     if (searchWords.length === 0) return searchResultText;
-    
+
     const regex = new RegExp(`(${searchWords.join("|")})`, "gi"); // Match any word from input
     const parts = searchResultText.split(regex);
 
     return parts.map((part, index) => {
-      return searchWords.some((word) => part.toLowerCase() === word.toLowerCase()) ? (
-        <strong key={index} className="font-bold text-black">{part}</strong>
+      return searchWords.some(
+        (word) => part.toLowerCase() === word.toLowerCase()
+      ) ? (
+        <strong key={index} className="font-bold text-black">
+          {part}
+        </strong>
       ) : (
         <span key={index}>{part}</span>
       );
-    })
+    });
   };
 
   return (
@@ -324,7 +348,10 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {highlightMatchingText(`${option.subject} ${option.id} ${option.title}`, textBoxValue)}
+                  {highlightMatchingText(
+                    `${option.subject} ${option.id} ${option.title}`,
+                    textBoxValue
+                  )}
                 </UnstyledButton>
               );
             } else {
