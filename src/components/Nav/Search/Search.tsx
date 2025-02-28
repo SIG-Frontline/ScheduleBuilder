@@ -118,7 +118,6 @@ export default function Search({
       return;
     }
 
-
     const words = debouncedTextBoxValue.split(" ");
     const firstWord = words[0];
     const isSubject =
@@ -256,7 +255,12 @@ export default function Search({
         onChange={(e) => {
           // capitalizes textbox value && changes it only if the value has changed
           // also limits to only alphanumeric and - 
-          const newValue = e.currentTarget.value.toUpperCase().replace(/\\/g, '');
+          let newValue = e.currentTarget.value.toUpperCase().replace(/\\/g, '');
+          // Extract subject prefix and number part
+          const match = newValue.match(/^([A-Za-z]+)(\d.*)?$/);
+          if (match && subjectOptions.includes(match[1])) {
+            newValue = match[1] + (match[2] ? ` ${match[2]}` : ""); // Insert space if subject is valid
+          }
           if (newValue !== textBoxValue) {
             setTextBoxValue(newValue);
             setTextHovered(-1);
