@@ -42,6 +42,8 @@ export async function getSectionData(
           is_honors: boolean | undefined;
           IS_ASYNC?: boolean;
           is_async: boolean | undefined;
+          INSTRUCTION_METHOD?: string;
+          instruction_type: string | undefined;
           CRN?: string;
           crn: string | undefined;
           COMMENTS?: string;
@@ -83,6 +85,8 @@ export async function getSectionData(
           delete section.IS_HONORS;
           section.is_async = section.IS_ASYNC;
           delete section.IS_ASYNC;
+          section.instruction_type = section.INSTRUCTION_METHOD;
+          delete section.INSTRUCTION_METHOD;
           section.crn = section.CRN;
           delete section.CRN;
           section.comments = section.COMMENTS;

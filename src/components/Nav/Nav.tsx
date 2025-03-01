@@ -4,7 +4,7 @@ import { ScrollAreaAutosize, Tabs, Transition } from "@mantine/core";
 import Icon from "../Icon/Icon";
 import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
 import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
-import Tab_Optimizer from "./Tabs/Tab_Optimizer/Tab_Optimizer";
+import Tab_Organizer from "./Tabs/Tab_Organizer/Tab_Organizer";
 import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
 import Tab_Settings from "./Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
@@ -49,10 +49,10 @@ const tabData = [
     component: Tab_Insights,
   },
   {
-    value: "optimizer",
-    label: "optimizer",
+    value: "organizer",
+    label: "organizer",
     icon: "instant_mix",
-    component: Tab_Optimizer,
+    component: Tab_Organizer,
   },
 ];
 
