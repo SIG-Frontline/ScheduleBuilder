@@ -7,7 +7,6 @@ import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import { Group, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 
-const generateId = () => crypto.randomUUID();
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
@@ -57,7 +56,7 @@ const Cal_Grid = () => {
         startTime: new Date(meetingTime.startTime).toISOString().split("T")[1].split(".")[0] + "+00:00",
         endTime: new Date(meetingTime.endTime).toISOString().split("T")[1].split(".")[0] + "+00:00",
         daysOfWeek: [["U", "M", "T", "W", "R", "F", "S"].indexOf(meetingTime.day)],
-        backgroundColor: item.color ?? "#00aa00",
+        backgroundColor: item.color ?? "#0066cc",
       }));
     });
   });
@@ -74,6 +73,10 @@ const Cal_Grid = () => {
         selectable
         selectMirror
         select={(selectInfo) => {
+          const existingTempEvent = selectInfo.view.calendar.getEventById('temp-event');
+          if (existingTempEvent) {
+            existingTempEvent.remove();
+          }
           const start = selectInfo.start;
           const end = selectInfo.end;
         
@@ -92,7 +95,7 @@ const Cal_Grid = () => {
             start,
             end,
             allDay: selectInfo.allDay,
-            backgroundColor: '#00aa00',
+            backgroundColor: '#0066cc',
             // Remove display: 'background' to make it stay visible
           });
         
@@ -163,7 +166,7 @@ const Cal_Grid = () => {
 
             return onlineSections.map((section) => (
               <div key={section.crn} className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3">
-                <div style={{ backgroundColor: item.color ?? "#00aa00" }} className="w-4 h-4 rounded-full"></div>
+                <div style={{ backgroundColor: item.color ?? "#0066cc" }} className="w-4 h-4 rounded-full"></div>
                 <div>
                   <Text className="overflow-ellipsis overflow-x-hidden whitespace-nowrap max-w-52" size="md">
                     {courseCode + " " + courseTitle}

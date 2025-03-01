@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { TimeInput } from "@mantine/dates";
 import { planStore } from "@/lib/client/planStore";
 import type { Event } from "@/lib/client/planStore";
+import { uuidv4 } from "@/lib/uuidv4";
 const Tab_Events = () => {
   /**
    *   title: string;
@@ -27,13 +28,13 @@ const Tab_Events = () => {
   const currentPlan = plan_store.getPlan(plan_store.currentSelectedPlan + "");
 
   const [event, setEvent] = useState<Event>({ // Initialize with default values
-    id: crypto.randomUUID(),
+    id: uuidv4(),
     title: '',
     description: '',
     startTime: '',
     endTime: '',
     daysOfWeek: [],
-    color: ''
+    color: '0066cc'
   });
 
   useEffect(() => {
@@ -47,13 +48,13 @@ const Tab_Events = () => {
   }>) => {
     tempEvent = e.detail.tempEvent;
     setEvent({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       title: '',
       description: '',
       startTime: e.detail.startTime,
       endTime: e.detail.endTime,
       daysOfWeek: e.detail.daysOfWeek,
-      color: '#00aa00'
+      color: '#0066cc'
     });
   };
 
@@ -92,7 +93,7 @@ const Tab_Events = () => {
     
     // Reset form
     setEvent({
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       title: '',
       description: '',
       startTime: '',
