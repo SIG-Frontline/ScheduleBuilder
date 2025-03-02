@@ -41,37 +41,6 @@ export default function ShareModal({
     });
   }
 
-  function linkSave() {
-    let urlInfo = new Map();
-    const planName = currentSelectedPlanObj?.name ?? "SharedPlan";
-    const term = currentSelectedPlanObj?.term;
-
-    urlInfo.set("name", planName);
-    urlInfo.set("term", term);
-
-    currentSelectedPlanObj?.courses?.forEach((course, index) => {
-      course.sections.forEach((section) => {
-        if (section.selected) {
-          urlInfo.set("crn" + index, section.crn);
-        }
-      });
-    });
-    console.log(urlInfo);
-    const queryString = Array.from(urlInfo)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-      )
-      .join("&");
-
-    console.log(queryString);
-
-    const urlString: string = "localhost:3000/?" + queryString;
-    console.log(urlString);
-    navigator.clipboard.writeText(urlString);
-    // lets make this mf a URL !!!
-  }
-
   return (
     <>
       <Modal opened={opened} onClose={onClose} title="Share & Export">
@@ -86,9 +55,7 @@ export default function ShareModal({
             Save as Image
           </Button>
           <Button variant="filled">[not working] Save as ICS</Button>
-          <Button variant="filled" onClick={linkSave}>
-            [not working] Copy Link
-          </Button>
+          <Button variant="filled">[not working] Copy Link</Button>
         </Group>
       </Modal>
     </>

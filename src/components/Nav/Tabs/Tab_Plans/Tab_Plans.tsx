@@ -16,6 +16,7 @@ import { getTerms } from "@/lib/server/actions/getTerms";
 import { useEffect, useState } from "react";
 
 const Tab_Plans = () => {
+  // const addPlan = planStore((state) => state.addPlan);
   const [terms, setTerms] = useState<string[]>([]);
   const plan_store = planStore();
   const addPlan = plan_store.addPlan;

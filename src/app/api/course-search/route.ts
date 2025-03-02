@@ -90,10 +90,6 @@ export async function GET(request: NextRequest) {
   if (searchParams.has("building")) {
     addQuery(query, "TIMES.building", searchParams.get("building") as string);
   }
-  // added search for crn, just mimicking previous if statements
-  if (searchParams.has("crn")) {
-    addQuery(query, "CRN", searchParams.get("crn") as string);
-  }
   console.log(query);
   // Initialize cursor and totalNumCourses variables
   let cursor, totalNumCourses;
