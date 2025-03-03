@@ -168,9 +168,6 @@ export default function Search({
     title: string;
   }) => {
     //if the option is a class, and there is a subject selected, and the subject is in the textbox
-    if (specialSubjects.includes(searchResult.subject)) {
-      searchResult.title = "";
-    }
     getSectionData(
       selectedPlan?.term ?? 202490,
       searchResult.subject,
