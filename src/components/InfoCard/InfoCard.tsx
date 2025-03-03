@@ -135,11 +135,12 @@ function InfoCard(props: InfoCardProps) {
       </div>
 
       <Stack align="flex-start">
-        <div className="flex flex-row items-left space-x-2 pl-2 ">
-          <Icon>schedule</Icon>
-
-          <p>{`${startTime} - ${endTime}`}</p>
-        </div>
+        {courseInfo.get("location") == "Online" || (
+          <div className="flex flex-row items-left space-x-2 pl-2 ">
+            <Icon>schedule</Icon>
+            <p>{`${startTime} - ${endTime}`}</p>
+          </div>
+        )}
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>person</Icon>
           <p>{courseInfo.get("instructor")}</p>
