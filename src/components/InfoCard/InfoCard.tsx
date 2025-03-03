@@ -3,8 +3,6 @@ import Icon from "../Icon/Icon";
 import { Button, Stack } from "@mantine/core";
 
 import { useViewportSize } from "@mantine/hooks";
-import { IntegerType } from "mongodb";
-import { duration } from "html2canvas/dist/types/css/property-descriptors/duration";
 
 type InfoCardProps = {
   cardVisible: boolean;
@@ -13,9 +11,7 @@ type InfoCardProps = {
 };
 
 function msToTime(duration) {
-  var milliseconds: number = Math.floor((duration % 1000) / 100),
-    seconds: number = Math.floor((duration / 1000) % 60),
-    minutes: number = Math.floor((duration / (1000 * 60)) % 60),
+  var minutes: number = Math.floor((duration / (1000 * 60)) % 60),
     hours: number = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
   hours = hours > 12 ? hours - 12 : hours;
@@ -31,8 +27,6 @@ function InfoCard(props: InfoCardProps) {
 
   const [position, setPosition] = useState({ x: 300, y: 100 });
   const [isDragging, setIsDragging] = useState(false);
-  const [disableSelection, setDisableSelection] = useState(false);
-
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -108,13 +102,6 @@ function InfoCard(props: InfoCardProps) {
   let startTime: number = msToTime(parseInt(courseInfo.get("startTime")));
   let endTime: number = msToTime(parseInt(courseInfo.get("endTime")));
 
-  // let endTime =
-  //   new Date(parseInt(courseInfo.get("endtime")))
-  //     .toISOString()
-  //     .split("T")[1]
-  //     .split(".")[0] ?? new Date("1995-12-17T03:24:00");
-
-  // let classDuration = `${startTime} - ${endTime}`;
   // If not visible, render nothing
   if (!cardVisible) return null;
   return (
@@ -148,8 +135,6 @@ function InfoCard(props: InfoCardProps) {
       </div>
 
       <Stack align="flex-start">
-        {/* Removed meet times from info card because JSON is weird and confusing and I can't get it to work </3 also meet times are clearly shown on the calendar.
-        Although this is clearly a disadvantage for mobile users I just don't know how to fix it at this point. If anyone can take a look that would be swell :)  */}
         <div className="flex flex-row items-left space-x-2 pl-2 ">
           <Icon>schedule</Icon>
 
@@ -160,10 +145,6 @@ function InfoCard(props: InfoCardProps) {
           <p>{courseInfo.get("instructor")}</p>
         </div>
 
-        {/* <div className="flex flex-row items-center space-x-2 pl-2">
-              <Icon>chair_alt</Icon>
-              <p>{courseSeats}</p>
-            </div> */}
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>location_on</Icon>
           <p>{courseInfo.get("location")}</p>
@@ -173,11 +154,6 @@ function InfoCard(props: InfoCardProps) {
           <p>CRN: {courseInfo.get("crn")}</p>
         </div>
       </Stack>
-      {/* <div className="flex justify-end w-full pr-3 pb-3">
-        <Button radius="sm" color="gray">
-          Other Sections
-        </Button>
-      </div> */}
     </div>
   );
 }
