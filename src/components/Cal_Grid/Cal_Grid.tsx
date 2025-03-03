@@ -19,7 +19,7 @@ const Cal_Grid = () => {
   >(plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined);
   //use effect to log the current selected plan
 
-  const [courseInfo, setCourseInfo] = useState<Map<String, String>>();
+  const [courseInfo, setCourseInfo] = useState<Map<string, string>>();
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
@@ -134,7 +134,14 @@ const Cal_Grid = () => {
             setCardVisibility(true);
             setCourseInfo(
               new Map([
-                // ["meetTime", info.event.recurringDef.typeData.startTime],
+                [
+                  "startTime",
+                  info.event._def.recurringDef?.typeData.startTime.milliseconds,
+                ],
+                [
+                  "endTime",
+                  info.event._def.recurringDef?.typeData.endTime.milliseconds,
+                ],
                 ["title", info.event.extendedProps.title],
                 ["crn", info.event.extendedProps.crn],
                 ["instructor", info.event.extendedProps.instructor],
