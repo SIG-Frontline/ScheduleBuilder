@@ -3,6 +3,7 @@ import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
 import { planStore, organizerSettings } from "@/lib/client/planStore";
 
 import { organizePlan } from "@/lib/server/organizer";
+import { getRecommendedClasses } from "@/lib/server/recommender";
 
 const Tab_Optimiser = () => {
   const [input, setInput] = useState({
@@ -39,6 +40,11 @@ const Tab_Optimiser = () => {
 	  selectedPlan.organizerSettings = settings;
 
 	  return await organizePlan(selectedPlan);
+  }
+
+  async function getRecommendations() {
+	  // Test parameters
+	  console.log(await getRecommendedClasses("BS", "CS", "2025", ["MATH 111", "PHYS 111", "PHYS 111A", "CS 113", "PHYS 121", "PHYS 121A", "MATH 112", "R087 121", "ENGL 101", "FYS SEM", "CHEM 121", "CS 100", "EPS 202", "MATH 333", "IS 247", "ENGL 102", "CS 114", "IT 120", "PHYS 202", "CS 280", "CS 241", "IS 350", "CS 331", "PYS 210", "YWCC 207", "CS 288", "CS 301", "CS 332", "CS 356", "COM 313" ]));
   }
 
   return (
@@ -123,6 +129,11 @@ const Tab_Optimiser = () => {
 		  <Text ta={"center"} color="red">
 		  	{ input.error }	
 		  </Text>
+		  <Button variant="filled" onClick={async () => {
+			  getRecommendations();
+		  }}>
+		  	Get Recommendations
+		  </Button>
 	  </div>
     </>
   );
