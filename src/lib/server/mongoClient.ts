@@ -253,6 +253,15 @@ export interface UserPlan {
   userId: string;
   plandata: Plan;
 }
+
+export interface CurriculaDocument {
+	school: string;
+	degree: string;
+	major: string;
+	catalogYear: string;
+	classes: string[]; // FIX: this is definitely not correct 
+}
+
 export const sectionsCollection = client
   .db(BUILDER_NS)
   .collection<SectionDocument>("Sections");
@@ -262,6 +271,9 @@ export const coursesCollection = client
 export const userPlanCollection = client
   .db(BUILDER_NS)
   .collection<UserPlan>("User_Plans");
+export const curriculaCollection = client
+	.db(BUILDER_NS)
+	.collection<CurriculaDocument>("Curricula");
 class CourseCache {
   private courses: CourseDocument[] = [];
   private lastRetrieved: Date | null = null;
