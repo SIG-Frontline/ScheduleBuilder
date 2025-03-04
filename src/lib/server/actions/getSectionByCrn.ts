@@ -13,6 +13,9 @@ export async function getSectionByCrn(term: number, crn: string) {
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => {
+      console.log("Logging URL:");
+      console.log(URL);
+      console.log("Logging DATA:");
       console.log(data);
 
       return data.courses[0];

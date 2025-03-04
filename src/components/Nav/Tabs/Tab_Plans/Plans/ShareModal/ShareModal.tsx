@@ -56,7 +56,7 @@ export default function ShareModal({
         }
       });
     });
-    console.log(urlInfo);
+    // console.log(urlInfo);
     const queryString = Array.from(urlInfo)
       .map(
         ([key, value]) =>
@@ -64,10 +64,10 @@ export default function ShareModal({
       )
       .join("&");
 
-    console.log(queryString);
+    // console.log(queryString);
 
     const urlString: string = "localhost:3000/?" + queryString;
-    console.log(urlString);
+    // console.log(urlString);
     navigator.clipboard.writeText(urlString);
   }
 

@@ -56,40 +56,108 @@ export async function GET(request: NextRequest) {
   if (searchParams.has("building")) {
     addQuery(query, "TIMES.building", searchParams.get("building") as string);
   }
+  if (searchParams.has("crn")) {
+    addQuery(query, "CRN", searchParams.get("crn") as string, true);
+  }
   console.log(query);
   // Initialize cursor and totalNumCourses variables
-  let cursor, totalNumCourses;
-  const pipeline = [
-    // aggregate the sections collection
-    { $match: query },
-    { $sort: { COURSE: 1 } },
-    {
-      $group: {
-        _id: "$COURSE",
-        title: { $first: "$TITLE" },
-        credits: { $first: "$CREDITS" },
-        sections: { $push: "$$ROOT" },
+  let cursor, totalNumCourses, pipeline;
+
+  if (searchParams.has("crn")) {
+    console.log("Attempting to form pipeline with CRN");
+    pipeline = [
+      // Step 1: Match the document with the specified CRN
+      {
+        $match: query,
       },
-    },
-    {
-      $lookup: {
-        from: "Course_Static",
-        localField: "_id",
-        foreignField: "_id",
-        as: "course_static",
-      },
-    },
-    {
-      $addFields: {
-        description: {
-          $arrayElemAt: ["$course_static.description", 0],
+      // // Step 2: Extract the course value
+      {
+        $project: {
+          _id: 0, // removes id from the result
+          course: "$COURSE", // renames course to course ???
+          term: "$TERM", // same as course???
         },
       },
-    },
-    {
-      $unset: "course_static", // Hide the course_static field
-    },
-  ];
+      {
+        $lookup: {
+          from: "Sections", // look in sections doc
+          localField: "course", // for this documents "course" value...
+          foreignField: "COURSE", // find docs whose "course" value matches
+          as: "relatedCourses", // call this result related courses
+        },
+      },
+      {
+        $unwind: "$relatedCourses",
+      },
+      {
+        $match: { "relatedCourses.TERM": searchParams.get("term") },
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$relatedCourses",
+        },
+      },
+      { $sort: { COURSE: 1 } },
+      {
+        $group: {
+          _id: "$COURSE",
+          title: { $first: "$TITLE" },
+          credits: { $first: "$CREDITS" },
+          sections: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $lookup: {
+          from: "Course_Static",
+          localField: "_id",
+          foreignField: "_id",
+          as: "course_static",
+        },
+      },
+      {
+        $addFields: {
+          description: {
+            $arrayElemAt: ["$course_static.description", 0],
+          },
+        },
+      },
+      {
+        $unset: "course_static", // Hide the course_static field
+      },
+    ];
+  } else {
+    pipeline = [
+      // aggregate the sections collection
+      { $match: query },
+      { $sort: { COURSE: 1 } },
+      {
+        $group: {
+          _id: "$COURSE",
+          title: { $first: "$TITLE" },
+          credits: { $first: "$CREDITS" },
+          sections: { $push: "$$ROOT" },
+        },
+      },
+      {
+        $lookup: {
+          from: "Course_Static",
+          localField: "_id",
+          foreignField: "_id",
+          as: "course_static",
+        },
+      },
+      {
+        $addFields: {
+          description: {
+            $arrayElemAt: ["$course_static.description", 0],
+          },
+        },
+      },
+      {
+        $unset: "course_static", // Hide the course_static field
+      },
+    ];
+  }
   try {
     // Attempt to get the sections from the sectionsCollection using the query
     // Limit the results to sectionsPerPage and skip the sections for the previous pages

@@ -22,10 +22,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       ).toString(16)
     );
   }
+  const searchParams = useSearchParams();
+
   useEffect(() => {
-    const searchParams = useSearchParams();
     // const searchParams = new URLSearchParams(window.location.search);
     const importPlanFromURL = async () => {
+      console.log("something is happeneing");
       const queryName = searchParams.get("name") ?? "Imported Plan";
       const queryTerm = searchParams.get("term") ?? "0";
       const newUuid = uuidv4();
@@ -49,6 +51,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         crns: crnValues,
       };
 
+      // console.log(queryPlan);
+      addPlan(queryPlan);
+
       crnValues.forEach((thisCrn) => {
         getSectionByCrn(parseInt(queryTerm), thisCrn).then((data) => {
           data.color = `rgba(
@@ -60,7 +65,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         });
       });
     };
-    importPlanFromURL();
+    if (searchParams.get("name")) {
+      importPlanFromURL();
+    }
+
+    // This clears the URL parameters so that refreshing the page does not re-add the plan:
+    window.history.replaceState({}, document.title, "/");
   }, []);
   const matches = useMediaQuery(
     "only screen and (orientation: landscape) and (min-width: 1201px)"
