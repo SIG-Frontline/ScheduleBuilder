@@ -1,5 +1,5 @@
 import { Course, MeetingTime, Plan, planStore } from "@/lib/planStore";
-import { Button, Card, Group, List, Spoiler, Text, Title } from "@mantine/core";
+import { Box, Button, Card, Group, List, Spoiler, Text, Title } from "@mantine/core";
 import Link from "next/link";
 import React from "react";
 
@@ -178,7 +178,7 @@ const Tab_Insights = () => {
     ? checkForOverlappingCourses(cur_plan).overlappingCourses
     : [];
   return (
-    <>
+    <Box pb="6rem" h="100%" style={{ overflowY: 'auto' }}>
       <Card
         withBorder
         shadow="sm"
@@ -386,7 +386,7 @@ const Tab_Insights = () => {
           >
             <Title order={5}>{course.code}</Title>
             <Text>{course.title}</Text>
-            <Group grow={true} gap={5} justify={"center"}>
+            <Group grow={true} gap={5} justify={"center"} wrap="nowrap" style={{ display: "flex"}}>
               <Button
                 href={`https://catalog.njit.edu/search/?P=${course.code.replace(
                   " ",
@@ -396,6 +396,13 @@ const Tab_Insights = () => {
                 rel="noreferrer"
                 component={Link}
                 variant="filled"
+                style={{ 
+                  flex: 1,
+                  minWidth: "max-content",
+                  whiteSpace: "nowrap",
+                  padding: "10px 16px",
+                  textAlign: "center",
+                }}
               >
                 Course Catalog
               </Button>
@@ -408,17 +415,33 @@ const Tab_Insights = () => {
                 rel="noreferrer"
                 component={Link}
                 variant="filled"
+                style={{ 
+                  flex: 1,
+                  minWidth: "max-content",
+                  whiteSpace: "nowrap",
+                  padding: "10px 16px",
+                  textAlign: "center",
+                }}
               >
                 Google Syllabus
               </Button>
             </Group>
             <Spoiler maxHeight={120} showLabel="Show more" hideLabel="Hide">
-              <Text>{course.description}</Text>
+              <Text style={{
+                marginTop: "8px",
+                marginBottom: "8px",
+                padding: "7px",
+                lineHeight: "1.5"
+                }}>
+                {course.description?.trim() 
+                ? course.description 
+                : `No description was found for ${course.code}, please check the course catalog for more information.`}
+              </Text>
             </Spoiler>
           </Card>
         );
       })}
-    </>
+    </Box>
   );
 };
 
