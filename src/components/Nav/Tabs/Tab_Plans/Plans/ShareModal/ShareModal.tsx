@@ -50,11 +50,16 @@ export default function ShareModal({
     urlInfo.set("term", term);
 
     currentSelectedPlanObj?.courses?.forEach((course, index) => {
+      let hasSelectedSection = false;
       course.sections.forEach((section) => {
         if (section.selected) {
+          hasSelectedSection = true;
           urlInfo.set("crn" + index, section.crn);
         }
       });
+      if (!hasSelectedSection) {
+        urlInfo.set("course" + index, course.code);
+      }
     });
     // console.log(urlInfo);
     const queryString = Array.from(urlInfo)
@@ -69,6 +74,8 @@ export default function ShareModal({
     const urlString: string = "localhost:3000/?" + queryString;
     // console.log(urlString);
     navigator.clipboard.writeText(urlString);
+    // TODO: Replace this alert with a toast
+    alert("Link has been copied to your clipboard!");
   }
 
   return (
@@ -85,7 +92,7 @@ export default function ShareModal({
           </Button>
           <Button variant="filled">[not working] Save as ICS</Button>
           <Button variant="filled" onClick={copyShareableLink}>
-            [makes a link but the link is not working 🤭] Copy Link
+            Copy Link
           </Button>
         </Group>
       </Modal>

@@ -19,6 +19,10 @@ export async function getSectionData(
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => {
+      console.log("Logging URL:");
+      console.log(URL);
+      console.log("Logging DATA:");
+      console.log(data);
       return data.courses[0];
     })
     .then((course) => {

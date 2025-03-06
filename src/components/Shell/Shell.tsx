@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { planStore } from "@/lib/client/planStore";
 import { getSectionByCrn } from "@/lib/server/actions/getSectionByCrn";
 import { useSearchParams } from "next/navigation";
+import { getSectionData } from "@/lib/server/actions/getSectionData";
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const addPlan = planStore().addPlan;
@@ -31,12 +32,17 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       const queryName = searchParams.get("name") ?? "Imported Plan";
       const queryTerm = searchParams.get("term") ?? "0";
       const newUuid = uuidv4();
+      const courseValues: Array<string> = [];
+      const courseRegex = /course\d+/;
       const crnValues: Array<string> = [];
       const crnRegex = /crn\d+/;
 
       searchParams.forEach((value, key) => {
         if (crnRegex.test(key)) {
           crnValues.push(value);
+        }
+        if (courseRegex.test(key)) {
+          courseValues.push(value);
         }
       });
 
@@ -55,14 +61,31 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       addPlan(queryPlan);
 
       crnValues.forEach((thisCrn) => {
+        console.log("Adding course from CRN values..." + thisCrn);
         getSectionByCrn(parseInt(queryTerm), thisCrn).then((data) => {
           data.color = `rgba(
                                 ${Math.floor(Math.random() * 256)},
                                 ${Math.floor(Math.random() * 256)},
                                 ${Math.floor(Math.random() * 256)},0.9)`;
           addCourseToPlan(data);
-          selectSection(data, thisCrn);
+          console.log("Data before select section is:");
+          console.log(data);
+          selectSection(data.code, thisCrn);
         });
+      });
+      console.log("Adding courses from course name values...");
+      courseValues.forEach((thisCourse) => {
+        let courseName = thisCourse.replace(/[0-9\s]/g, "");
+        let courseCode = thisCourse.replace(/[a-zA-Z\s]/g, "");
+        getSectionData(parseInt(queryTerm), courseName, courseCode).then(
+          (data) => {
+            data.color = `rgba(
+                                ${Math.floor(Math.random() * 256)},
+                                ${Math.floor(Math.random() * 256)},
+                                ${Math.floor(Math.random() * 256)},0.9)`;
+            addCourseToPlan(data);
+          }
+        );
       });
     };
     if (searchParams.get("name")) {

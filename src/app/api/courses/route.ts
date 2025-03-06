@@ -71,17 +71,17 @@ export async function GET(request: NextRequest) {
         $match: query,
       },
       // // Step 2: Extract the course value
-      {
-        $project: {
-          _id: 0, // removes id from the result
-          course: "$COURSE", // renames course to course ???
-          term: "$TERM", // same as course???
-        },
-      },
+      // {
+      //   $project: {
+      //     _id: 0, // removes id from the result
+      //     course: "$COURSE", // renames course to course ???
+      //     term: "$TERM", // same as course???
+      //   },
+      // },
       {
         $lookup: {
           from: "Sections", // look in sections doc
-          localField: "course", // for this documents "course" value...
+          localField: "COURSE", // for this documents "course" value...
           foreignField: "COURSE", // find docs whose "course" value matches
           as: "relatedCourses", // call this result related courses
         },
