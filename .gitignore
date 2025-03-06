@@ -44,5 +44,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+# added when fixing Insight-Tab-Visual-Bug 
 .aider*
 .env
