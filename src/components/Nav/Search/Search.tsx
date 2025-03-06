@@ -262,7 +262,6 @@ export default function Search({
         value={textBoxValue}
         onChange={(e) => {
           // capitalizes textbox value && changes it only if the value has changed
-          // also limits to only alphanumeric and -
           let newValue = e.currentTarget.value.toUpperCase();
           // Extract subject prefix and number part
           const match = newValue.match(/^([A-Za-z]+)(\d.*)?$/);
