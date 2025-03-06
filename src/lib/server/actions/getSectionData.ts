@@ -18,13 +18,7 @@ export async function getSectionData(
   // If both subject and courseCode are provided, the URL includes "subject courseCode"
   // If only subject is provided, the URL includes "subject"
   // If only courseCode is provided, the URL includes "courseCode"
-  if (subject && courseCode) {
-    URL += `${subject} ${courseCode}`;
-  } else if (subject) {
-    URL += `${subject}`;    
-  } else if (courseCode) {
-    URL += `${courseCode}`;
-  }
+  URL += `${(subject&&courseCode)?subject+" ":subject??""}${courseCode??""}`; 
 
   const data = fetch(URL)
     .then((res) => res.json())

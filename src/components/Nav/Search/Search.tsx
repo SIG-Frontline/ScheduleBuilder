@@ -1,5 +1,10 @@
 import { createRef, useEffect, useMemo, useRef, useState } from "react";
-import { ScrollArea, TextInput, UnstyledButton } from "@mantine/core";
+import {
+  ScrollArea,
+  TextInput,
+  UnstyledButton,
+  Highlight,
+} from "@mantine/core";
 import { getSubjects } from "@/lib/server/actions/getSubjects";
 import { getClasses } from "@/lib/server/actions/getClasses";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
@@ -204,32 +209,38 @@ export default function Search({
   };
 
   // this function will highlight the search result characters that match the users query
-  const highlightMatchingText = (
+  const extractMatchingText = (
     searchResultText: string,
     searchInput: string
   ) => {
-    if (!searchInput.trim()) return searchResultText;
+    if (!searchInput.trim()) return [];
 
     const searchWords = searchInput
       .trim()
       .split(/\s+/)
-      .filter((word) => word.length > 0); // Split search input into words
-    if (searchWords.length === 0) return searchResultText;
+      .filter((word) => word.length > 0)
+      .map((word) => word.toLowerCase()); // Split search input into words
 
-    const regex = new RegExp(`(${searchWords.join("|")})`, "gi"); // Match any word from input
-    const parts = searchResultText.split(regex);
+    if (searchWords.length === 0) return [];
 
-    return parts.map((part, index) => {
-      return searchWords.some(
-        (word) => part.toLowerCase() === word.toLowerCase()
-      ) ? (
-        <strong key={index} className="font-bold text-black">
-          {part}
-        </strong>
-      ) : (
-        <span key={index}>{part}</span>
-      );
-    });
+    const matchedWords: string[] = [];
+    const remainingText = searchResultText.toLowerCase();
+
+    for (const word of searchWords) {
+      let startIndex = 0;
+      while (startIndex < remainingText.length) {
+        const matchIndex = remainingText.indexOf(word, startIndex);
+        if (matchIndex === -1) break;
+
+        matchedWords.push(
+          searchResultText.substring(matchIndex, matchIndex + word.length)
+        );
+
+        startIndex = matchIndex + word.length;
+      }
+    }
+
+    return [...new Set(matchedWords)];
   };
 
   return (
@@ -251,8 +262,8 @@ export default function Search({
         value={textBoxValue}
         onChange={(e) => {
           // capitalizes textbox value && changes it only if the value has changed
-          // also limits to only alphanumeric and - 
-          let newValue = e.currentTarget.value.toUpperCase().replace(/\\/g, '');
+          // also limits to only alphanumeric and -
+          let newValue = e.currentTarget.value.toUpperCase();
           // Extract subject prefix and number part
           const match = newValue.match(/^([A-Za-z]+)(\d.*)?$/);
           if (match && subjectOptions.includes(match[1])) {
@@ -342,6 +353,8 @@ export default function Search({
                   onClick={() => {
                     handleClassSelection(option);
                   }}
+                  onMouseEnter={() => setTextHovered(index)}
+                  onMouseLeave={() => setTextHovered(-1)}
                   w={"100%"}
                   px={12}
                   py={6}
@@ -351,10 +364,22 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {option.id ? highlightMatchingText(
-                    `${option.subject} ${option.id} ${option.title}`,
-                    textBoxValue
-                  ) : highlightMatchingText(`${option.subject} ${option.title}`,textBoxValue)}
+                  <Highlight
+                    highlight={extractMatchingText(
+                      `${option.subject} ${option.id ? option.id + " " : ""}${
+                        option.title
+                      }`,
+                      textBoxValue
+                    )}
+                    highlightStyles={{
+                      fontWeight: 700,
+                      backgroundColor: "rgba(255, 255, 255, 0)", // need to set a bg color but opacity 0 removes the bg
+                    }}
+                  >
+                    {option.id
+                      ? `${option.subject} ${option.id} ${option.title}`
+                      : `${option.subject} ${option.title}`}
+                  </Highlight>
                 </UnstyledButton>
               );
             } else {
@@ -368,6 +393,8 @@ export default function Search({
                   onClick={() => {
                     console.log(option);
                   }}
+                  onMouseEnter={() => setTextHovered(index)}
+                  onMouseLeave={() => setTextHovered(-1)}
                   w={"100%"}
                   px={12}
                   py={6}
@@ -377,7 +404,15 @@ export default function Search({
                       : undefined
                   }
                 >
-                  {highlightMatchingText(`${option}`, textBoxValue)}
+                  <Highlight
+                    highlight={extractMatchingText(option, textBoxValue)}
+                    highlightStyles={{
+                      fontWeight: 700,
+                      backgroundColor: "rgba(255, 255, 255, 0)", // need to set a bg color but opacity 0 removes the bg
+                    }}
+                  >
+                    {option}
+                  </Highlight>
                 </UnstyledButton>
               );
             }

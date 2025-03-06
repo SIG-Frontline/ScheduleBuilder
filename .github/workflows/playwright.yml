@@ -1,6 +1,5 @@
 name: Playwright Tests
-env: 
-  env:
+env:
   BUILDER_NS: ${{ secrets.BUILDER_NS }}
   SCHEDULEBUILDER_DB_URI: ${{ secrets.SCHEDULEBUILDER_DB_URI }}
   AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}

@@ -1,5 +1,5 @@
 // Import the sectionsCollection from the mongoClient
-import { addQuery, check_prereq } from "@/lib/server/apiUtils";
+import { addQuery, addRegexSearch, check_prereq } from "@/lib/server/apiUtils";
 import { sectionsCollection } from "@/lib/server/mongoClient";
 import { NextRequest } from "next/server";
 import { Filter } from "mongodb";
@@ -8,7 +8,7 @@ import { Filter } from "mongodb";
 export async function GET(request: NextRequest) {
   // Initialize an empty query object
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const query: Filter<any> = {}; 
+  const query: Filter<any> = {};
   // Extract the search parameters from the url
   const searchParams = request.nextUrl.searchParams;
 
@@ -21,16 +21,12 @@ export async function GET(request: NextRequest) {
     addQuery(query, "COURSE", searchParams.get("course") as string);
   }
   if (searchParams.has("title")) {
-    const titleSearch = searchParams.get("title");
-    if (titleSearch) {
-      query["TITLE"] = { $regex: titleSearch, $options: "i" }; // adds regex search for searching by class title
-    }
+    const titleSearch = searchParams.get("title") as string;
+    addRegexSearch(query, "TITLE", titleSearch);
   }
   if (searchParams.has("subject")) {
-    const subjectSearch = searchParams.get("subject");
-    if (subjectSearch) {
-      query["SUBJECT"] = { $regex: subjectSearch, $options: "i"};
-    }
+    const subjectSearch = searchParams.get("subject") as string;
+    addRegexSearch(query, "SUBJECT", subjectSearch);
   }
   if (searchParams.has("instructor")) {
     addQuery(query, "INSTRUCTOR", searchParams.get("instructor") as string);
@@ -108,8 +104,8 @@ export async function GET(request: NextRequest) {
     {
       $group: {
         _id: "$COURSE",
-        title: {$first: "$TITLE"},
-        subject: {$first: "$SUBJECT"}
+        title: { $first: "$TITLE" },
+        subject: { $first: "$SUBJECT" },
       },
     },
   ];
