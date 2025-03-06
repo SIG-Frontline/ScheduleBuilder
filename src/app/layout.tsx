@@ -17,6 +17,7 @@ import {
 } from "@mantine/core";
 import { Notifications } from '@mantine/notifications';
 import Shell from "@/components/Shell/Shell";
+import { WelcomeAlert } from "@/components/Shell/Shell";
 
 export const viewport: Viewport = {
   themeColor: "#1c7ed6",
@@ -60,7 +61,8 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
-            <Notifications /> {/*Hello*/}
+            <Notifications />
+            <WelcomeAlert />
             <div style={{ overflow: "auto" }}>
               <Shell>{children}</Shell>
             </div>
