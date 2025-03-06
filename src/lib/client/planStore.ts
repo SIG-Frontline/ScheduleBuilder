@@ -60,9 +60,11 @@ export type Event = {
 
 interface PlanStoreState {
   plans: Plan[];
+  tempPlans: Plan[]; // New state variable for temporary plans
   currentSelectedPlan: string | null;
   setPlans: (plans: Plan[]) => void;
   addPlan: (newPlan: Plan) => void;
+  addTempPlan: (newPlan: Plan) => void; // New function for adding temporary plans
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
   removePlan: (uuid: string) => void;
   getPlan: (uuid: string) => Plan | undefined;
@@ -79,6 +81,7 @@ export const planStore = create<PlanStoreState>()(
   persist(
     (set, get) => ({
       plans: [],
+      tempPlans: [], // Initialize the temporary plans state
       currentSelectedPlan: null,
       setPlans: (plans) => set({ plans }),
       addPlan: (newPlan) => {
@@ -88,25 +91,43 @@ export const planStore = create<PlanStoreState>()(
         }
         set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
       },
+      addTempPlan: (newPlan) => {
+        const { tempPlans } = get();
+        if (tempPlans.length === 0) {
+          newPlan.selected = true;
+        }
+        set({
+          tempPlans: [...tempPlans, newPlan],
+          currentSelectedPlan: newPlan.uuid,
+        });
+      },
       selectPlan: (uuid) => {
-        const { plans } = get();
-        const newplans = plans.map((plan) => ({
+        const { plans, tempPlans } = get();
+        const newPlans = plans.map((plan) => ({
+          ...plan,
+          selected: plan.uuid === uuid,
+        }));
+        const newTempPlans = tempPlans.map((plan) => ({
           ...plan,
           selected: plan.uuid === uuid,
         }));
         set({
-          plans: newplans,
+          plans: newPlans,
+          tempPlans: newTempPlans,
           currentSelectedPlan: uuid,
         });
       },
       updatePlan: (updatedPlan, uuid) => {
-        const { plans } = get();
+        const { plans, tempPlans } = get();
         set({
           plans: plans.map((plan) => (plan.uuid === uuid ? updatedPlan : plan)),
+          tempPlans: tempPlans.map((plan) =>
+            plan.uuid === uuid ? updatedPlan : plan
+          ),
         });
       },
       removePlan: (uuid) => {
-        const { plans, currentSelectedPlan } = get();
+        const { plans, tempPlans, currentSelectedPlan } = get();
         let newSelectedPlan = currentSelectedPlan;
         if (currentSelectedPlan === uuid && plans.length > 1) {
           newSelectedPlan = plans[0].uuid;
@@ -115,18 +136,22 @@ export const planStore = create<PlanStoreState>()(
         }
         set({
           plans: plans.filter((plan) => plan.uuid !== uuid),
+          tempPlans: tempPlans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
       },
       getPlan: (uuid) => {
-        const { plans } = get();
-        return plans.find((plan) => plan.uuid === uuid);
+        const { plans, tempPlans } = get();
+        return (
+          plans.find((plan) => plan.uuid === uuid) ||
+          tempPlans.find((plan) => plan.uuid === uuid)
+        );
       },
       addCourseToPlan: (course) => {
-        const { plans, currentSelectedPlan } = get();
-        const currentPlan = plans.find(
-          (plan) => plan.uuid === currentSelectedPlan
-        );
+        const { plans, tempPlans, currentSelectedPlan } = get();
+        const currentPlan =
+          plans.find((plan) => plan.uuid === currentSelectedPlan) ||
+          tempPlans.find((plan) => plan.uuid === currentSelectedPlan);
         const currentPlanHasCourse = currentPlan?.courses?.find(
           (c) => c.code === course.code
         );
@@ -145,10 +170,20 @@ export const planStore = create<PlanStoreState>()(
                 }
               : plan
           ),
+          tempPlans: tempPlans.map((plan) =>
+            plan.uuid === currentSelectedPlan
+              ? {
+                  ...plan,
+                  courses: plan.courses
+                    ? plan.courses.concat(course)
+                    : [course],
+                }
+              : plan
+          ),
         });
       },
       selectSection: (course, crn) => {
-        const { plans, currentSelectedPlan } = get();
+        const { plans, tempPlans, currentSelectedPlan } = get();
         const newPlans = plans.map((plan) =>
           plan.uuid === currentSelectedPlan
             ? {
@@ -168,10 +203,29 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
-        set({ plans: newPlans });
+        const newTempPlans = tempPlans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.map((c) =>
+                  c.code === course
+                    ? {
+                        ...c,
+                        sections: c.sections.map((s) =>
+                          s.crn === crn
+                            ? { ...s, selected: true }
+                            : { ...s, selected: false }
+                        ),
+                      }
+                    : c
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans, tempPlans: newTempPlans });
       },
       addEventToPlan: (event) => {
-        const { plans, currentSelectedPlan } = get();
+        const { plans, tempPlans, currentSelectedPlan } = get();
         const newPlans = plans.map((plan) =>
           plan.uuid === currentSelectedPlan
             ? {
@@ -180,10 +234,18 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
-        set({ plans: newPlans });
+        const newTempPlans = tempPlans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                events: plan.events ? plan.events.concat(event) : [event],
+              }
+            : plan
+        );
+        set({ plans: newPlans, tempPlans: newTempPlans });
       },
       removeEventFromPlan: (event) => {
-        const { plans, currentSelectedPlan } = get();
+        const { plans, tempPlans, currentSelectedPlan } = get();
         const newPlans = plans.map((plan) =>
           plan.uuid === currentSelectedPlan
             ? {
@@ -199,10 +261,25 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
-        set({ plans: newPlans });
+        const newTempPlans = tempPlans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                events: plan.events?.filter(
+                  (e) =>
+                    e.title !== event.title &&
+                    e.startTime !== event.startTime &&
+                    e.endTime !== event.endTime &&
+                    e.daysOfWeek !== event.daysOfWeek &&
+                    e.description !== event.description
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans, tempPlans: newTempPlans });
       },
       deleteCourseFromPlan: (course) => {
-        const { plans, currentSelectedPlan } = get();
+        const { plans, tempPlans, currentSelectedPlan } = get();
         const newPlans = plans.map((plan) =>
           plan.uuid === currentSelectedPlan
             ? {
@@ -211,10 +288,18 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
-        set({ plans: newPlans });
+        const newTempPlans = tempPlans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.filter((c) => c.code !== course),
+              }
+            : plan
+        );
+        set({ plans: newPlans, tempPlans: newTempPlans });
       },
       updateCourseColor: (course, color) => {
-        const { plans, currentSelectedPlan } = get();
+        const { plans, tempPlans, currentSelectedPlan } = get();
         const newPlans = plans.map((plan) =>
           plan.uuid === currentSelectedPlan
             ? {
@@ -225,11 +310,25 @@ export const planStore = create<PlanStoreState>()(
               }
             : plan
         );
-        set({ plans: newPlans });
+        const newTempPlans = tempPlans.map((plan) =>
+          plan.uuid === currentSelectedPlan
+            ? {
+                ...plan,
+                courses: plan.courses?.map((c) =>
+                  c.code === course.code ? { ...c, color } : c
+                ),
+              }
+            : plan
+        );
+        set({ plans: newPlans, tempPlans: newTempPlans });
       },
     }),
     {
       name: "plan-store",
+      partialize: (state) => ({
+        plans: state.plans,
+        currentSelectedPlan: state.currentSelectedPlan,
+      }), // Exclude tempPlans from being persisted
     }
   )
 );

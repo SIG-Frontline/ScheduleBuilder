@@ -9,9 +9,12 @@ import { planStore } from "@/lib/client/planStore";
 import { getSectionByCrn } from "@/lib/server/actions/getSectionByCrn";
 import { useSearchParams } from "next/navigation";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
+import { notifications } from "@mantine/notifications";
+import { Button } from "@mantine/core";
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const addPlan = planStore().addPlan;
+  const addTempPlan = planStore().addTempPlan;
   const addCourseToPlan = planStore((state) => state.addCourseToPlan);
   const selectSection = planStore((state) => state.selectSection);
 
@@ -28,7 +31,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // const searchParams = new URLSearchParams(window.location.search);
     const importPlanFromURL = async () => {
-      console.log("something is happeneing");
       const queryName = searchParams.get("name") ?? "Imported Plan";
       const queryTerm = searchParams.get("term") ?? "0";
       const newUuid = uuidv4();
@@ -49,7 +51,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       const queryPlan = {
         uuid: newUuid,
         name: queryName,
-        description: "Plan imported from URL",
+        description: "This is an imported plan",
         term: parseInt(queryTerm, 10),
         courses: [],
         events: [],
@@ -58,22 +60,21 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       };
 
       // console.log(queryPlan);
-      addPlan(queryPlan);
+      addTempPlan(queryPlan);
 
+      const crnCodeMap = new Map();
       crnValues.forEach((thisCrn) => {
-        console.log("Adding course from CRN values..." + thisCrn);
         getSectionByCrn(parseInt(queryTerm), thisCrn).then((data) => {
           data.color = `rgba(
                                 ${Math.floor(Math.random() * 256)},
                                 ${Math.floor(Math.random() * 256)},
                                 ${Math.floor(Math.random() * 256)},0.9)`;
           addCourseToPlan(data);
-          console.log("Data before select section is:");
-          console.log(data);
+          crnCodeMap.set(data.code, thisCrn);
           selectSection(data.code, thisCrn);
+          queryPlan.courses.push(data);
         });
       });
-      console.log("Adding courses from course name values...");
       courseValues.forEach((thisCourse) => {
         let courseName = thisCourse.replace(/[0-9\s]/g, "");
         let courseCode = thisCourse.replace(/[a-zA-Z\s]/g, "");
@@ -84,8 +85,39 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 ${Math.floor(Math.random() * 256)},
                                 ${Math.floor(Math.random() * 256)},0.9)`;
             addCourseToPlan(data);
+            queryPlan.courses.push(data);
           }
         );
+      });
+      notifications.show({
+        title: 'Previewing the plan: "' + queryName + '"',
+        message: (
+          <div>
+            <p>Would you like to save this plan to your list of plans?</p>
+            <div className="flex justify-evenly">
+              <Button
+                onClick={() => {
+                  addPlan(queryPlan);
+                  crnCodeMap.forEach((crn, code) => {
+                    selectSection(code, crn);
+                  });
+                  notifications.clean();
+                }}
+              >
+                Yes
+              </Button>
+              <Button
+                onClick={() => {
+                  notifications.clean();
+                }}
+              >
+                No
+              </Button>
+            </div>
+          </div>
+        ),
+        autoClose: false, // Keeps the notification open until dismissed
+        position: "top-center",
       });
     };
     if (searchParams.get("name")) {

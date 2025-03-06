@@ -1,6 +1,7 @@
 import { planStore } from "@/lib/client/planStore";
 import { Button, Group, Modal } from "@mantine/core";
 import html2canvas from "html2canvas";
+import { notifications } from "@mantine/notifications";
 export default function ShareModal({
   opened,
   onClose,
@@ -74,8 +75,10 @@ export default function ShareModal({
     const urlString: string = "localhost:3000/?" + queryString;
     // console.log(urlString);
     navigator.clipboard.writeText(urlString);
-    // TODO: Replace this alert with a toast
-    alert("Link has been copied to your clipboard!");
+    notifications.show({
+      title: "Share link has been copied to clipboard!",
+      position: "top-right",
+    });
   }
 
   return (
