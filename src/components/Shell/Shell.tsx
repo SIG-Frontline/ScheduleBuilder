@@ -15,7 +15,8 @@ export function WelcomeAlert() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLScDUpD2aUPhupS0KbLaRrICkcMOluitA925WkdEpqvb2i-pag/viewform?usp=header";
-  
+  const formUrl2 = "https://docs.google.com/forms/d/e/1FAIpQLSePRKL-2tmvhLgRVvriffjDB47-Pi3FWhtq0vwQ1hkoCM-RNg/viewform?usp=header";
+
   useEffect(() => {
     const isNewLogin = sessionStorage.getItem('isLoggedIn') !== 'true';
     
@@ -49,7 +50,7 @@ export function WelcomeAlert() {
               right: 0,
               bottom: 0,
               backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              backdropFilter: 'blur(4px)',
+              backdropFilter: 'blur(1px)',
               zIndex: 9998,
             }}
           />
@@ -96,7 +97,7 @@ export function WelcomeAlert() {
                 <Button 
                   variant="default"
                   onClick={() => {
-                    window.open(formUrl, '_blank', 'noopener,noreferrer');
+                    window.open(formUrl2, '_blank', 'noopener,noreferrer');
                     setShowAlert(false);
                   }}
                 >
