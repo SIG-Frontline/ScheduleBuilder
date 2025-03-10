@@ -259,7 +259,14 @@ export interface CurriculaDocument {
 	degree: string;
 	major: string;
 	catalogYear: string;
-	classes: string[]; // FIX: this is definitely not correct 
+	classes: ClassRecNode[];
+}
+
+export type ClassRecNode = ClassRecObj | string[] | ClassRecObj[] | ClassRecNode[];
+export type ClassRecObj = {
+	name?: string;
+	course: string;
+	legacy?: boolean;
 }
 
 export const sectionsCollection = client

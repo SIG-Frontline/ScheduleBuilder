@@ -1,27 +1,30 @@
-
 "use server"
 
 import { getCurricula } from "./actions/getCurricula"
 import { check_prereq } from "./apiUtils";
-import { CurriculaDocument } from "./mongoClient";
+import { ClassRecNode, CurriculaDocument } from "./mongoClient";
 
-type ClassRecommendations = ClassGroup | ClassRecStr | ClassRecObj;
+export type ClassRecommendations = ClassRec | ClassBranch;
 
-type ClassGroup = {
-	name: string;  // the group title
-	numCredits: number; // the number of credits required for the group
-	numClasses: number; // the number of classes required for the group
-	operator: string; // the operator of this group
-	classes: ClassRecommendations[]; // a list of class recommendations of that group
+export type ClassRec = {
+	name?: string; 		// the name of the class 
+	type: ClassRecType.CLASS; // the type of this recommendation
+	course: string; 	// the course code (CS 100)
+	legacy?: boolean; 	// whether this is legacy (no longer available)
 }
 
-type ClassRecStr = {
-	course: string; // the course code
+export type ClassBranch = {
+	name: string;  					// name of the branch/section/group
+	type: ClassRecType.BRANCH; 				// the type of this recommendation 
+	numCredits?: number; 				// how many credits are required
+	numClasses?: number; 				// how many classes are required
+	operator: string; 					// & or | 
+	classes: ClassRecommendations[]; 	// the recommendations that belong to this group
 }
 
-type ClassRecObj = {
-	name: string; // the name of the class 
-	course: string; // the course code
+enum ClassRecType {
+	BRANCH = 'branch',
+	CLASS = 'class',
 }
 
 /**
@@ -43,127 +46,136 @@ export async function getRecommendedClasses(degree: string, major: string, catal
 		console.error(degree, major, catalogYear, 'is not in the database!');
 	}
 
-	// Gets a list of all possible courses required for a degree
-	const allCourses = await parseBasicClasses(curricula.classes, takenCourses);
+	// Gets a list of all possible courses required for a degree, minus the ones already taken
+	// Gives a copied list because it is modified to keep track of double dipping classes
+	const copyList = [...takenCourses];
+	const allNeededCourses = await parseClassesForStringList(curricula.classes, copyList);
+	console.log("unused classes", copyList);
 
 	// Filters all those courses to only have ones satisfies by the takenCourses
 	const filteredCourses = [] as string[];
-	for(const course of allCourses) {
-		if(await check_prereq(course, takenCourses)) filteredCourses.push(course);
+	for(const course of allNeededCourses) {
+		if(await check_prereq(course, takenCourses)) {
+			filteredCourses.push(course);
+		}
 	}
 
-	// Remove already taken courses from the list
-	const courseList = filteredCourses.filter((c) => !takenCourses.includes(c));
-
 	// Rebuilds the recommendation tree with the classes
-	// TODO: prevent classes from double dipping by removing them from them from the takenCourses
-	// TODO: handle wildcard courses
-	const recommendations = parseClasses(curricula.classes, takenCourses, courseList);
+	// TODO: handle classes that can appear in more than 1 section, and they should go in one section rather than another
+	// Ex. STS 376 can satisfy the Social Science/Management or History Humanities 300. If a student already has Social Sciences met, STS 376 will still show up there
+	const recommendations = parseClassesForRecommendations(curricula.classes, takenCourses, filteredCourses);
 
 	return recommendations;
 }
 
 // GENERATING CLASS LIST \\
 
-function parseBasicClasses(node: string[] | string, takenCourses: string[]) : string[] {
+function parseClassesForStringList(node: ClassRecNode[], takenCourses: string[]) : string[] {
 	let neededClasses = [] as string[];
-	for(const classTree of node) neededClasses = neededClasses.concat(parseBasicClassTree(classTree, takenCourses));
+	for(const classTree of node) neededClasses = neededClasses.concat(parseTreeForStringList(classTree, takenCourses));
 	return neededClasses;
 }
 
-function parseBasicClassTree(node: string[] | string, takenCourses: string[]) : string[] {
-	// Required singular classes (not in a particular group), which have an object associated with them
-	if(node["name"]) return [node["course"]];
-	
-	// Singular class (mostly in electives), return it as an array of that class to be concatted later
-	if(typeof(node) === "string") return [node];
+function parseTreeForStringList(node: ClassRecNode, takenCourses: string[]) : string[] {
+	// Required class
+	if('course' in node) {
+		// We found a spot for this course, so remove it so we don't double dip it
+		if(takenCourses.includes(node.course)) {
+			takenCourses.splice(takenCourses.indexOf(node.course), 1);
+			return [];
+		}
+
+		// Handles wildcards, removing them if they are satisfied
+		if(node.course.includes("@")) {
+			const c = validateWildcard(node.course, takenCourses);
+			if(c != "") {
+				takenCourses.splice(takenCourses.indexOf(c), 1);
+				return [];
+			}
+		}
+
+		return [node.course];
+	}
 
 	// Parses the condition statements
 	// Returns the parsed array that is relevant to its condition
 	if(node[0] == "$COND") {
 		// Checks each condition and returns the class list if true
 		for (let i = 1; i < node.length - 1; i+=2) {
-			const condition = parseCondition(node[i], takenCourses);
-			if(condition) return parseBasicClasses(node[i + 1], takenCourses);
+			const condition = parseCondition(node[i] as string[], takenCourses);
+			if(condition) return parseClassesForStringList(node[i + 1] as ClassRecNode[], takenCourses);
 		}
 
 		// Return the else part
-		return parseBasicClasses(node[node.length - 1], takenCourses);
+		return parseClassesForStringList(node[node.length - 1] as ClassRecNode[], takenCourses);
 	}
 
 	// Parse the class groups 
-	let classes = [] as string[];
-	for (let i = 4; i < node.length; i++) classes = classes.concat(parseBasicClassTree(node[i], takenCourses));
+	if(node[0] && node[0] == "&") {
+		let classes = [] as string[];
+		for (let i = 4; i < node.length; i++) classes = classes.concat(parseTreeForStringList(node[i] as ClassRecNode[], takenCourses));
+		return classes; // Will return [] if all classes were taken, removing the entire AND section
+	} else if (node[0] && node[0] == "|") {
+		let classes = [] as string[];
+		for (let i = 4; i < node.length; i++) {
+			const classesSubset = parseTreeForStringList(node[i] as ClassRecNode[], takenCourses);
+			if(classesSubset.length == 0) return []; // If any class was taken, remove the entire OR section
+			classes = classes.concat(classesSubset);
+		}
+		return classes;
+	}
 
-	return classes;
+	// Not handled (shouldn't be any)
+	return [];
 }
 
 // REBUILDING RECOMMENDATION TREE \\
 
 // Flattens a parse tree into class recommendations
-function parseClasses(node: string[] | string, takenCourses: string[], courseList: string[]) : ClassRecommendations[] {
+function parseClassesForRecommendations(node: ClassRecNode[], takenCourses: string[], courseList: string[]) : ClassRecommendations[] {
 	let neededClasses = [] as ClassRecommendations[];
-	for(const classTree of node) neededClasses = neededClasses.concat(parseClassTree(classTree, takenCourses, courseList));
+	for(const classTree of node) neededClasses = neededClasses.concat(parseTreeForRecommendations(classTree, takenCourses, courseList));
 	return neededClasses;
 }
 
-function parseClassTree(node: string[] | string, takenCourses: string[], courseList: string[]) : ClassRecommendations[] {
-	// Required singular classes (not in a particular group), which have an object associated with them
-	if(node["name"] && courseList.includes(node["course"])) return [node as unknown as ClassRecObj];
-	
-	// Singular class (mostly in electives), return it as an array of that class to be concatted later
-	if(typeof(node) === "string" && courseList.includes(node)) return [{course: node} as ClassRecStr];
+function parseTreeForRecommendations(node: ClassRecNode, takenCourses: string[], courseList: string[]) : ClassRecommendations[] {
+	// Required class
+	if('name' in node && courseList.includes(node.course)) {
+		const c = node as ClassRec;
+		c.type = ClassRecType.CLASS;
+		return [c];
+	}
 
 	// Parses the condition statements
 	// Returns the parsed array that is relevant to its condition
-	if(node[0] == "$COND") {
+	if(Array.isArray(node) && node[0] == "$COND") {
 		// Checks each condition and returns the class list if true
 		for (let i = 1; i < node.length - 1; i+=2) {
-			const condition = parseCondition(node[i], takenCourses);
-			if(condition) return parseClasses(node[i + 1], takenCourses, courseList);
+			const condition = parseCondition(node[i] as string[], takenCourses);
+			if(condition) return parseClassesForRecommendations(node[i + 1] as ClassRecNode[], takenCourses, courseList);
 		}
 
 		// Return the else part
-		return parseClasses(node[node.length - 1], takenCourses, courseList);
+		return parseClassesForRecommendations(node[node.length - 1] as ClassRecNode[], takenCourses, courseList);
 	}
 
 	// Parse the class groups 
-	if(node[0] && node[0] == "&") {
+	if(Array.isArray(node) && node[0]) {
 		const c = { 
 			name: node[3] as string, 
-			numCredits: node[2] as unknown as number, 
+			type: ClassRecType.BRANCH,
+			numCredits: node[2] as unknown as number,
 			numClasses: node[1] as unknown as number, 
 			operator: node[0] as string, 
 			classes: [] as ClassRecommendations[]
-		} as ClassGroup;
+		} as ClassBranch;
 		let classes = [] as ClassRecommendations[];
 
-		// Checks if all classes were parsed out, satisfying the & condition
-		for (let i = 4; i < node.length; i++) classes = classes.concat(parseClassTree(node[i], takenCourses, courseList));
+		for (let i = 4; i < node.length; i++) classes = classes.concat(parseTreeForRecommendations(node[i] as ClassRecNode[], takenCourses, courseList));
+		// If all classes were satisfied for that group, remove it
 		if(classes.length == 0) return [];
 
-		c["classes"] = classes;
-		return [c];
-	} else if(node[0] && node[0] == "|") {
-		// TODO: remove if any class is satisfied
-		const c = { 
-			name: node[3] as string, 
-			numCredits: node[2] as unknown as number, 
-			numClasses: node[1] as unknown as number, 
-			operator: node[0] as string, 
-			classes: [] as ClassRecommendations[]
-		} as ClassGroup;
-		let classes = [] as ClassRecommendations[];
-
-		// Checks if any of the conditions were parsed out, satisfying the | condition
-		for (let i = 4; i < node.length; i++) {
-			const classSubset = parseClassTree(node[i], takenCourses, courseList);
-			// Something was parsed out
-			if(classSubset.length == 0) return [];
-			classes = classes.concat(classSubset);
-		}
-
-		c["classes"] = classes;
+		c.classes = classes;
 		return [c];
 	}
 
@@ -172,7 +184,7 @@ function parseClassTree(node: string[] | string, takenCourses: string[], courseL
 }
 
 // Parses a condition based on the user's taken courses 
-function parseCondition(condition: string | string[], takenCourses: string[]) : boolean {
+function parseCondition(condition: string[] | string, takenCourses: string[]) : boolean {
 	// Simple condition
 	if(typeof(condition) === "string") {
 		const pattern = /(.*) WAS (FOUND|PASSED)/;
@@ -193,4 +205,19 @@ function parseCondition(condition: string | string[], takenCourses: string[]) : 
 	}
 
 	return false;
+}
+
+// Valids a wildcard class, like 'CS 3@', from a list of takenCourses
+function validateWildcard(wildcard: string, takenCourses: string[]) {
+	// Turns the wildcard into a regex pattern
+	const wildcardPattern = wildcard.replaceAll("@", "(.*)");
+
+	// Returns the first course that matches the wildcard
+	for(const course of takenCourses) {
+		if(course.match(wildcardPattern)) {
+			return course;
+		}
+	}
+
+	return "";
 }
