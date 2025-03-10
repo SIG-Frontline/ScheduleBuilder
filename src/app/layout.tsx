@@ -11,6 +11,7 @@ import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
+import { WelcomeAlert } from "@/components/Shell/Shell";
 
 import {
   ColorSchemeScript,
@@ -60,6 +61,7 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
+            <WelcomeAlert />
             <div style={{ overflow: "auto" }}>
               <Shell>{children}</Shell>
             </div>
