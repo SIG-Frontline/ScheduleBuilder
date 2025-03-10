@@ -11,6 +11,7 @@ import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
+import { Notifications } from '@mantine/notifications';
 import { WelcomeAlert } from "@/components/Shell/Shell";
 
 import {
@@ -61,6 +62,7 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
+            <Notifications />
             <WelcomeAlert />
             <div style={{ overflow: "auto" }}>
               <Shell>{children}</Shell>
