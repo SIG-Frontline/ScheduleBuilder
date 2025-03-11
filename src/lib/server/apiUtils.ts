@@ -38,6 +38,8 @@ export function check_tree(tree: ReqTree, requisites: string[]) {
 export function convertString(
   input: string
 ): number | boolean | null | undefined | string {
+  console.log("input for convertString is: ");
+  console.log(input);
   // Check for undefined
   if (input === "undefined") {
     return undefined;
@@ -101,7 +103,17 @@ export function addQuery(
   // Note: We use '|' instead of ',' to separate lists so that we can match professor names more easily
   //
   // api?n!CS 450,in!CS 288|CS 280|CS 114
-
+  console.log("Receiving query: ");
+  console.log(query);
+  console.log("Receiving key: ");
+  console.log(key);
+  console.log("Receiving value: ");
+  console.log(value);
+  console.log("Type of value is: ");
+  console.log(typeof value);
+  const valueToPreserve = typeof value;
+  console.log("Receiving preserveType: ");
+  console.log(preserveType);
   if (!value.includes("!")) {
     // Equivalent to str!X
     query[key] = { $eq: preserveType ? value : convertString(value) };
@@ -111,6 +123,11 @@ export function addQuery(
   const split = value.split("!");
   const operation = split[0];
   const operand = split.slice(1).join("!"); // Reconstruct the operand after splitting
+
+  console.log("The operation is: ");
+  console.log(operation);
+  console.log("The operand is: ");
+  console.log(operand);
 
   let operands: string[] = [];
   if (operand.includes("|")) {
@@ -151,12 +168,15 @@ export function addQuery(
       break;
     case "in":
       query[key] = {
-        $in: operands.map((op) => convertString(op)),
+        $in: operands.map((op) => op),
       };
       break;
     case "nin":
+      // TODO: Make sure this change doesn't break anything :)
       query[key] = {
-        $nin: operands.map((op) => convertString(op)),
+        $nin: preserveType
+          ? operands.map((op) => op)
+          : operands.map((op) => convertString(op)),
       };
       break;
     case "sub":
@@ -172,6 +192,8 @@ export function addQuery(
       query[key] = { $eq: convertString(value) };
       break;
   }
+  console.log("query[key]:");
+  console.log(query[key]);
 }
 export async function get_static_data(course: string) {
   let static_courses = await courseCache.getCourses();

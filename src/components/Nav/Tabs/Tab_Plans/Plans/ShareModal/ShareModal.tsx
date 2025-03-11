@@ -55,11 +55,11 @@ export default function ShareModal({
       course.sections.forEach((section) => {
         if (section.selected) {
           hasSelectedSection = true;
-          urlInfo.set("crn" + index, section.crn);
+          urlInfo.set("crn" + index + "t", section.crn);
         }
       });
       if (!hasSelectedSection) {
-        urlInfo.set("course" + index, course.code);
+        urlInfo.set("crn" + index + "f", course.sections[0].crn);
       }
     });
     // console.log(urlInfo);

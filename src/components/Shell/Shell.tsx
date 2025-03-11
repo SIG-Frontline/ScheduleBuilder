@@ -34,20 +34,26 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       const queryName = searchParams.get("name") ?? "Imported Plan";
       const queryTerm = searchParams.get("term") ?? "0";
       const newUuid = uuidv4();
-      const courseValues: Array<string> = [];
-      const courseRegex = /course\d+/;
-      const crnValues: Array<string> = [];
+      // TODO: Since this map is converted to an array whenever it is used, it shouldn't be a map to begin with. Rather a 2D array.
+      const crnValues = new Map();
       const crnRegex = /crn\d+/;
 
       searchParams.forEach((value, key) => {
         if (crnRegex.test(key)) {
-          crnValues.push(value);
-        }
-        if (courseRegex.test(key)) {
-          courseValues.push(value);
+          if (key.includes("f")) crnValues.set(value, false);
+          else crnValues.set(value, true);
         }
       });
-
+      /* 
+      Sorting the crn values here ensures that they are in the correct order when eventually paired with their courses in getSectionByCrn.
+      This is far from a perfect solution although I doubt this would change. 
+      Right now this pairing of CRN values to courses relies on the fact that the order in which courses are returned from the database is also the order in which CRN's are paired with courses. 
+      That is to say, CRN values in ascending order happen to match the order in which the courses are returned.
+      */
+      const sortedCrnValues = new Map(
+        [...crnValues.entries()].sort((a, b) => Number(a[0]) - Number(b[0]))
+      );
+      const crnValueArray = Array.from(sortedCrnValues);
       const queryPlan = {
         uuid: newUuid,
         name: queryName,
@@ -63,31 +69,22 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       addTempPlan(queryPlan);
 
       const crnCodeMap = new Map();
-      crnValues.forEach((thisCrn) => {
-        getSectionByCrn(parseInt(queryTerm), thisCrn).then((data) => {
-          data.color = `rgba(
-                                ${Math.floor(Math.random() * 256)},
-                                ${Math.floor(Math.random() * 256)},
-                                ${Math.floor(Math.random() * 256)},0.9)`;
-          addCourseToPlan(data);
-          crnCodeMap.set(data.code, thisCrn);
-          selectSection(data.code, thisCrn);
-          queryPlan.courses.push(data);
-        });
-      });
-      courseValues.forEach((thisCourse) => {
-        let courseName = thisCourse.replace(/[0-9\s]/g, "");
-        let courseCode = thisCourse.replace(/[a-zA-Z\s]/g, "");
-        getSectionData(parseInt(queryTerm), courseName, courseCode).then(
-          (data) => {
-            data.color = `rgba(
-                                ${Math.floor(Math.random() * 256)},
-                                ${Math.floor(Math.random() * 256)},
-                                ${Math.floor(Math.random() * 256)},0.9)`;
-            addCourseToPlan(data);
-            queryPlan.courses.push(data);
+      getSectionByCrn(parseInt(queryTerm), crnValueArray).then((data) => {
+        let crnIndex = 0;
+        data.forEach((course) => {
+          const [crn, addCrn] = crnValueArray[crnIndex];
+          course.color = `rgba(
+                                  ${Math.floor(Math.random() * 256)},
+                                  ${Math.floor(Math.random() * 256)},
+                                  ${Math.floor(Math.random() * 256)},0.9)`;
+          addCourseToPlan(course);
+          if (addCrn) {
+            crnCodeMap.set(course.code, crn);
+            selectSection(course.code, crn);
           }
-        );
+          queryPlan.courses.push(course);
+          crnIndex++;
+        });
       });
       notifications.show({
         title: 'Previewing the plan: "' + queryName + '"',

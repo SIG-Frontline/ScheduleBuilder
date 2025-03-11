@@ -11,8 +11,16 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
   // Check if the search parameters include 'term' and add it to the query
-  if (searchParams.has("term")) {
+  if (searchParams.has("term") && !searchParams.has("crnList")) {
     addQuery(query, "TERM", searchParams.get("term") as string, true); //the last parameter is true because the term needs to be a string
+  }
+  if (searchParams.has("term") && searchParams.has("crnList")) {
+    addQuery(
+      query,
+      "TERM",
+      ("in!" + searchParams.get("term").toString()) as string,
+      true
+    );
   }
   // Repeat the process for other potential search parameters
   if (searchParams.has("course")) {
@@ -56,28 +64,33 @@ export async function GET(request: NextRequest) {
   if (searchParams.has("building")) {
     addQuery(query, "TIMES.building", searchParams.get("building") as string);
   }
-  if (searchParams.has("crn")) {
-    addQuery(query, "CRN", searchParams.get("crn") as string, true);
+  if (searchParams.has("crnList")) {
+    // Create prefix "in!" for compatability with lib/server/apiUtils.ts
+    const searchPrefix = "in!";
+    // Create an array based on the provided crnList
+    const crnList = searchParams.get("crnList").split(",");
+    // const crnListString = JSON.stringify(crnList);
+    const crnListString = crnList.toString();
+    // Combine the prefix with the array and replace commas in the array with pipes for compatability with lib/server/apiUtils.ts
+    const crnListPlusPrefix =
+      searchPrefix + crnListString.replace(/\,/g, "|").replace(/\[|\]/g, "");
+
+    console.log("I am once again, logging the crn list");
+    console.log(crnListPlusPrefix);
+    addQuery(query, "CRN", crnListPlusPrefix as string, true);
   }
+  console.log("Query is now: ");
   console.log(query);
   // Initialize cursor and totalNumCourses variables
   let cursor, totalNumCourses, pipeline;
 
-  if (searchParams.has("crn")) {
+  if (searchParams.has("crnList")) {
     console.log("Attempting to form pipeline with CRN");
     pipeline = [
       // Step 1: Match the document with the specified CRN
       {
         $match: query,
       },
-      // // Step 2: Extract the course value
-      // {
-      //   $project: {
-      //     _id: 0, // removes id from the result
-      //     course: "$COURSE", // renames course to course ???
-      //     term: "$TERM", // same as course???
-      //   },
-      // },
       {
         $lookup: {
           from: "Sections", // look in sections doc

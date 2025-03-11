@@ -171,6 +171,10 @@ export default function Search({
                 chipValue
               )
                 .then((data) => {
+                  console.log(
+                    "The data that is passed to addCourseToPlan is: "
+                  );
+                  console.log(data);
                   data.color = `rgba(
                   ${Math.floor(Math.random() * 256)},
                   ${Math.floor(Math.random() * 256)},
