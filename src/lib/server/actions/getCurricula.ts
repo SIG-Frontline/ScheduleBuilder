@@ -31,12 +31,14 @@ export async function getCurricula(
       return [];
     });
 
+	if(!data) return;
+
 	const curricula = {
-		school: data.SCHOOL,
 		degree: data.DEGREE,
 		major: data.MAJOR,
 		catalogYear: data.YEAR,
 		classes: data.CLASSES,
+		updated: data.UPDATED,
 	} as CurriculaDocument;
 
   return curricula;

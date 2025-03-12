@@ -255,10 +255,10 @@ export interface UserPlan {
 }
 
 export interface CurriculaDocument {
-	school: string;
 	degree: string;
 	major: string;
 	catalogYear: string;
+	updated: string;
 	classes: ClassRecNode[];
 }
 

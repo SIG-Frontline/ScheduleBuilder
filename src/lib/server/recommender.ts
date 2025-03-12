@@ -7,15 +7,15 @@ import { ClassRecNode, CurriculaDocument } from "./mongoClient";
 export type ClassRecommendations = ClassRec | ClassBranch;
 
 export type ClassRec = {
-	name?: string; 		// the name of the class 
-	type: ClassRecType.CLASS; // the type of this recommendation
-	course: string; 	// the course code (CS 100)
-	legacy?: boolean; 	// whether this is legacy (no longer available)
+	name?: string; 				// the name of the class 
+	type: ClassRecType.CLASS; 	// the type of this recommendation
+	course: string; 			// the course code (CS 100)
+	legacy?: boolean; 			// whether this is legacy (no longer available)
 }
 
 export type ClassBranch = {
-	name: string;  					// name of the branch/section/group
-	type: ClassRecType.BRANCH; 				// the type of this recommendation 
+	name: string;  					 	// name of the branch/section/group
+	type: ClassRecType.BRANCH; 			// the type of this recommendation 
 	numCredits?: number; 				// how many credits are required
 	numClasses?: number; 				// how many classes are required
 	operator: string; 					// & or | 
@@ -42,8 +42,9 @@ export async function getRecommendedClasses(degree: string, major: string, catal
 	// Queries the database 
 	const curricula = await getCurricula(degree, major, catalogYear) as CurriculaDocument;
 
-	if(!curricula) {
+	if(!curricula || curricula.error) {
 		console.error(degree, major, catalogYear, 'is not in the database!');
+		return [] as ClassRecommendations[];
 	}
 
 	// Gets a list of all possible courses required for a degree, minus the ones already taken
@@ -141,6 +142,10 @@ function parseClassesForRecommendations(node: ClassRecNode[], takenCourses: stri
 function parseTreeForRecommendations(node: ClassRecNode, takenCourses: string[], courseList: string[]) : ClassRecommendations[] {
 	// Required class
 	if('name' in node && courseList.includes(node.course)) {
+
+		// Do not recommend legacy classes
+		if (node.legacy) return [];
+
 		const c = node as ClassRec;
 		c.type = ClassRecType.CLASS;
 		return [c];
@@ -198,11 +203,8 @@ function parseCondition(condition: string[] | string, takenCourses: string[]) : 
 
 	// Complex condition
 	const operator = condition[0];
-	if(operator == "&") {
-		return parseCondition(condition[1], takenCourses) && parseCondition(condition[2], takenCourses);
-	} else if(operator == "|") {
-		return parseCondition(condition[1], takenCourses) || parseCondition(condition[2], takenCourses);
-	}
+	if(operator == "&") return parseCondition(condition[1], takenCourses) && parseCondition(condition[2], takenCourses);
+	else if(operator == "|") return parseCondition(condition[1], takenCourses) || parseCondition(condition[2], takenCourses);
 
 	return false;
 }
