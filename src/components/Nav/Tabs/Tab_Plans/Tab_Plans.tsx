@@ -18,7 +18,7 @@ const Tab_Plans = () => {
   }, {});
 
   return (
-    <div>
+    <div className="pb-48">
       <Center my="md">
         <NewPlanButton key="newplanbutton" />
         <Space w="md" />
