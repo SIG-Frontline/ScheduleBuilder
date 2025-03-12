@@ -9,10 +9,10 @@ import {
   Title,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { humanReadableTerm } from "../_Plans/Plans";
 import { useForm } from "@mantine/form";
 import { uuidv4 } from "@/lib/uuidv4";
 import { planStore } from "@/lib/client/planStore";
+import { prettyTermText } from "@/lib/client/prettyTermText";
 const NewPlanButton = () => {
   const [terms, setTerms] = React.useState<{ value: string; label: string }[]>(
     []
@@ -23,7 +23,7 @@ const NewPlanButton = () => {
       for (let i = 0; i < terms_val.length; i++) {
         terms_val[i] = {
           value: terms_val[i],
-          label: humanReadableTerm(terms_val[i]),
+          label: prettyTermText(terms_val[i], 2),
         };
       }
       setTerms(terms_val);
