@@ -2,8 +2,8 @@ import { getTerms } from "@/lib/server/actions/getTerms";
 import {
   Button,
   Center,
+  NativeSelect,
   Popover,
-  Select,
   TextInput,
   Textarea,
   Title,
@@ -93,9 +93,8 @@ const NewPlanButton = () => {
             placeholder="Enter Plan Name"
             required
           />
-          <Select
+          <NativeSelect
             label="Plan Term"
-            placeholder="Select Term"
             data={terms}
             required
             key={form.key("Plan Term")}

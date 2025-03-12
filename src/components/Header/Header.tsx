@@ -65,13 +65,7 @@ const Header = () => {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Popover
-              withinPortal={false}
-              width={400}
-              position="right-start"
-              withArrow
-              shadow="md"
-            >
+            <Popover withinPortal={false} width={400} withArrow shadow="md">
               <Popover.Target>
                 <Menu.Item leftSection={<Icon> settings </Icon>}>
                   Settings
