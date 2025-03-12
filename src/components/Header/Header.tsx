@@ -4,6 +4,7 @@ import {
   Button,
   Flex,
   Group,
+  Menu,
   MultiSelect,
   Popover,
   Space,
@@ -32,86 +33,105 @@ const Header = () => {
 
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
+
+  const icon = () => {
+    if (isLoggedIn) {
+      return <Avatar src={user?.picture} alt={user?.name ?? ""} />;
+    } else {
+      return (
+        <ActionIcon variant="filled" aria-label="Settings">
+          <Icon>more_vert</Icon>
+        </ActionIcon>
+      );
+    }
+  };
   return (
     <>
-      <Flex justify="space-between" py={10} px={20}>
+      <Flex justify="space-between" align={"center"} py={10} px={20}>
         <Title
           className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap "
           order={1}
         >
           Schedule Builder
         </Title>
-        <Group>
-          {isLoggedIn ? (
-            <>
-              <Button
+        <Menu
+          shadow="md"
+          width={200}
+          closeOnItemClick={false}
+          closeOnClickOutside={false}
+        >
+          <Menu.Target>
+            <span>{icon()}</span>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Popover
+              withinPortal={false}
+              width={400}
+              position="right-start"
+              withArrow
+              shadow="md"
+            >
+              <Popover.Target>
+                <Menu.Item leftSection={<Icon> settings </Icon>}>
+                  Settings
+                </Menu.Item>
+              </Popover.Target>
+              <Popover.Dropdown>
+                <Group>
+                  <Group m="sm">
+                    <Tooltip label="Toggle color scheme">
+                      <ActionIcon
+                        className="m-1"
+                        variant="light"
+                        onClick={toggleColorScheme}
+                      >
+                        <Icon>
+                          <p className="dark:hidden">light_mode</p>
+                          <p className="hidden dark:block">dark_mode</p>
+                        </Icon>
+                      </ActionIcon>
+                    </Tooltip>
+                    <Text size="md">Color Scheme</Text>
+                  </Group>
+                  <Space h="md" />
+                  <Text size="md" ta={"center"}>
+                    Days of the Week
+                  </Text>
+                  <MultiSelect
+                    comboboxProps={{ withinPortal: false }}
+                    mx="md"
+                    label="Hidden days"
+                    placeholder="Select hidden days"
+                    data={days}
+                    maxValues={6}
+                    onChange={(values) => {
+                      day_store.setDays(values.map((day) => parseInt(day)));
+                    }}
+                    value={day_store.days.map((day) => day.toString())}
+                  />
+                </Group>
+              </Popover.Dropdown>
+            </Popover>
+            {!isLoggedIn ? (
+              <Menu.Item
+                leftSection={<Icon> login </Icon>}
                 component={"a"}
+                href={"/api/auth/login"}
+              >
+                Login
+              </Menu.Item>
+            ) : (
+              <Menu.Item
+                leftSection={<Icon> logout </Icon>}
                 href={"/api/auth/logout"}
-                rightSection={<Icon>logout</Icon>}
+                component={"a"}
               >
                 Logout
-              </Button>
-
-              <Avatar src={user?.picture} alt={user?.name ?? ""} />
-            </>
-          ) : (
-            <Button
-              component={"a"}
-              href={"/api/auth/login"}
-              rightSection={<Icon>login</Icon>}
-            >
-              Login
-            </Button>
-          )}
-
-          <Popover width={350} position="bottom" withArrow shadow="md">
-            <Popover.Target>
-              <ActionIcon
-                variant="light"
-                p={"md"}
-                radius="xl"
-                aria-label="Settings"
-              >
-                <Icon>settings</Icon>
-              </ActionIcon>
-            </Popover.Target>
-            <Popover.Dropdown>
-              <Group>
-                <Group m="sm">
-                  <Tooltip label="Toggle color scheme">
-                    <ActionIcon
-                      className="m-1"
-                      variant="light"
-                      onClick={toggleColorScheme}
-                    >
-                      <Icon>
-                        <p className="dark:hidden">light_mode</p>
-                        <p className="hidden dark:block">dark_mode</p>
-                      </Icon>
-                    </ActionIcon>
-                  </Tooltip>
-                  <Text size="md">Color Scheme</Text>
-                </Group>
-                <Space h="md" />
-                <Text size="md" ta={"center"}>
-                  Days of the Week
-                </Text>
-                <MultiSelect
-                  comboboxProps={{ withinPortal: false }}
-                  mx="md"
-                  label="Hidden days"
-                  placeholder="Select hidden days"
-                  data={days}
-                  maxValues={6}
-                  onChange={(values) => {
-                    day_store.setDays(values.map((day) => parseInt(day)));
-                  }}
-                  value={day_store.days.map((day) => day.toString())}
-                />
-              </Group>
-            </Popover.Dropdown>
-          </Popover>
-        </Group>
+              </Menu.Item>
+            )}
+          </Menu.Dropdown>
+        </Menu>
       </Flex>
     </>
   );
