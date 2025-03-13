@@ -107,17 +107,17 @@ function InfoCard(props: InfoCardProps) {
   return (
     <div
       aria-label="course-info-card"
-      className="drag-header fixed z-50 bg-[#EAEAEA] dark:bg-[#636363] w-full h-full sm:w-1/5 sm:h-fit rounded-[20px] aspect-[9/11] p-0 flex flex-col items-start justify-top sm:pt-0 pt-20 space-y-2 sm:max-w-[320px] sm:max-h-[400px]  "
+      className="drag-header fixed z-50 border-[#C8C8C8] border border-solid bg-white dark:bg-[#242424] w-full h-full sm:w-1/3 sm:h-fit rounded-[20px] aspect-[9/11] p-0 flex flex-col items-start justify-top sm:pt-0 pt-20 space-y-2 sm:max-w-[250px] sm:max-h-[300px]  "
       style={{
         top: position.y,
         left: position.x,
       }}
     >
       <div
-        className="sm:bg-[#B9B9B9] w-full h-fit rounded-t-[20px] sm:cursor-all-scroll sm:pt-0 pt-5"
+        className="sm:bg-[#C8C8C8] w-full h-fit rounded-t-[17px] sm:cursor-all-scroll sm:pt-0 pt-5"
         onMouseDown={handleMouseDown}
       >
-        <div className="flex justify-end w-full pr-1 pt-2 pb-2">
+        <div className="flex justify-end w-full pr-1 pt-1 pb-1">
           <Button
             variant="transparent"
             className="close-icon"
@@ -126,15 +126,15 @@ function InfoCard(props: InfoCardProps) {
             onClick={onClose}
             aria-label="close"
           >
-            <Icon className="text-black">close</Icon>
+            <Icon className="sm:text-black">close</Icon>
           </Button>
         </div>
       </div>
-      <div className="course-title flex w-full p-4">
-        <p className="font-bold text-base">{courseInfo.get("title")}</p>
-      </div>
 
       <Stack align="flex-start">
+        <div className="course-title flex flex-row items-left space-x-2 pl-2 ">
+          <p className="font-bold text-base">{courseInfo.get("title")}</p>
+        </div>
         {courseInfo.get("location") == "Online" || (
           <div className="flex flex-row items-left space-x-2 pl-2 ">
             <Icon>schedule</Icon>
