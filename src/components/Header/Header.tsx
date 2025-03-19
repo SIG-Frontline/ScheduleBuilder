@@ -9,10 +9,11 @@ const Header = () => {
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
   const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   // Notification when user logs in
   useEffect(() => {
-    if (user && !hasLoggedIn) {
+    if (user && !hasLoggedIn && !isLoggingOut) {
       setHasLoggedIn(true);
       notifications.show({
         title: 'Welcome',
@@ -23,11 +24,14 @@ const Header = () => {
         position: 'top-right'
       });
     }
-  }, [user, hasLoggedIn]);
+  }, [user, hasLoggedIn, isLoggingOut]);
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
+
+    setHasLoggedIn(false);
+    setIsLoggingOut(true);
 
     // Notification when user is logging out
     notifications.show({
@@ -35,7 +39,7 @@ const Header = () => {
       message: 'Please wait...',
       color: 'blue',
       icon: <span className="material-symbols-outlined">logout</span>,
-      autoClose: 2000,
+      autoClose: 1500,
       position: 'top-right'
     });
 
@@ -46,7 +50,7 @@ const Header = () => {
         message: 'You have been successfully logged out',
         color: 'blue',
         icon: <span className="material-symbols-outlined">logout</span>,
-        autoClose: 5000,
+        autoClose: 2000,
         position: 'top-right'
       });
     }, 1000);
@@ -54,7 +58,7 @@ const Header = () => {
     // Redirect after both notifications
     setTimeout(() => {
       window.location.href = "/api/auth/logout";
-    }, 2000);
+    }, 2500);
   };
 
   return (
