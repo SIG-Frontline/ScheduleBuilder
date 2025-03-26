@@ -1,12 +1,14 @@
 // Import the sectionsCollection from the mongoClient
-import { addQuery, check_prereq } from "@/lib/server/apiUtils";
+import { addQuery, addRegexSearch, check_prereq } from "@/lib/server/apiUtils";
 import { sectionsCollection } from "@/lib/server/mongoClient";
 import { NextRequest } from "next/server";
+import { Filter } from "mongodb";
 
 // Define an asynchronous GET function that takes a request object as a parameter
 export async function GET(request: NextRequest) {
   // Initialize an empty query object
-  const query = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const query: Filter<any> = {};
   // Extract the search parameters from the url
   const searchParams = request.nextUrl.searchParams;
 
@@ -19,7 +21,8 @@ export async function GET(request: NextRequest) {
     addQuery(query, "COURSE", searchParams.get("course") as string);
   }
   if (searchParams.has("title")) {
-    addQuery(query, "TITLE", searchParams.get("title") as string);
+    const titleSearch = searchParams.get("title") as string;
+    addRegexSearch(query, "TITLE", titleSearch);
   }
   if (searchParams.has("subject")) {
     addQuery(query, "SUBJECT", searchParams.get("subject") as string);
