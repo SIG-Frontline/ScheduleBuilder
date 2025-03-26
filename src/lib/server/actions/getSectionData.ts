@@ -13,7 +13,7 @@ export async function getSectionData(
   courseCode: string
 ) {
   try {
-    const baseURL = `http://0.0.0.0:4000`;
+    const baseURL = `${process.env.SBCORE_URL}`;
 
     const queryParam = encodeURIComponent(subject && courseCode ? `${subject} ${courseCode}`.trim() : subject);
     
