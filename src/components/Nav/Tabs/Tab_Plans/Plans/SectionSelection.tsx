@@ -7,6 +7,7 @@ import {
   Stack,
   ScrollArea,
   Title,
+  ScrollAreaAutosize,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import React, { useState } from "react";
@@ -87,16 +88,11 @@ const SectionSelection = ({
               selectSection(courseCode, val);
             }}
           >
-            <ScrollArea
-              h={matches ? "90vh" : "200px"}
-              mah={"300px"}
-              mih={"100px"}
-              scrollbars="y"
-            >
+            <ScrollAreaAutosize mah="20em" scrollbars="y">
               <Stack pt="md" gap="xs">
                 {options}
               </Stack>
-            </ScrollArea>
+            </ScrollAreaAutosize>
           </Radio.Group>
         </div>
       </Group>

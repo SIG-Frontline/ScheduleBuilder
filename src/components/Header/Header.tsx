@@ -55,7 +55,7 @@ const Header = () => {
         >
           Schedule Builder
         </Title>
-        <Group>
+        <Group wrap="nowrap">
           <ActionIcon
             // className="m-1"
             variant="light"
