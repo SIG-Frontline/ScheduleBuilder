@@ -31,7 +31,7 @@ const Tab_Plans = () => {
             label={
               <>
                 <Icon>date_range</Icon> <Space w="sm" />
-                <Text fz={"md"}>{prettyTermText(term, 2)}</Text>
+                <Text fz={"md"}>{prettyTermText(term)}</Text>
               </>
             }
           />

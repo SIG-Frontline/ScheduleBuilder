@@ -1,5 +1,6 @@
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/client/planStore";
+import { uuidv4 } from "@/lib/uuidv4";
 import { Button, FileButton } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 
@@ -18,20 +19,7 @@ const ImportButton = () => {
         if (contents) {
           const plan = JSON.parse(contents as string);
           plan.selected = false;
-          plan.uuid = (() => {
-            function uuidv4() {
-              return "10000000-1000-4000-8000-100000000000".replace(
-                /[018]/g,
-                (c) =>
-                  (
-                    +c ^
-                    (crypto.getRandomValues(new Uint8Array(1))[0] &
-                      (15 >> (+c / 4)))
-                  ).toString(16)
-              );
-            }
-            return uuidv4();
-          })();
+          plan.uuid = uuidv4();
           //validate the plan
           const plan_keys = ["name", "description", "term", "courses"];
           for (const key of plan_keys) {

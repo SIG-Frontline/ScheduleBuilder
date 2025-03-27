@@ -35,11 +35,12 @@ const Header = () => {
   const isLoggedIn = Boolean(user);
 
   const icon = () => {
+    // conditional rendering of the avatar or the settings icon
     if (isLoggedIn) {
       return <Avatar src={user?.picture} alt={user?.name ?? ""} />;
     } else {
       return (
-        <ActionIcon variant="filled" aria-label="Settings">
+        <ActionIcon variant="light" aria-label="Settings">
           <Icon>more_vert</Icon>
         </ActionIcon>
       );
@@ -54,78 +55,80 @@ const Header = () => {
         >
           Schedule Builder
         </Title>
-        <Menu
-          shadow="md"
-          width={200}
-          closeOnItemClick={false}
-          closeOnClickOutside={false}
-        >
-          <Menu.Target>
-            <span>{icon()}</span>
-          </Menu.Target>
-
-          <Menu.Dropdown>
-            <Popover withinPortal={false} width={400} withArrow shadow="md">
-              <Popover.Target>
-                <Menu.Item leftSection={<Icon> settings </Icon>}>
-                  Settings
-                </Menu.Item>
-              </Popover.Target>
-              <Popover.Dropdown>
-                <Group>
-                  <Group m="sm">
-                    <Tooltip label="Toggle color scheme">
-                      <ActionIcon
-                        className="m-1"
-                        variant="light"
-                        onClick={toggleColorScheme}
-                      >
-                        <Icon>
-                          <p className="dark:hidden">light_mode</p>
-                          <p className="hidden dark:block">dark_mode</p>
-                        </Icon>
-                      </ActionIcon>
+        <Group>
+          <ActionIcon
+            // className="m-1"
+            variant="light"
+            onClick={toggleColorScheme}
+          >
+            <Icon>
+              <p className="dark:hidden">light_mode</p>
+              <p className="hidden dark:block">dark_mode</p>
+            </Icon>
+          </ActionIcon>
+          <Menu
+            shadow="md"
+            width={200}
+            closeOnItemClick={false}
+            closeOnClickOutside={false}
+          >
+            <Menu.Target>
+              <span className="flex">{icon()}</span>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Popover withinPortal={false} width={400} withArrow shadow="md">
+                <Popover.Target>
+                  <Menu.Item leftSection={<Icon> settings </Icon>}>
+                    Settings
+                  </Menu.Item>
+                </Popover.Target>
+                <Popover.Dropdown>
+                  <Group>
+                    {/* <Group m="sm"> */}
+                    {/* <Tooltip label="Toggle color scheme">
+                    
                     </Tooltip>
-                    <Text size="md">Color Scheme</Text>
+                    <Text size="md">Color Scheme</Text> */}
+                    {/* </Group> */}
+                    <Space h="md" />
+                    <Text size="md" ta={"center"}>
+                      Days of the Week
+                    </Text>
+                    <MultiSelect
+                      comboboxProps={{ withinPortal: false }}
+                      mx="md"
+                      label="Hidden days"
+                      placeholder="Select hidden days"
+                      data={days}
+                      maxValues={6}
+                      onChange={(values) => {
+                        day_store.setDays(values.map((day) => parseInt(day)));
+                      }}
+                      value={day_store.days.map((day) => day.toString())}
+                    />
                   </Group>
-                  <Space h="md" />
-                  <Text size="md" ta={"center"}>
-                    Days of the Week
-                  </Text>
-                  <MultiSelect
-                    comboboxProps={{ withinPortal: false }}
-                    mx="md"
-                    label="Hidden days"
-                    placeholder="Select hidden days"
-                    data={days}
-                    maxValues={6}
-                    onChange={(values) => {
-                      day_store.setDays(values.map((day) => parseInt(day)));
-                    }}
-                    value={day_store.days.map((day) => day.toString())}
-                  />
-                </Group>
-              </Popover.Dropdown>
-            </Popover>
-            {!isLoggedIn ? (
-              <Menu.Item
-                leftSection={<Icon> login </Icon>}
-                component={"a"}
-                href={"/api/auth/login"}
-              >
-                Login
-              </Menu.Item>
-            ) : (
-              <Menu.Item
-                leftSection={<Icon> logout </Icon>}
-                href={"/api/auth/logout"}
-                component={"a"}
-              >
-                Logout
-              </Menu.Item>
-            )}
-          </Menu.Dropdown>
-        </Menu>
+                </Popover.Dropdown>
+              </Popover>
+              {!isLoggedIn ? (
+                <Menu.Item
+                  leftSection={<Icon> login </Icon>}
+                  component={"a"}
+                  href={"/api/auth/login"}
+                >
+                  Login
+                </Menu.Item>
+              ) : (
+                <Menu.Item
+                  leftSection={<Icon> logout </Icon>}
+                  href={"/api/auth/logout"}
+                  component={"a"}
+                >
+                  Logout
+                </Menu.Item>
+              )}
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
       </Flex>
     </>
   );

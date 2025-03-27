@@ -103,22 +103,22 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => (
-            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
-              <b className=" w-full text-xs ">{eventContent.event.title}</b>
-              <span className="text-xs">
-                {eventContent.event.extendedProps.title}
-              </span>
-              <br />
-              <span className="text-xs">{eventContent.timeText}</span> @
-              <span className="text-xs">
-                {eventContent.event.extendedProps.location}
-              </span>
-              <br />
-              <span className="text-xs">
+            // eventContent.backgroundColor
+            <Group
+              gap={"1px"}
+              className="p-1  leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+            >
+              <Text fw={600} size="sm">
+                {eventContent.event.title}
+              </Text>
+              <Text size="xs">{eventContent.event.extendedProps.title}</Text>
+              <Text size="xs">{eventContent.timeText}</Text> @
+              <Text size="xs">{eventContent.event.extendedProps.location}</Text>
+              <Text size="xs">
                 {eventContent.event.extendedProps.instructor}
-              </span>
+              </Text>
               <br />
-            </div>
+            </Group>
           )}
           slotEventOverlap={false}
           eventTimeFormat={{

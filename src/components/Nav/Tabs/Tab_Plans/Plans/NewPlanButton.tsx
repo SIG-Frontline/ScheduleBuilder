@@ -13,27 +13,22 @@ import { useForm } from "@mantine/form";
 import { uuidv4 } from "@/lib/uuidv4";
 import { planStore } from "@/lib/client/planStore";
 import { prettyTermText } from "@/lib/client/prettyTermText";
+
 const NewPlanButton = () => {
   const [terms, setTerms] = React.useState<{ value: string; label: string }[]>(
     []
   );
-  const [popoveOpen, setPopoverOpen] = useState(false);
-  useEffect(() => {
-    getTerms().then((terms_val) => {
-      for (let i = 0; i < terms_val.length; i++) {
-        terms_val[i] = {
-          value: terms_val[i],
-          label: prettyTermText(terms_val[i], 2),
-        };
-      }
-      setTerms(terms_val);
-    });
-  }, []);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
   const form = useForm({
     mode: "uncontrolled",
 
     validateInputOnBlur: true,
-    initialValues: { "Plan Name": "", "Plan Term": "", "Plan Description": "" },
+    initialValues: {
+      "Plan Name": "",
+      "Plan Term": "",
+      "Plan Description": "",
+    },
 
     validate: {
       "Plan Name": (value) =>
@@ -43,6 +38,28 @@ const NewPlanButton = () => {
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
+  if (terms.length === 0) {
+    setTimeout(() => {
+      //set timeout of 0 to delay the loading of terms until the callstack is empty
+      getTerms().then((terms_val) => {
+        for (let i = 0; i < terms_val.length; i++) {
+          terms_val[i] = {
+            value: terms_val[i],
+            label: prettyTermText(terms_val[i], 2),
+          };
+        }
+        setTerms(terms_val);
+        form.setInitialValues({
+          "Plan Name": "",
+          "Plan Term": terms_val[0],
+          "Plan Description": "",
+        });
+        form.setValues({
+          "Plan Term": terms_val[0].value,
+        });
+      });
+    }, 0);
+  }
   const plan_store = planStore();
 
   function addPlan(form_values: {
@@ -50,7 +67,6 @@ const NewPlanButton = () => {
     "Plan Term": string;
     "Plan Description": string;
   }) {
-    console.log(form_values);
     plan_store.addPlan({
       uuid: uuidv4(),
       name: form_values["Plan Name"],
@@ -63,7 +79,7 @@ const NewPlanButton = () => {
   }
   return (
     <Popover
-      opened={popoveOpen}
+      opened={popoverOpen}
       onChange={setPopoverOpen}
       width={300}
       position="bottom"
@@ -72,7 +88,7 @@ const NewPlanButton = () => {
       closeOnClickOutside={false}
     >
       <Popover.Target>
-        <Button onClick={() => setPopoverOpen(!popoveOpen)}>New Plan</Button>
+        <Button onClick={() => setPopoverOpen(!popoverOpen)}>New Plan</Button>
       </Popover.Target>
       <Popover.Dropdown bg="var(--mantine-color-body)">
         <Center>
@@ -83,6 +99,9 @@ const NewPlanButton = () => {
             addPlan(values);
             form.reset();
             setPopoverOpen(false);
+            form.setValues({
+              "Plan Term": terms[0].value,
+            });
           })}
           className="flex flex-col gap-4 p-4"
         >
