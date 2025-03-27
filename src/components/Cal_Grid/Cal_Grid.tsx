@@ -81,7 +81,7 @@ const Cal_Grid = () => {
     <>
       <Stack className="h-full" gap={0}>
         <FullCalendar
-          viewClassNames={`dark:bg-[#242424] bg-white overflow-hidden border border-gray-300 dark:border-gray-600  shadow-sm !overflow-hidden sm:rounded-xl sm:m-8 border-solid`}
+          viewClassNames={`dark:bg-[#242424] bg-white shadow-md !overflow-hidden sm:m-8`}
           height={"100%"}
           expandRows={true}
           plugins={[timeGridPlugin, interactionPlugin]}
