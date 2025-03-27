@@ -136,6 +136,7 @@ export default function Search({
         onChange={(e) => {
           setTextBoxValue(e.currentTarget.value);
         }}
+        radius={"0"}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             const firstOption = chipOptions[0];
