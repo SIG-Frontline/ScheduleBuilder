@@ -79,18 +79,20 @@ const Cal_Grid = () => {
 
   return (
     <>
-      <Stack className="h-full">
+      <Stack className="h-full" gap={0}>
         <FullCalendar
           viewClassNames={`dark:bg-[#242424] bg-white overflow-hidden border border-gray-300 dark:border-gray-600  shadow-sm !overflow-hidden sm:rounded-xl sm:m-8 border-solid`}
           height={"100%"}
           expandRows={true}
           plugins={[timeGridPlugin, interactionPlugin]}
-          // selectable={true}
-          // selectMirror={true}
-          // select={() => {
-          //   console.log("select");
-          // }}
           slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
+          viewDidMount={(e) => {
+            setTimeout(() => {
+              e.el.querySelectorAll(".fc-scroller").forEach((el) => {
+                el.classList.add("no-scrollbar");
+              });
+            }, 0);
+          }}
           timeZone="America/New_York"
           initialView="timeGridWeek"
           headerToolbar={false}
