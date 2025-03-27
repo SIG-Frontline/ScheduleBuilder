@@ -2,6 +2,8 @@ import { planStore } from "@/lib/client/planStore";
 import { Button, Group, Modal } from "@mantine/core";
 import html2canvas from "html2canvas";
 import { notifications } from "@mantine/notifications";
+import { humanReadableTerm } from "../Plans";
+
 export default function ShareModal({
   opened,
   onClose,
@@ -80,6 +82,7 @@ export default function ShareModal({
     notifications.show({
       title: "Share link has been copied to clipboard!",
       position: "top-right",
+      message: undefined
     });
   }
 
@@ -100,6 +103,73 @@ export default function ShareModal({
     return truncatedFilename;
   }
 
+  function textSave() {
+    if (!currentSelectedPlanObj) {
+      notifications.show({
+        title: "Error",
+        message: "No plan selected to save as CSV.",
+        color: "red",
+        position: "top-right",
+      });
+      return;
+    }
+    let textContent = `Plan Name: ${currentSelectedPlanObj.name}\nTerm: ${humanReadableTerm(currentSelectedPlanObj.term.toString())}\n\nCourses:\n\n`;
+
+    currentSelectedPlanObj?.courses?.forEach((course) => {
+      console.log(course);
+      let courseTextContent = `${course.code}: ${course.title}\nCredit Hours: ${course.credits}\n\nDescription: \n ${course.description}\n\n`;
+      let hasSelectedSection = false;
+      course.sections.forEach((section) => {
+        if (section.selected) {
+          hasSelectedSection = true;
+          courseTextContent += `Section/CRN: ${section.crn}\nInstructor: ${section.instructor}\n`;
+
+          // If the length of the meetingTimes array is 0, course does not meet (online).
+          textContent += courseTextContent + `Meeting Times & Locations:\n`;
+          if (section.meetingTimes.length == 0) {
+            textContent += `No Time/Location Info for this course.\nLikely online only\n`;
+          } else {
+            console.log(section.meetingTimes);
+            section.meetingTimes.forEach((meetTime) => {
+              textContent +=
+                `Day: ${meetTime.day} Start Time: ${
+                  new Date(meetTime.startTime)
+                    .toISOString()
+                    .split("T")[1]
+                    .split(".")[0]
+                    .substring(0,5)
+                } End Time: ${
+                  new Date(meetTime.endTime)
+                    .toISOString()
+                    .split("T")[1]
+                    .split(".")[0]
+                    .substring(0,5)
+                } Building: ${meetTime.building} Room: ${meetTime.room}\n`;
+            });
+          }
+        }
+      });
+      if (!hasSelectedSection) {
+        textContent += courseTextContent + `No section selected for this course\n`;
+      }
+      textContent += `\n=======================================================================\n\n`;
+    });
+    const blob = new Blob([textContent], { type: "text/txt" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const filename = sanitizeFilename(currentSelectedPlanObj.name);
+    a.download = `${filename}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    notifications.show({
+      title: "Text File Saved",
+      message: "The text file has been downloaded.",
+      position: "top-right",
+    });
+  }
+
   function csvSave() {
     if (!currentSelectedPlanObj) {
       notifications.show({
@@ -111,14 +181,14 @@ export default function ShareModal({
       return;
     }
 
-    let csvContent = `Plan Name,${currentSelectedPlanObj.name}\nTerm,${currentSelectedPlanObj.term}\n\n`;
+    let csvContent = `Plan Name,${currentSelectedPlanObj.name}\nTerm,${humanReadableTerm(currentSelectedPlanObj.term.toString())}\n\n`;
     csvContent += `Code,Title,Instructor,CRN,Day,Start Time,End Time,Building,Room\n`;
     currentSelectedPlanObj?.courses?.forEach((course) => {
       /* 
       THE FORMAT OF THE CSV FILE IS:
       CODE | TITLE | INSTRUCTOR | CRN | DAY | START TIME | END TIME | BUILDING | ROOM 
       */
-      let courseCsvContent = `"${course.code}","${course.title}",`;
+      let courseCsvContent = `"${course.credits}","${course.code}","${course.title}",`;
       let hasSelectedSection = false;
       course.sections.forEach((section) => {
         if (section.selected) {
@@ -162,7 +232,6 @@ export default function ShareModal({
     notifications.show({
       title: "CSV Saved",
       message: "The CSV file has been downloaded.",
-      color: "green",
       position: "top-right",
     });
   }
@@ -176,6 +245,9 @@ export default function ShareModal({
           </Button>
           <br />
           <br />
+          <Button variant="filled" onClick={textSave}>
+            Save as Text
+          </Button>
           <Button variant="filled" onClick={imageSave}>
             Save as Image
           </Button>

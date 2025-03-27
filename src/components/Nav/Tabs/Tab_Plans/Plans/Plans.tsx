@@ -58,6 +58,7 @@ const Plans = () => {
       [key: string]: DropDownMenuItem[];
     };
     // const [ShareModalOpen, { open, close }] = useDisclosure(false);
+    // TODO: Implement each of these options. Right now most of them just console log.
     const dropDownMenuItems = {
       "Plan options": [
         {
