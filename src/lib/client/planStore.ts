@@ -60,20 +60,25 @@ export type Event = {
   color?: string;
 };
 export interface organizerSettings {
-	isCommuter: boolean;
-	commuteTimeHours: number;
-	compactPlan: boolean;
-	courseFilters: courseFilter[];
-};
+  isCommuter: boolean;
+  commuteTimeHours: number;
+  compactPlan: boolean;
+  courseFilters: courseFilter[];
+}
 
 export interface courseFilter {
-	courseCode: string;
-	instructor?: string;
-	honors?: boolean;
-	online?: instructionType;
-	section?: string;
-};
-export enum instructionType { ONLINE='online', HYBRID='hybrid', INPERSON='face-to-face', ANY='any' };
+  courseCode: string;
+  instructor?: string;
+  honors?: boolean;
+  online?: instructionType;
+  section?: string;
+}
+export enum instructionType {
+  ONLINE = "online",
+  HYBRID = "hybrid",
+  INPERSON = "face-to-face",
+  ANY = "any",
+}
 
 interface PlanStoreState {
   plans: Plan[];
@@ -268,17 +273,59 @@ planStore.subscribe(
 
 async function uploadPlan() {
   const currentPlanUUID = planStore.getState().currentSelectedPlan;
+  const user = await fetch("/api/auth/me");
+  const json_user = await user.json();
+  const userId = json_user.sub;
+
   if (currentPlanUUID) {
+    let planExists = false;
     const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-    if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-      await fetch("/api/user_plans", {
-        method: "POST",
-        body: JSON.stringify(currentPlan),
+
+    await fetch(
+      `http://127.0.0.1:4000/userPlans/${userId}/${currentPlanUUID}`,
+      { method: "GET" }
+    )
+      .then((res) => {
+        if (res.status === 404) {
+          console.log("Plan does not exist yet");
+          return null;
+        }
+        return res.json();
       })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-        });
+      .then((data) => {
+        if (data && Object.keys(data).length > 0) {
+          planExists = true;
+        }
+      });
+
+    if (planExists) {
+      await fetch(
+        `http://127.0.0.1:4000/userPlans/${userId}/${currentPlanUUID}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(currentPlan),
+        }
+      );
+    } else {
+      if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
+        await fetch(
+          `http://127.0.0.1:4000/userPlans/${userId}/${currentPlanUUID}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(currentPlan),
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+          });
+      }
     }
   }
 }
@@ -296,17 +343,26 @@ async function uploadPlan() {
   const user = await fetch("/api/auth/me");
   if (!(user.status === 200)) return;
   const json_user = await user.json();
-  if (json_user?.sub) {
+  const userId = json_user.sub;
+  if (userId) {
     //clear the plans
     planStore.getState().setPlans([]);
-    await fetch("/api/user_plans")
-      .then((res) => res.json())
+    await fetch(`http://127.0.0.1:4000/userPlans/${userId}`, { method: "GET" })
+      .then((res) => {
+        if (res.status === 404) {
+          console.log("Plan does not exist yet");
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
         let i = 0;
         for (const plan of data) {
-          data.selected = i === 0;
-          planStore.getState().addPlan(plan.plandata);
-          i++;
+          if (plan.planData) {
+            plan.selected = i === 0;
+            planStore.getState().addPlan(plan.planData);
+            i++;
+          }
         }
       })
       .finally(() => {
