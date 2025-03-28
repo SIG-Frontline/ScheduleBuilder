@@ -294,11 +294,9 @@ async function uploadPlan() {
   const user = await fetch("/api/auth/me");
   const json_user = await user.json();
   const userId = json_user.sub;
-
   if (currentPlanUUID) {
     let planExists = false;
     const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-
     await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
       method: "GET",
     })
@@ -314,8 +312,6 @@ async function uploadPlan() {
           planExists = true;
         }
       });
-      
-
     if (planExists) {
       await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
         method: "PATCH",
