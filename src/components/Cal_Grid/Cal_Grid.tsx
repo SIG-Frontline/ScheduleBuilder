@@ -79,18 +79,20 @@ const Cal_Grid = () => {
 
   return (
     <>
-      <Stack style={{ height: "100%" }}>
+      <Stack className="h-full" gap={0}>
         <FullCalendar
-          viewClassNames={`dark:bg-[#242424] bg-white`}
+          viewClassNames={`dark:bg-[#242424] bg-white shadow-md !overflow-hidden sm:my-4 sm:mx-6`}
           height={"100%"}
           expandRows={true}
           plugins={[timeGridPlugin, interactionPlugin]}
-          // selectable={true}
-          // selectMirror={true}
-          // select={() => {
-          //   console.log("select");
-          // }}
           slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
+          viewDidMount={(e) => {
+            setTimeout(() => {
+              e.el.querySelectorAll(".fc-scroller").forEach((el) => {
+                el.classList.add("no-scrollbar");
+              });
+            }, 0);
+          }}
           timeZone="America/New_York"
           initialView="timeGridWeek"
           headerToolbar={false}
@@ -103,22 +105,22 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => (
-            <div className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden">
-              <b className=" w-full text-xs ">{eventContent.event.title}</b>
-              <span className="text-xs">
-                {eventContent.event.extendedProps.title}
-              </span>
-              <br />
-              <span className="text-xs">{eventContent.timeText}</span> @
-              <span className="text-xs">
-                {eventContent.event.extendedProps.location}
-              </span>
-              <br />
-              <span className="text-xs">
+            // eventContent.backgroundColor
+            <Group
+              gap={"1px"}
+              className="p-1  leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+            >
+              <Text fw={600} size="sm">
+                {eventContent.event.title}
+              </Text>
+              <Text size="xs">{eventContent.event.extendedProps.title}</Text>
+              <Text size="xs">{eventContent.timeText}</Text> @
+              <Text size="xs">{eventContent.event.extendedProps.location}</Text>
+              <Text size="xs">
                 {eventContent.event.extendedProps.instructor}
-              </span>
+              </Text>
               <br />
-            </div>
+            </Group>
           )}
           slotEventOverlap={false}
           eventTimeFormat={{

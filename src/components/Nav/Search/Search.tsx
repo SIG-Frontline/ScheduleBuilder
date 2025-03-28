@@ -179,10 +179,23 @@ export default function Search({
       searchResult.id
     )
       .then((data) => {
-        data.color = `rgba(
-          ${Math.floor(Math.random() * 256)},
-          ${Math.floor(Math.random() * 256)},
-          ${Math.floor(Math.random() * 256)},0.9)`;
+        const colorArr = [
+          "#2e2e2e",
+          "#868e96",
+          "#fa5252",
+          "#e64980",
+          "#be4bdb",
+          "#7950f2",
+          "#4c6ef5",
+          "#228be6",
+          "#15aabf",
+          "#12b886",
+          "#40c057",
+          "#82c91e",
+          "#fab005",
+          "#fd7e14",
+        ];
+        data.color = colorArr[Math.floor(Math.random() * colorArr.length)]; //random color for the course
         addCourseToPlan(data);
       })
       .then(() => {
@@ -273,6 +286,7 @@ export default function Search({
             setTextHovered(-1);
           }
         }}
+        radius={"0"}
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             const firstOption = searchOptions[0];
@@ -332,6 +346,7 @@ export default function Search({
           }
         }}
       />
+
       {(textBoxValue.length > 0 ||
         (searchOptions && filteredClassOptions.length === 1)) && (
         <ScrollArea.Autosize
@@ -382,8 +397,6 @@ export default function Search({
                 </UnstyledButton>
               );
             } else {
-              // this button is intended for searching subjects where its only a string not an object
-              // this is currently not really visible on the frontend because matching course titles takes precedence
               return (
                 <UnstyledButton
                   data-list-item
