@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+const APIURL = "http://127.0.0.1:4000";
+
 function debounce(callback: () => void, delay: number) {
   let timeout: NodeJS.Timeout;
   return function () {
@@ -127,7 +129,7 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.map((plan) => (plan.uuid === uuid ? updatedPlan : plan)),
         });
       },
-      removePlan: (uuid) => {
+      removePlan: async (uuid) => {
         const { plans, currentSelectedPlan } = get();
         let newSelectedPlan = currentSelectedPlan;
         if (currentSelectedPlan === uuid && plans.length > 1) {
@@ -139,6 +141,22 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
+
+        try {
+          const user = await fetch("/api/auth/me");
+          if (!user.ok) {
+            console.log("User is not authenticated");
+            return;
+          }
+          const json_user = await user.json();
+          const userId = json_user.sub;
+
+          await fetch(`${APIURL}/userPlans/${userId}/${uuid}`, {
+            method: "Delete",
+          });
+        } catch (err) {
+          console.log("Error deleting plan from backend:", err);
+        }
       },
       getPlan: (uuid) => {
         const { plans } = get();
@@ -281,10 +299,9 @@ async function uploadPlan() {
     let planExists = false;
     const currentPlan = planStore.getState().getPlan(currentPlanUUID);
 
-    await fetch(
-      `http://127.0.0.1:4000/userPlans/${userId}/${currentPlanUUID}`,
-      { method: "GET" }
-    )
+    await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
+      method: "GET",
+    })
       .then((res) => {
         if (res.status === 404) {
           console.log("Plan does not exist yet");
@@ -297,30 +314,25 @@ async function uploadPlan() {
           planExists = true;
         }
       });
+      
 
     if (planExists) {
-      await fetch(
-        `http://127.0.0.1:4000/userPlans/${userId}/${currentPlanUUID}`,
-        {
-          method: "PATCH",
+      await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(currentPlan),
+      });
+    } else {
+      if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
+        await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(currentPlan),
-        }
-      );
-    } else {
-      if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-        await fetch(
-          `http://127.0.0.1:4000/userPlans/${userId}/${currentPlanUUID}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(currentPlan),
-          }
-        )
+        })
           .then((res) => res.json())
           .then((data) => {
             console.log(data);
@@ -347,7 +359,7 @@ async function uploadPlan() {
   if (userId) {
     //clear the plans
     planStore.getState().setPlans([]);
-    await fetch(`http://127.0.0.1:4000/userPlans/${userId}`, { method: "GET" })
+    await fetch(`${APIURL}/userPlans/${userId}`, { method: "GET" })
       .then((res) => {
         if (res.status === 404) {
           console.log("Plan does not exist yet");
