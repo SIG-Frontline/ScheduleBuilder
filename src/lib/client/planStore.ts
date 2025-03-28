@@ -17,6 +17,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
+  organizerSettings: organizerSettings;
 };
 
 export type Course = {
@@ -38,6 +39,7 @@ export type Section = {
   status: string;
   is_honors: boolean;
   is_async: boolean;
+  instruction_type: string;
   sectionNumber: string;
   comments: string;
   selected: boolean;
@@ -57,6 +59,21 @@ export type Event = {
   daysOfWeek: number[];
   color?: string;
 };
+export interface organizerSettings {
+	isCommuter: boolean;
+	commuteTimeHours: number;
+	compactPlan: boolean;
+	courseFilters: courseFilter[];
+};
+
+export interface courseFilter {
+	courseCode: string;
+	instructor?: string;
+	honors?: boolean;
+	online?: instructionType;
+	section?: string;
+};
+export enum instructionType { ONLINE='online', HYBRID='hybrid', INPERSON='face-to-face', ANY='any' };
 
 interface PlanStoreState {
   plans: Plan[];
