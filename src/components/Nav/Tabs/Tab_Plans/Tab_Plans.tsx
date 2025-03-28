@@ -1,180 +1,64 @@
-import {
-  Button,
-  Group,
-  Modal,
-  Select,
-  TextInput,
-  FileButton,
-  Text,
-  Tooltip,
-} from "@mantine/core";
-import Plans, { humanReadableTerm } from "./Plans/Plans";
-import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/client/planStore";
-import { useDisclosure } from "@mantine/hooks";
-import { getTerms } from "@/lib/server/actions/getTerms";
-import { useEffect, useState } from "react";
 
+import { Accordion, Center, Divider, Space, Text } from "@mantine/core";
+import { prettyTermText } from "@/lib/client/prettyTermText";
+import PlanItem from "./Plans/PlanItem";
+import NewPlanButton from "./Plans/NewPlanButton";
+import CourseAccordion from "./Plans/CourseAccordion";
+import Icon from "@/components/Icon/Icon";
+import ImportButton from "./Plans/ImportButton";
 const Tab_Plans = () => {
-  // const addPlan = planStore((state) => state.addPlan);
-  const [terms, setTerms] = useState<string[]>([]);
   const plan_store = planStore();
-  const addPlan = plan_store.addPlan;
-  const [modalopened, { open, close }] = useDisclosure(false);
-  const [selectedTerm, setSelectedTerm] = useState<string>(terms[0]);
-  const [selectedPlanName, setSelectedPlanName] = useState<string>("");
-  const [files, setFiles] = useState<File | null>(null);
-  useEffect(() => {
-    //if there are files, add them to the plan store, then set the files to null
-    //make sure the plan is not selected
-    if (files) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const contents = e.target?.result;
-        if (contents) {
-          const plan = JSON.parse(contents as string);
-          plan.selected = false;
-          plan.uuid = (() => {
-            function uuidv4() {
-              return "10000000-1000-4000-8000-100000000000".replace(
-                /[018]/g,
-                (c) =>
-                  (
-                    +c ^
-                    (crypto.getRandomValues(new Uint8Array(1))[0] &
-                      (15 >> (+c / 4)))
-                  ).toString(16)
-              );
-            }
-            return uuidv4();
-          })();
-          //validate the plan
-          const plan_keys = ["name", "description", "term", "courses"];
-          for (const key of plan_keys) {
-            if (!(key in plan)) {
-              alert("The plan is missing the key: " + key);
-              return;
-            }
-          }
-          //validate the term
-          if (typeof plan.term !== "number") {
-            alert("The term must be a number");
-            return;
-          }
-          addPlan(plan);
-        }
-      };
-      reader.readAsText(files);
-      setFiles(null);
-    }
-  }, [files, addPlan]);
-  return (
-    <>
-      <Group justify="center" py={"14px"}>
-        <Modal opened={modalopened} onClose={close} title="New Plan">
-          <TextInput
-            label="Name"
-            placeholder="Enter Plan Name"
-            value={selectedPlanName}
-            onChange={(e) => setSelectedPlanName(e.currentTarget.value)}
-          />
-          <Select
-            label="Term"
-            placeholder="Select Term"
-            data={terms}
-            value={selectedTerm}
-            onChange={(val) => setSelectedTerm(val ?? terms[0])}
-          />
-          <Button
-            mt={"10px"}
-            onClick={() => {
-              //validate the input
-              if (
-                selectedPlanName === undefined ||
-                selectedPlanName.length === 0
-              ) {
-                alert("Please enter a name for the plan");
-                return;
-              }
-              if (selectedTerm === undefined || selectedTerm.length === 0) {
-                alert("Please select a term for the plan");
-                return;
-              }
+  const plans = plan_store.plans;
+  const terms = Array.from(new Set(plans.map((plan) => plan.term)));
+  const termPlans = terms.reduce<Record<string, typeof plans>>((acc, term) => {
+    //Record is a utility type that creates an object type whose keys are of type K and values are of type T
+    acc[term] = plans.filter((plan) => plan.term === term);
+    return acc;
+  }, {});
 
-              addPlan({
-                uuid: (() => {
-                  function uuidv4() {
-                    return "10000000-1000-4000-8000-100000000000".replace(
-                      /[018]/g,
-                      (c) =>
-                        (
-                          +c ^
-                          (crypto.getRandomValues(new Uint8Array(1))[0] &
-                            (15 >> (+c / 4)))
-                        ).toString(16)
-                    );
-                  }
-                  return uuidv4();
-                })(),
-                name: selectedPlanName,
-                description: "this is a plan",
-                term: parseInt(selectedTerm),
-                selected: false,
-                courses: [],
-              });
-              setSelectedPlanName("");
-              setSelectedTerm(terms[0]);
-              close();
+  return (
+    <div className="pb-48">
+      <Center my="md">
+        <NewPlanButton key="newplanbutton" />
+        <Space w="md" />
+        <ImportButton />
+      </Center>
+      {terms.map((term) => (
+        <span key={term}>
+          <Divider
+            my="md"
+            label={
+              <>
+                <Icon>date_range</Icon> <Space w="sm" />
+                <Text fz={"md"}>{prettyTermText(term)}</Text>
+              </>
+            }
+          />
+
+          <Accordion
+            chevronPosition="left"
+            maw={400}
+            mx="auto"
+            onChange={(e) => {
+              if (e === null || e === undefined) return; //make sure there is a plan selected at all times
+              plan_store.selectPlan(e);
+              console.log(plan_store.currentSelectedPlan);
             }}
+            value={plan_store.currentSelectedPlan}
           >
-            Create
-          </Button>
-        </Modal>
-        <Tooltip label="Create a new plan">
-          <Button
-            onClick={() => {
-              open();
-              getTerms().then((terms_val) => {
-                for (let i = 0; i < terms_val.length; i++) {
-                  terms_val[i] = {
-                    value: terms_val[i],
-                    label: humanReadableTerm(terms_val[i]),
-                  };
-                }
-                setTerms(terms_val);
-              });
-            }}
-            leftSection={<Icon>add</Icon>}
-          >
-            New Plan
-          </Button>
-        </Tooltip>
-        <Tooltip label="Import a plan from a JSON file">
-          <div>
-            <FileButton onChange={setFiles} accept="application/json">
-              {(props) => (
-                <Button {...props} leftSection={<Icon>upload</Icon>}>
-                  Import Plan
-                </Button>
-              )}
-            </FileButton>
-          </div>
-        </Tooltip>
-      </Group>
-      {plan_store.plans.length === 0 ? (
-        <>
-          <Text className="text-center !mt-8" c="dimmed" size="xl">
-            <Icon className="!text-4xl">info</Icon>
-          </Text>
-          <Text className="text-center !mx-10 " c="dimmed">
-            No plans have been added yet, click the button above to create a new
-            plan.
-          </Text>
-        </>
-      ) : (
-        <Plans />
-      )}
-    </>
+            {termPlans[term].map((plan) => (
+              <PlanItem label={plan.name} key={plan.uuid} uuid={plan.uuid}>
+                <p>{plan.description}</p>
+                {plan?.courses?.map((course) => (
+                  <CourseAccordion key={course.code} course={course} />
+                ))}
+              </PlanItem>
+            ))}
+          </Accordion>
+        </span>
+      ))}
+    </div>
   );
 };
 
