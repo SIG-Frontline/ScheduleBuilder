@@ -254,21 +254,6 @@ export interface UserPlan {
   plandata: Plan;
 }
 
-export interface CurriculaDocument {
-	degree: string;
-	major: string;
-	catalogYear: string;
-	updated: string;
-	classes: ClassRecNode[];
-}
-
-export type ClassRecNode = ClassRecObj | string[] | ClassRecObj[] | ClassRecNode[];
-export type ClassRecObj = {
-	name?: string;
-	course: string;
-	legacy?: boolean;
-}
-
 export const sectionsCollection = client
   .db(BUILDER_NS)
   .collection<SectionDocument>("Sections");
@@ -278,9 +263,6 @@ export const coursesCollection = client
 export const userPlanCollection = client
   .db(BUILDER_NS)
   .collection<UserPlan>("User_Plans");
-export const curriculaCollection = client
-	.db(BUILDER_NS)
-	.collection<CurriculaDocument>("Curricula");
 class CourseCache {
   private courses: CourseDocument[] = [];
   private lastRetrieved: Date | null = null;
