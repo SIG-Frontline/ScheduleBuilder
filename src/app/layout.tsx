@@ -11,6 +11,7 @@ import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
+import { Notifications } from "@mantine/notifications";
 
 import {
   ColorSchemeScript,
@@ -60,6 +61,7 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
+            <Notifications />
             <div style={{ overflow: "auto" }}>
               <Shell>{children}</Shell>
             </div>
