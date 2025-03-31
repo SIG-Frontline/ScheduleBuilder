@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-const APIURL = "http://127.0.0.1:4000";
+import { uploadPlan } from "../server/actions/uploadPlan";
+import { getPlans } from "../server/actions/getPlans";
+import { deletePlan } from "../server/actions/deletePlan";
 
 function debounce(callback: () => void, delay: number) {
   let timeout: NodeJS.Timeout;
@@ -141,22 +142,14 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
-
-        try {
-          const user = await fetch("/api/auth/me");
-          if (!user.ok) {
-            console.log("User is not authenticated");
-            return;
-          }
-          const json_user = await user.json();
-          const userId = json_user.sub;
-
-          await fetch(`${APIURL}/userPlans/${userId}/${uuid}`, {
-            method: "Delete",
-          });
-        } catch (err) {
-          console.log("Error deleting plan from backend:", err);
+        const user = await fetch("/api/auth/me");
+        if (!(user.status === 200)) {
+          console.log("User is not authenticated");
+          return;
         }
+        const json_user = await user.json();
+        const userId = json_user.sub;
+        deletePlan(userId, uuid);
       },
       getPlan: (uuid) => {
         const { plans } = get();
@@ -281,104 +274,42 @@ planStore.subscribe(
     const user = await fetch("/api/auth/me");
     if (!(user.status === 200)) return;
     const json_user = await user.json();
-    if (json_user?.sub) {
-      uploadPlan();
+    const currentPlanUUID = planStore.getState().currentSelectedPlan;
+    const userId = json_user.sub;
+    if (userId && currentPlanUUID) {
+      const currentPlan = planStore.getState().getPlan(currentPlanUUID);
+      uploadPlan(currentPlanUUID, currentPlan, userId);
     } else {
       console.log("User is not authenticated");
     }
   }, 2500)
 );
 
-async function uploadPlan() {
-  const currentPlanUUID = planStore.getState().currentSelectedPlan;
-  const user = await fetch("/api/auth/me");
-  const json_user = await user.json();
-  const userId = json_user.sub;
-  if (currentPlanUUID) {
-    let planExists = false;
-    const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-    await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
-      method: "GET",
-    })
-      .then((res) => {
-        if (res.status === 404) {
-          console.log("Plan does not exist yet");
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data && Object.keys(data).length > 0) {
-          planExists = true;
-        }
-      });
-    if (planExists) {
-      await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(currentPlan),
-      });
-    } else {
-      if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-        await fetch(`${APIURL}/userPlans/${userId}/${currentPlanUUID}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(currentPlan),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data);
-          });
+(async function syncPlans() {
+  const globalState = globalThis as unknown as { setPlans?: boolean };
+  if (globalState.setPlans) return;
+  if (!globalThis.location) return;
+
+  try {
+    const user = await fetch("/api/auth/me");
+    if (user.status !== 200) return;
+    const json_user = await user.json();
+    const userId = json_user.sub;
+    if (!userId) return;
+    planStore.getState().setPlans([]);
+    const data = await getPlans(userId);
+    if (!data) return;
+    let i = 0;
+    for (const plan of data) {
+      if (plan.planData && plan.planData.term) {
+        plan.selected = i === 0;
+        planStore.getState().addPlan(plan.planData);
+        i++;
       }
     }
-  }
-}
-
-(async function syncPlans() {
-  if (
-    (
-      globalThis as unknown as {
-        setPlans: boolean;
-      }
-    ).setPlans
-  )
-    return;
-  if (!globalThis.location) return;
-  const user = await fetch("/api/auth/me");
-  if (!(user.status === 200)) return;
-  const json_user = await user.json();
-  const userId = json_user.sub;
-  if (userId) {
-    //clear the plans
-    planStore.getState().setPlans([]);
-    await fetch(`${APIURL}/userPlans/${userId}`, { method: "GET" })
-      .then((res) => {
-        if (res.status === 404) {
-          console.log("Plan does not exist yet");
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        let i = 0;
-        for (const plan of data) {
-          if (plan.planData) {
-            plan.selected = i === 0;
-            planStore.getState().addPlan(plan.planData);
-            i++;
-          }
-        }
-      })
-      .finally(() => {
-        (
-          globalThis as unknown as {
-            setPlans: boolean;
-          }
-        ).setPlans = true;
-      });
+  } catch (error) {
+    console.error("Failed to sync plans:", error);
+  } finally {
+    globalState.setPlans = true;
   }
 })();

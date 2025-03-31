@@ -19,5 +19,4 @@ export async function getSubjects(term: number) {
       console.error(err);
       return [];
     });
-  return data;
 }
