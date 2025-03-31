@@ -179,6 +179,7 @@ export default function Search({
                   ${Math.floor(Math.random() * 256)},
                   ${Math.floor(Math.random() * 256)},
                   ${Math.floor(Math.random() * 256)},0.9)`;
+                  
                   addCourseToPlan(data);
                 })
                 .then(() => {
