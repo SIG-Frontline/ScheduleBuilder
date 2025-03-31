@@ -205,7 +205,7 @@ export default function Search({
         // This will likely need to be switched when the navbar is changed
         setTimeout(() => {
           const sectionsTab = document.querySelector(
-            'button[id*="tab-sections"]'
+            'button[id*="tab-plans"]'
           );
           if (
             sectionsTab instanceof HTMLElement &&

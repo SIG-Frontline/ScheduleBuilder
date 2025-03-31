@@ -40,7 +40,7 @@ export async function uploadPlan(currentPlanUUID: string, currentPlan: Plan | un
         })
           .then((res) => res.json())
           .then((data) => {
-            console.log(data);
+            console.log("Plan Added:", data);
           });
       }
     }
