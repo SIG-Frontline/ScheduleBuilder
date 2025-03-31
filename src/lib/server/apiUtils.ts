@@ -217,3 +217,14 @@ export async function check_prereq(course: string, requisites: string[]) {
 
   return check_tree(staticData.tree, requisites);
 }
+
+export function escapeRegex(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+} 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function addRegexSearch(query: Record<string, any>, key: string, value: string) {
+  if (value) {
+    query[key] = { $regex: escapeRegex(value), $options: "i" };
+  }
+}
