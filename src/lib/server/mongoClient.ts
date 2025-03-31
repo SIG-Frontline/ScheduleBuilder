@@ -253,7 +253,6 @@ export interface UserPlan {
   userId: string;
   plandata: Plan;
 }
-
 export const sectionsCollection = client
   .db(BUILDER_NS)
   .collection<SectionDocument>("Sections");
