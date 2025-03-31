@@ -39,6 +39,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       const crnRegex = /crn\d+/;
 
       searchParams.forEach((value, key) => {
+        console.log(key);
+        console.log(value);
         if (crnRegex.test(key)) {
           if (key.includes("f")) crnValues.set(value, false);
           else crnValues.set(value, true);
@@ -46,7 +48,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       });
       /* 
       Sorting the crn values here ensures that they are in the correct order when eventually paired with their courses in getSectionByCrn.
-      This is far from a perfect solution although I doubt this would change. 
+      This is not a perfectly futre-proof solution although I doubt this would change. 
       Right now this pairing of CRN values to courses relies on the fact that the order in which courses are returned from the database is also the order in which CRN's are paired with courses. 
       That is to say, CRN values in ascending order happen to match the order in which the courses are returned.
       */
@@ -78,6 +80,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                   ${Math.floor(Math.random() * 256)},
                                   ${Math.floor(Math.random() * 256)},0.9)`;
           addCourseToPlan(course);
+          console.log(crn, addCrn);
           if (addCrn) {
             crnCodeMap.set(course.code, crn);
             selectSection(course.code, crn);

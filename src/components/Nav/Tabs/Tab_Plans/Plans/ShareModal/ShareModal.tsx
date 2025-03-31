@@ -45,6 +45,7 @@ export default function ShareModal({
   }
 
   function copyShareableLink() {
+    
     let urlInfo = new Map();
     const planName = currentSelectedPlanObj?.name ?? "SharedPlan";
     const term = currentSelectedPlanObj?.term;
