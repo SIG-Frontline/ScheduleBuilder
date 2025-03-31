@@ -23,6 +23,8 @@ const Cal_Grid = () => {
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
+    setCardVisibility(false) // Hides info card when switching between plans
+
     setCurrentSelectedPlan(
       plan_store.getPlan(
         plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid

@@ -3,7 +3,7 @@ import Icon from "../Icon/Icon";
 import { Button, Paper, Stack } from "@mantine/core";
 
 import { useViewportSize } from "@mantine/hooks";
-import { Theme } from "@fullcalendar/core/internal";
+import { ActionIcon } from "@mantine/core";
 
 type InfoCardProps = {
   cardVisible: boolean;
@@ -64,7 +64,8 @@ function InfoCard(props: InfoCardProps) {
   useEffect(() => {
     // Mouse move handler for dragging
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || width < 640) return;
+      if (!isDragging || width < 640) return; 
+      e.preventDefault(); // To prevent text highlighting
       const newX = e.clientX - offset.x;
       const newY = e.clientY - offset.y;
       setPosition({ x: newX, y: newY });
@@ -124,8 +125,9 @@ function InfoCard(props: InfoCardProps) {
         className=""
         onMouseDown={handleMouseDown}
       >
-        <div className="flex justify-end w-full pr-1 pt-1 pb-1">
-          <Button
+        <div className="flex justify-between items-center w-full p-3 pr-4 pl-5">
+          <p className="font-bold text-center pr-1">{courseInfo.get("title")}</p>
+          <ActionIcon
             variant="transparent"
             className="close-icon"
             color="gray"
@@ -134,14 +136,12 @@ function InfoCard(props: InfoCardProps) {
             aria-label="close"
           >
             <Icon className="sm:text-black">close</Icon>
-          </Button>
+          </ActionIcon>
         </div>
       </Paper>
 
       <Stack align="flex-start">
-        <div className="course-title flex flex-row items-left space-x-2 pl-2 ">
-          <p className="font-bold text-base">{courseInfo.get("title")}</p>
-        </div>
+
         {courseInfo.get("location") == "Online" || (
           <div className="flex flex-row items-left space-x-2 pl-2 ">
             <Icon>schedule</Icon>
