@@ -5,6 +5,7 @@ import {
   UnstyledButton,
   Highlight,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { getSubjects } from "@/lib/server/actions/getSubjects";
 import { getClasses } from "@/lib/server/actions/getClasses";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
@@ -196,7 +197,16 @@ export default function Search({
           "#fd7e14",
         ];
         data.color = colorArr[Math.floor(Math.random() * colorArr.length)]; //random color for the course
-        addCourseToPlan(data);
+        if((selectedPlan?.courses?.length ?? 0) >= 19) {
+          notifications.show({
+            color: 'red',
+            title: "Course limit reached!",
+            position: "top-right",
+            message: "You can only add up to 19 courses to a plan. Sorry!"
+          });
+        } else {
+          addCourseToPlan(data);
+        }
       })
       .then(() => {
         setTextBoxValue("");
