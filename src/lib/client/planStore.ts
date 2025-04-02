@@ -20,7 +20,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
-  organizerSettings: organizerSettings;
+  organizerSettings?: organizerSettings; // this should not be optional once the frontend UI is completed
 };
 
 export type Course = {

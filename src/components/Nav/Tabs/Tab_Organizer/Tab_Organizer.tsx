@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
 import { planStore, organizerSettings } from "@/lib/client/planStore";
-
-import { organizePlan } from "@/lib/server/organizer";
+import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 
 const Tab_Optimiser = () => {
   const [input, setInput] = useState({
@@ -38,7 +37,14 @@ const Tab_Optimiser = () => {
 	  if(selectedPlan.organizerSettings && selectedPlan.organizerSettings.courseFilters) settings.courseFilters = selectedPlan.organizerSettings.courseFilters
 	  selectedPlan.organizerSettings = settings;
 
-	  return await organizePlan(selectedPlan);
+  	  const result = await organizePlan(selectedPlan);
+
+		if ('error' in result) {
+			console.error(result);
+			return;
+		}
+
+	  return result;
   }
 
   return (

@@ -1,5 +1,7 @@
 "use server";
 
+import { SectionDocument, Time } from "../mongoClient";
+
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -39,8 +41,7 @@ export async function getSectionData(
 
     // Format sections
     course.sections = course.sections.map(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (section: Record<string, any>) => ({
+      (section: SectionDocument) => ({
         instructor: section.INSTRUCTOR ?? "",
         sectionNumber: section.SECTION ?? "",
         status: section.STATUS ?? "Unknown",
@@ -50,14 +51,16 @@ export async function getSectionData(
         is_async: section.IS_ASYNC ?? false,
         crn: section.CRN ?? "",
         comments: section.COMMENTS ?? "",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        meetingTimes: (section.TIMES || []).map((time: any) => ({
+		  instructionType: section.INSTRUCTION_METHOD ?? "",
+         
+        meetingTimes: (section.TIMES || []).map((time: Time) => ({
           day: time.day,
           startTime: time.start,
           endTime: time.end,
           building: time.building,
           room: time.room,
         })),
+		  selected: false,
       })
     );
 
