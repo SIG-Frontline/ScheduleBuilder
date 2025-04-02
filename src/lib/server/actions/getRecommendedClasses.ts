@@ -20,7 +20,6 @@ export async function getRecommendedClasses(degree: string, major: string, year:
 	const baseURL = `${process.env.SBCORE_URL}`;
 	const URL = `${baseURL}/recommender`
 
-	console.log(URL);
 	const data = fetch(URL, {
 		method: "POST",
 		headers: {
