@@ -3,7 +3,7 @@ import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
 import { planStore, organizerSettings } from "@/lib/client/planStore";
 import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 
-const Tab_Optimiser = () => {
+const Tab_Organizer = () => {
   const [input, setInput] = useState({
 	 isCommuter: false,
 	 commuteTime: "",
@@ -134,4 +134,4 @@ const Tab_Optimiser = () => {
   );
 };
 
-export default Tab_Optimiser;
+export default Tab_Organizer;
