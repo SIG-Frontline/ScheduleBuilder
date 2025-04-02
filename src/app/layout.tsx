@@ -18,6 +18,8 @@ import {
   mantineHtmlProps,
 } from "@mantine/core";
 import Shell from "@/components/Shell/Shell";
+import { getBackendStatus } from "@/lib/server/actions/getBackendStatus";
+import BackendOfflineMessage from "@/components/BackendOffline/BackendOfflineMessage";
 export const viewport: Viewport = {
   themeColor: "#1c7ed6",
   initialScale: 1,
@@ -47,11 +49,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const backendStatus = await getBackendStatus();
+
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
@@ -60,9 +64,13 @@ export default function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
-            <div style={{ overflow: "auto" }}>
-              <Shell>{children}</Shell>
-            </div>
+            {backendStatus ? (
+              <div style={{ overflow: "auto" }}>
+                <Shell>{children}</Shell>
+              </div>
+            ) : (
+              <BackendOfflineMessage />
+            )}
           </MantineProvider>
         </UserProvider>
       </body>
