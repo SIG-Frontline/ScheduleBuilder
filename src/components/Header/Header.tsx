@@ -17,6 +17,8 @@ import React from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { dayStore } from "@/lib/client/dayStore";
+import { notifications } from "@mantine/notifications";
+import { useEffect } from 'react';
 
 const Header = () => {
   const days = [
@@ -33,6 +35,46 @@ const Header = () => {
 
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
+  const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+
+  // Notification when user logs in
+  useEffect(() => {
+    if (user && !hasLoggedIn && !isLoggingOut) {
+      setHasLoggedIn(true);
+      notifications.show({
+        title: 'Welcome',
+        message: `You're logged in as ${user.name}`,
+        color: 'green',
+        icon: <span className="material-symbols-outlined">person</span>,
+        autoClose: 2000,
+        position: 'top-right'
+      });
+    }
+  }, [user, hasLoggedIn, isLoggingOut]);
+
+  // Notification when user logs out
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    setHasLoggedIn(false);
+    setIsLoggingOut(true);
+
+    // Notification when user is logging out
+    notifications.show({
+      title: 'Logging Out',
+      message: 'Please wait...',
+      color: 'blue',
+      icon: <span className="material-symbols-outlined">logout</span>,
+      autoClose: 2000,
+      position: 'top-right'
+    });
+
+    // Redirect after both notifications
+    setTimeout(() => {
+      window.location.href = "/api/auth/logout";
+    }, 2000);
+  };
 
   const icon = () => {
     // conditional rendering of the avatar or the settings icon
@@ -111,7 +153,7 @@ const Header = () => {
               </Popover>
               {!isLoggedIn ? (
                 <Menu.Item
-                  leftSection={<Icon> login </Icon>}
+                  rightSection={<Icon> login </Icon>}
                   component={"a"}
                   href={"/api/auth/login"}
                 >
@@ -119,9 +161,10 @@ const Header = () => {
                 </Menu.Item>
               ) : (
                 <Menu.Item
-                  leftSection={<Icon> logout </Icon>}
+                  rightSection={<Icon> logout </Icon>}
                   href={"/api/auth/logout"}
                   component={"a"}
+                  onClick={handleLogout}
                 >
                   Logout
                 </Menu.Item>
