@@ -90,11 +90,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         });
       });
       notifications.show({
-        title: 'Previewing the plan: "' + queryName + '"',
+        title: 'Previewing: "' + queryName + '"',
+        color: 'orange',
         message: (
           <div>
-            <p>Would you like to save this plan to your list of plans?</p>
+            <p>Any changes will not be saved unless you add it to your list of plans.</p>
             <div className="flex justify-evenly">
+
               <Button
                 onClick={() => {
                   addPlan(queryPlan);
@@ -104,20 +106,20 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                   notifications.clean();
                 }}
               >
-                Yes
+                Save to My Plans
               </Button>
-              <Button
+              {/* <Button
                 onClick={() => {
                   notifications.clean();
                 }}
               >
-                No
-              </Button>
+                No, just preview
+              </Button> */}
             </div>
           </div>
         ),
         autoClose: false, // Keeps the notification open until dismissed
-        position: "top-center",
+        position: "bottom-right",
       });
     };
     if (searchParams.get("name")) {
