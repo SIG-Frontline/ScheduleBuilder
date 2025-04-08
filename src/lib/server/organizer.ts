@@ -41,7 +41,10 @@ function filterSectionsInPlan(plan: Plan) : void {
 	
 	// TODO: filter sections that interfere with events
 	// TODO: filter sections that have a full seat count
-	
+	if (!plan.organizerSettings) {
+		console.warn("Organizer settings could not be found for the selected plan!")
+		return;
+	}	
 	const courseFilters = plan.organizerSettings.courseFilters;
 
 	 // Perform all the filters for the courses
@@ -54,7 +57,7 @@ function filterSectionsInPlan(plan: Plan) : void {
 				(filter.honors == null || s.is_honors == filter.honors) &&
 
 				// Do some weird conditionals because we don't know if the sections are in sync with the new schema
-				(filter.online == null || (s["INSTURCTION_METHOD"] ? s["INSTRUCTION_METHOD"].toLowerCase().includes(filter.online) : s.instruction_type.toLowerCase().includes(filter.online))) &&
+				(filter.online == null || (s["instruction_type"] ? s["instruction_type"].toLowerCase().includes(filter.online) : s.instruction_type.toLowerCase().includes(filter.online))) &&
 				(filter.section == null) || (s.sectionNumber == filter.section)
 			);
 		})
@@ -225,6 +228,10 @@ function convertDayToIndex(day: string) : number {
 }
 
 function rateSections(sectionList: {[key: string]: string}, plan: Plan) : number {
+	if(!plan.organizerSettings) {
+		console.warn("Organizer settings could not be found for the selected plan!")
+		return -1;
+	}	
 	const settings = plan.organizerSettings;
 
 	const earliestStart = [1440, 1440, 1440, 1440, 1440, 1440, 1440]; // 60 minutes * 24 hours = 1440 minutes

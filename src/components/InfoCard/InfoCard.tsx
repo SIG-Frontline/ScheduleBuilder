@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
 import Icon from "../Icon/Icon";
-import { Button, Paper, Stack } from "@mantine/core";
+import { Paper, Stack } from "@mantine/core";
 
 import { useViewportSize } from "@mantine/hooks";
 import { ActionIcon } from "@mantine/core";
 
 type InfoCardProps = {
   cardVisible: boolean;
-  courseInfo: Map<String, String>;
+  courseInfo: Map<string, string>;
   onClose: () => void;
 };
 
-function msToTime(duration) {
-  var minutes: number = Math.floor((duration / (1000 * 60)) % 60),
+function msToTime(duration: number) {
+  let minutes: number = Math.floor((duration / (1000 * 60)) % 60),
     hours: number = Math.floor((duration / (1000 * 60 * 60)) % 24);
 
   hours = hours > 12 ? hours - 12 : hours;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
-  let timeOfDay =
+  minutes = minutes < 10 ? 0 + minutes : minutes;
+  const timeOfDay =
     hours >= 12 ? hours + ":" + minutes + "pm" : hours + ":" + minutes + "am";
   return timeOfDay;
 }
@@ -101,8 +101,8 @@ function InfoCard(props: InfoCardProps) {
     // Calculate the offset between card's current position and the cursor
   };
 
-  let startTime: number = msToTime(parseInt(courseInfo.get("startTime")));
-  let endTime: number = msToTime(parseInt(courseInfo.get("endTime")));
+  const startTime: string = msToTime(parseInt(courseInfo.get("startTime") || "0"));
+  const endTime: string = msToTime(parseInt(courseInfo.get("endTime") || "0"));
 
   // If not visible, render nothing
   if (!cardVisible) return null;

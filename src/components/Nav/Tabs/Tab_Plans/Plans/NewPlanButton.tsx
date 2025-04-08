@@ -8,7 +8,7 @@ import {
   Textarea,
   Title,
 } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "@mantine/form";
 import { uuidv4 } from "@/lib/uuidv4";
 import { planStore } from "@/lib/client/planStore";

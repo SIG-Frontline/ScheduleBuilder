@@ -17,7 +17,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
-  organizerSettings: organizerSettings;
+  organizerSettings?: organizerSettings;
 };
 
 export type Course = {

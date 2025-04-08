@@ -5,11 +5,10 @@ import {
   Text,
   Radio,
   Stack,
-  ScrollArea,
   Title,
   ScrollAreaAutosize,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+//import { useMediaQuery } from "@mantine/hooks";
 import React, { useState } from "react";
 
 const SectionSelection = ({
@@ -21,9 +20,9 @@ const SectionSelection = ({
   sections: Section[];
   courseTitle: string;
 }) => {
-  const matches = useMediaQuery(
-    "only screen and (orientation: landscape) and (min-width: 1201px)"
-  );
+  // const matches = useMediaQuery(
+  //   "only screen and (orientation: landscape) and (min-width: 1201px)"
+  // );
   const selectSection = planStore((state) => state.selectSection);
 
   const [value, setValue] = useState<string | null>(
