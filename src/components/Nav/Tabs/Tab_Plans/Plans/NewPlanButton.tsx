@@ -39,7 +39,7 @@ const NewPlanButton = () => {
       "Plan Name": (value) =>
         ValidatePlanName(value)
           ? null
-          : "Enter a valid plan name. Minimum: 1 character. Maximum 20 characters.",
+          : "Enter a valid plan name. Minimum: 1 character. Maximum: 20 characters.",
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
