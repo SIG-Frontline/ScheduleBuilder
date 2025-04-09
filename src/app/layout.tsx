@@ -65,14 +65,14 @@ export default async function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
-        {backendStatus ? (
             <Notifications />
-            <div style={{ overflow: "auto" }}>
-              <Shell>{children}</Shell>
-            </div>
-          ) : (
-                <BackendOfflineMessage />
-              )}
+            {backendStatus ? (
+              <div style={{ overflow: "auto" }}>
+                <Shell>{children}</Shell>
+              </div>
+            ) : (
+              <BackendOfflineMessage />
+            )}
           </MantineProvider>
         </UserProvider>
       </body>
