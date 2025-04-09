@@ -2,7 +2,7 @@ const BackendOfflineMessage = () => {
   return (
     <div className="text-center p-10">
       <h1 className="text-6xl font-bold text-red-500">
-        Service is unavailable.
+        Service Is Unavailable.
       </h1>
       {/* Easter Egg Error Code, if you know you know */}
       <p className="text-xl font-semibold mt-4">
