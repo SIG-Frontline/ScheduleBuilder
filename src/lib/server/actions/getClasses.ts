@@ -20,9 +20,9 @@ export async function getClasses(
       error: "term and subject are required",
     };
   }
-  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
+  const baseURL = `${process.env.SBCORE_URL}`;
 
-  let URL = `${baseURL}/api/course-search?term=${term}`;
+  let URL = `${baseURL}/courseSearch?term=${term}`;
 
   if (subject) {
     URL += `&subject=${subject}`;
