@@ -11,6 +11,7 @@ import "@mantine/dropzone/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
+import { Notifications } from "@mantine/notifications";
 
 import {
   ColorSchemeScript,
@@ -64,13 +65,14 @@ export default async function RootLayout({
       <body>
         <UserProvider>
           <MantineProvider>
-            {backendStatus ? (
-              <div style={{ overflow: "auto" }}>
-                <Shell>{children}</Shell>
-              </div>
-            ) : (
-              <BackendOfflineMessage />
-            )}
+        {backendStatus ? (
+            <Notifications />
+            <div style={{ overflow: "auto" }}>
+              <Shell>{children}</Shell>
+            </div>
+          ) : (
+                <BackendOfflineMessage />
+              )}
           </MantineProvider>
         </UserProvider>
       </body>

@@ -1,5 +1,6 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
+import InfoCard from "../InfoCard/InfoCard";
 import { Plan, planStore } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -12,23 +13,33 @@ import { useEffect, useState } from "react";
  */
 const Cal_Grid = () => {
   const plan_store = planStore();
+
   const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
     Plan | undefined
   >(plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined);
   //use effect to log the current selected plan
+
+  const [courseInfo, setCourseInfo] = useState<Map<string, string>>();
+  const [cardVisible, setCardVisibility] = useState<boolean>(false);
+
   useEffect(() => {
+    setCardVisibility(false) // Hides info card when switching between plans
+
     setCurrentSelectedPlan(
       plan_store.getPlan(
         plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
       )
     );
   }, [plan_store.currentSelectedPlan, plan_store]);
+
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
     setCurrentSelectedPlan(
       plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
     );
   });
+
   const day_store = dayStore();
+
   useEffect(() => {
     return () => {
       unsubscribe();
@@ -122,6 +133,32 @@ const Cal_Grid = () => {
               <br />
             </Group>
           )}
+          eventClick={(info) => {
+            console.log(info);
+            setCardVisibility(true);
+            setCourseInfo(
+              new Map([
+                [
+                  "startTime",
+                  info.event._def.recurringDef?.typeData.startTime.milliseconds,
+                ],
+                [
+                  "endTime",
+                  info.event._def.recurringDef?.typeData.endTime.milliseconds,
+                ],
+                ["title", info.event.extendedProps.title],
+                ["crn", info.event.extendedProps.crn],
+                ["instructor", info.event.extendedProps.instructor],
+                ["location", info.event.extendedProps.location],
+              ])
+            );
+          }}
+          dateClick={() => {
+            setCardVisibility(false);
+          }}
+          eventMouseEnter={(info) => {
+            info.el.style.cursor = "pointer";
+          }}
           slotEventOverlap={false}
           eventTimeFormat={{
             hour: "numeric",
@@ -160,7 +197,11 @@ const Cal_Grid = () => {
           slotMaxTime={"22:00:00"}
           // eventClassNames="!bg-green-500"
         />
-
+        <InfoCard
+          cardVisible={cardVisible}
+          courseInfo={courseInfo ?? new Map()}
+          onClose={() => setCardVisibility(false)}
+        />
         <Group>
           <Group className="sticky left-0 !flex-nowrap overflow-x-auto bg-white dark:bg-[#242424]">
             {/* online courses */}
@@ -178,9 +219,22 @@ const Cal_Grid = () => {
                   <div
                     key={section.crn}
                     className="flex items-center space-x-2 rounded-lg border border-gray-300 p-2 my-3"
+                    onClick={() => {
+                      setCardVisibility(true);
+                      console.log(section.meetingTimes);
+
+                      setCourseInfo(
+                        new Map([
+                          ["title", item.title],
+                          ["crn", item.code],
+                          ["instructor", section.instructor],
+                          ["location", "Online"],
+                        ])
+                      );
+                    }}
                   >
                     <div
-                      style={{ backgroundColor: item.color ?? "#00aa00" }}
+                      style={{ backgroundColor: item.color ?? "#0aa00" }}
                       className="w-4 h-4 rounded-full"
                     ></div>
                     <div>
