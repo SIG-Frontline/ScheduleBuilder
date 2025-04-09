@@ -14,6 +14,11 @@ import { uuidv4 } from "@/lib/uuidv4";
 import { planStore } from "@/lib/client/planStore";
 import { prettyTermText } from "@/lib/client/prettyTermText";
 
+const ValidatePlanName = (name: string): boolean => {
+  const regexName = /^[a-zA-Z0-9\-_]{1,20}$/;
+  return regexName.test(name);
+} 
+
 const NewPlanButton = () => {
   const [terms, setTerms] = React.useState<{ value: string; label: string }[]>(
     []
@@ -32,9 +37,9 @@ const NewPlanButton = () => {
 
     validate: {
       "Plan Name": (value) =>
-        value.length > 3
+        ValidatePlanName(value)
           ? null
-          : "Plan name must be at least 4 characters long",
+          : "Enter a valid plan name. Minimum: 1 character. Maximum: 20 characters.",
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
