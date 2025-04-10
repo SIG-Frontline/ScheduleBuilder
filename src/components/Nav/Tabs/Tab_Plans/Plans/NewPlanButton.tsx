@@ -8,7 +8,7 @@ import {
   Textarea,
   Title,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "@mantine/form";
 import { uuidv4 } from "@/lib/uuidv4";
 import { planStore } from "@/lib/client/planStore";
@@ -38,10 +38,11 @@ const NewPlanButton = () => {
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
-  if (terms.length === 0) {
-    setTimeout(() => {
+    useEffect(() => {
+      let isMounted = true;
       //set timeout of 0 to delay the loading of terms until the callstack is empty
       getTerms().then((terms_val) => {
+        if (!isMounted) return;
         for (let i = 0; i < terms_val.length; i++) {
           terms_val[i] = {
             value: terms_val[i],
@@ -58,8 +59,10 @@ const NewPlanButton = () => {
           "Plan Term": terms_val[0].value,
         });
       });
-    }, 0);
-  }
+      return () => {
+        isMounted = false;
+      };
+    }, []);
   const plan_store = planStore();
 
   function addPlan(form_values: {
