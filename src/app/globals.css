@@ -4,17 +4,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
   --fc-non-business-color: #ecbcbc4d;
   --fc-page-bg-color: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
+[data-mantine-color-scheme*="dark"] {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  }
+}
+
+[data-mantine-color-scheme*="light"] {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 
