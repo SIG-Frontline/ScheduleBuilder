@@ -20,7 +20,8 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
-  organizerSettings: organizerSettings;
+  isTemporary?: boolean;
+  organizerSettings?: organizerSettings;
 };
 
 export type Course = {
@@ -105,13 +106,23 @@ export const planStore = create<PlanStoreState>()(
     (set, get) => ({
       plans: [],
       currentSelectedPlan: null,
-      setPlans: (plans) => set({ plans }),
+      setPlans: (plans) => {
+        set({ 
+          plans: plans.map((plan) => ({
+            ...plan,
+            isTemporary: plan.isTemporary ?? false,
+          })),
+        });
+      },
       addPlan: (newPlan) => {
         const { plans } = get();
         if (plans.length === 0) {
           newPlan.selected = true;
         }
-        set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
+        set({ 
+          plans: [...plans, { ...newPlan, isTemporary: newPlan.isTemporary ?? false}], 
+          currentSelectedPlan: newPlan.uuid 
+        });
       },
       selectPlan: (uuid) => {
         const { plans } = get();
@@ -263,6 +274,10 @@ export const planStore = create<PlanStoreState>()(
     }),
     {
       name: "plan-store",
+      partialize: (state) => ({
+        ...state,
+        plans: state.plans.filter((plan) => !plan.isTemporary),
+      }),
     }
   )
 );
@@ -276,9 +291,16 @@ planStore.subscribe(
     const json_user = await user.json();
     const currentPlanUUID = planStore.getState().currentSelectedPlan;
     const userId = json_user.sub;
+    const persistentPlans = planStore
+      .getState()
+      .plans.filter((plan) => !plan.isTemporary);
+
     if (userId && currentPlanUUID) {
-      const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-      uploadPlan(currentPlanUUID, currentPlan, userId);
+      const currentPlan = persistentPlans.find(
+        (plan) => plan.uuid === currentPlanUUID
+      );
+      //planStore.getState().getPlan(currentPlanUUID);
+      if (currentPlan) uploadPlan(currentPlanUUID, currentPlan, userId);
     } else {
       console.log("User is not authenticated");
     }

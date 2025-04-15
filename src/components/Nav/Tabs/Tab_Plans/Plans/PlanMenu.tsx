@@ -1,6 +1,8 @@
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/client/planStore";
+import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
 import { Button, Menu, Popover, Textarea, TextInput } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import html2canvas from "html2canvas";
 import React from "react";
 
@@ -9,7 +11,7 @@ const PlanMenu = ({
   uuid,
 }: {
   children?: React.ReactNode;
-  uuid: string;
+  uuid: string
 }) => {
   const plan_store = planStore();
 
@@ -37,6 +39,49 @@ const PlanMenu = ({
       downloadLink.href = dataURL;
       downloadLink.download = "capture.png";
       downloadLink.click();
+    });
+  }
+  function urlSave() {
+    let urlInfo = new Map();
+    const planName = plan_store.getPlan(uuid)?.name;
+    const term = plan_store.getPlan(uuid)?.term;
+
+    urlInfo.set("name", planName);
+    urlInfo.set("term", term);
+
+      plan_store.getPlan(uuid)?.courses?.forEach((course, index) => {
+      let hasSelectedSection = false;
+      course.sections.forEach((section) => {
+        if (section.selected) {
+          hasSelectedSection = true;
+          urlInfo.set("crn" + index + "t", section.crn);
+        }
+      });
+      if (!hasSelectedSection) {
+        urlInfo.set("crn" + index + "f", course.sections[0].crn);
+      }
+    });
+    // console.log(urlInfo);
+    const queryString = Array.from(urlInfo)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+      )
+      .join("&");
+
+    // console.log(queryString);
+      getSectionDataByCrn(queryString);
+    const urlString: string = "localhost:3000/?" + queryString;
+    // console.log(urlString);
+    navigator.clipboard.writeText(urlString);
+    notifications.show({
+      title: "Share link has been copied to clipboard!",
+      message: "You can now share this link with others.",
+      color: "green",
+      icon: <Icon>check</Icon>,
+      autoClose: 5000,
+      radius: "md",
+      position: "top-right",
     });
   }
 
@@ -109,6 +154,7 @@ const PlanMenu = ({
             <Popover.Dropdown>
               <Button onClick={jsonSave}>Save as JSON</Button>
               <Button onClick={imageSave}>Save as Image</Button>
+              <Button onClick={urlSave}>Save as URL</Button>
             </Popover.Dropdown>
           </Popover>
 

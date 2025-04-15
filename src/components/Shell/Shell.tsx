@@ -1,11 +1,113 @@
 "use client";
 
-import { AppShell } from "@mantine/core";
+import { AppShell, Button } from "@mantine/core";
 import Nav from "@/components/Nav/Nav";
 import Header from "../Header/Header";
 import { useMediaQuery } from "@mantine/hooks";
+import { useEffect } from "react";
+import { uuidv4 } from "@/lib/uuidv4";
+import { useSearchParams } from "next/navigation";
+import { planStore } from "@/lib/client/planStore";
+import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
+import { notifications } from "@mantine/notifications";
 
 export default function Shell({ children }: { children: React.ReactNode }) {
+  const addPlan = planStore().addPlan;
+  // const addTempPlan = planStore().addTempPlan;
+  const addCourseToPlan = planStore((state) => state.addCourseToPlan);
+  const selectSection = planStore((state) => state.selectSection);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // const searchParams = new URLSearchParams(window.location.search);
+    const importPlanFromURL = async () => {
+      const queryName = searchParams.get("name") ?? "Imported Plan";
+      const queryTerm = searchParams.get("term") ?? "0";
+      const newUuid = uuidv4();
+      // TODO: Since this map is converted to an array whenever it is used, it shouldn't be a map to begin with. Rather a 2D array.
+      const crnValues = new Map();
+      const crnRegex = /crn\d+/;
+
+      console.log("Search Params:");
+      console.log(window.location.search);
+
+      searchParams.forEach((value, key) => {
+        if (crnRegex.test(key)) {
+          if (key.includes("f")) crnValues.set(value, false);
+          else crnValues.set(value, true);
+        }
+      });
+      /* 
+      Sorting the crn values here ensures that they are in the correct order when eventually paired with their courses in getSectionByCrn.
+      This is far from a perfect solution although I doubt this would change. 
+      Right now this pairing of CRN values to courses relies on the fact that the order in which courses are returned from the database is also the order in which CRN's are paired with courses. 
+      That is to say, CRN values in ascending order happen to match the order in which the courses are returned.
+      */
+      const sortedCrnValues = new Map(
+        [...crnValues.entries()].sort((a, b) => Number(a[0]) - Number(b[0]))
+      );
+      const crnValueArray: string[] = Array.from(sortedCrnValues.values());
+      const queryPlan = {
+        uuid: newUuid,
+        name: queryName,
+        description: "This is an imported plan",
+        term: parseInt(queryTerm, 10),
+        courses: [],
+        events: [],
+        selected: true,
+        isTemporary: true,
+      };
+
+      console.log(queryPlan);
+      addPlan(queryPlan);
+
+      const crnCodeMap = new Map();
+      getSectionDataByCrn(window.location.search).then((data) => {
+        data.forEach((course) => {
+          course.color = `rgba(
+                                  ${Math.floor(Math.random() * 256)},
+                                  ${Math.floor(Math.random() * 256)},
+                                  ${Math.floor(Math.random() * 256)},0.9)`;
+          addCourseToPlan(course);
+          queryPlan.courses.push(course);
+        });
+      });
+      notifications.show({
+        title: 'Previewing the plan: "' + queryName + '"',
+        message: (
+          <div>
+            <p>Would you like to save this plan to your list of plans?</p>
+            <div className="flex justify-evenly">
+              <Button
+                onClick={() => {
+                  queryPlan.isTemporary = false;
+                  planStore.getState().updatePlan(queryPlan, queryPlan.uuid);
+                  notifications.clean();
+                }}
+              >
+                Yes
+              </Button>
+              <Button
+                onClick={() => {
+                  notifications.clean();
+                }}
+              >
+                No
+              </Button>
+            </div>
+          </div>
+        ),
+        autoClose: false, // Keeps the notification open until dismissed
+        position: "top-center",
+      });
+    };
+    if (searchParams.get("name")) {
+      importPlanFromURL();
+    }
+
+    // This clears the URL parameters so that refreshing the page does not re-add the plan:
+    window.history.replaceState({}, document.title, "/");
+  }, []);
   const matches = useMediaQuery(
     "only screen and (orientation: landscape) and (min-width: 1201px)"
   );
