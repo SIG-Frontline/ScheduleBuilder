@@ -72,7 +72,7 @@ const Header = () => {
 
     // Redirect after both notifications
     setTimeout(() => {
-      window.location.href = "/api/auth/logout";
+      window.location.href = "/auth/logout";
     }, 2000);
   };
 
@@ -155,14 +155,14 @@ const Header = () => {
                 <Menu.Item
                   rightSection={<Icon> login </Icon>}
                   component={"a"}
-                  href={"/api/auth/login"}
+                  href={"/auth/login"}
                 >
                   Login
                 </Menu.Item>
               ) : (
                 <Menu.Item
                   rightSection={<Icon> logout </Icon>}
-                  href={"/api/auth/logout"}
+                  href={"/auth/logout"}
                   component={"a"}
                   onClick={handleLogout}
                 >

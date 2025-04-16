@@ -142,7 +142,7 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
-        const user = await fetch("/api/auth/me");
+        const user = await fetch("/auth/profile");
         if (!(user.status === 200)) {
           console.log("User is not authenticated");
           return;
@@ -271,7 +271,7 @@ export const planStore = create<PlanStoreState>()(
 planStore.subscribe(
   debounce(async () => {
     if (!globalThis.location) return;
-    const user = await fetch("/api/auth/me");
+    const user = await fetch("/auth/profile");
     if (!(user.status === 200)) return;
     const json_user = await user.json();
     const currentPlanUUID = planStore.getState().currentSelectedPlan;
@@ -291,7 +291,7 @@ planStore.subscribe(
   if (!globalThis.location) return;
 
   try {
-    const user = await fetch("/api/auth/me");
+    const user = await fetch("/auth/profile");
     if (user.status !== 200) return;
     const json_user = await user.json();
     const userId = json_user.sub;
