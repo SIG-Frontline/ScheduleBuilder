@@ -82,6 +82,10 @@ const NewPlanButton = () => {
       selected: false,
       courses: [],
       events: [],
+      organizerSettings: {  isCommuter: false,
+        commuteTimeHours: 0,
+        compactPlan: false,
+        courseFilters: []}
     });
   }
   return (
