@@ -16,7 +16,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const addPlan = planStore().addPlan;
   // const addTempPlan = planStore().addTempPlan;
   const addCourseToPlan = planStore((state) => state.addCourseToPlan);
-  const selectSection = planStore((state) => state.selectSection);
   const searchParams = useSearchParams();
 
   useEffect(() => {
