@@ -34,7 +34,7 @@ function InfoCard(props: InfoCardProps) {
     console.log("Width changed");
     if (width < 640) {
       setPosition({ x: 0, y: 0 });
-    } else setPosition({ x: position.x, y: position.y });
+    }; 
   }, [width]);
 
   function cardOffscreen() {
@@ -85,7 +85,7 @@ function InfoCard(props: InfoCardProps) {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging, offset]);
+  }, [isDragging, offset, width]);
 
   // Start drag
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
