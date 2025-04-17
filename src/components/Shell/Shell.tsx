@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { planStore } from "@/lib/client/planStore";
 import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
 import { notifications } from "@mantine/notifications";
+import classes from './Shell.module.css';
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const addPlan = planStore().addPlan;
@@ -73,32 +74,28 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         });
       });
       notifications.show({
-        title: 'Previewing the plan: "' + queryName + '"',
+        title: 'Previewing: "' + queryName + '"',
+        color: "red",
+        classNames: classes,
         message: (
           <div>
-            <p>Would you like to save this plan to your list of plans?</p>
+            <p>Any changes will not be saved unless you add it to your list of plans.</p>
             <div className="flex justify-evenly">
               <Button
+                color="gray"
                 onClick={() => {
                   queryPlan.isTemporary = false;
                   planStore.getState().updatePlan(queryPlan, queryPlan.uuid);
                   notifications.clean();
                 }}
               >
-                Yes
-              </Button>
-              <Button
-                onClick={() => {
-                  notifications.clean();
-                }}
-              >
-                No
+                Save This Plan
               </Button>
             </div>
           </div>
         ),
         autoClose: false, // Keeps the notification open until dismissed
-        position: "top-center",
+        position: "bottom-right",
       });
     };
     if (searchParams.get("name")) {

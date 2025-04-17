@@ -277,7 +277,7 @@ export const planStore = create<PlanStoreState>()(
       partialize: (state) => ({
         ...state,
         plans: state.plans.filter((plan) => !plan.isTemporary),
-      }),
+      })
     }
   )
 );

@@ -69,8 +69,6 @@ export async function getSectionDataByCrn(
 
     });
     
-
-        console.log("responseData", responseData);
     return responseData;
   } catch (err) {
     console.error("Error fetching section data:", err);
