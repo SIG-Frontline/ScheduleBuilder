@@ -44,7 +44,7 @@ const Header = () => {
       setHasLoggedIn(true);
       notifications.show({
         title: 'Welcome',
-        message: `You're logged in as ${user.name}`,
+        message: `You're now logged in`,
         color: 'green',
         icon: <span className="material-symbols-outlined">person</span>,
         autoClose: 2000,
@@ -79,7 +79,7 @@ const Header = () => {
   const icon = () => {
     // conditional rendering of the avatar or the settings icon
     if (isLoggedIn) {
-      return <Avatar src={user?.picture} alt={user?.name ?? ""} />;
+      return <Avatar alt={"logged in user"} />;
     } else {
       return (
         <ActionIcon variant="light" aria-label="Settings">

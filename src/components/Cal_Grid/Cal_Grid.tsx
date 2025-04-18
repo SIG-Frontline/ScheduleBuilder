@@ -1,7 +1,7 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
-import { Plan, planStore } from "@/lib/client/planStore";
+import { Plan, planStore, syncPlans } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
@@ -41,6 +41,7 @@ const Cal_Grid = () => {
   const day_store = dayStore();
 
   useEffect(() => {
+    syncPlans();
     return () => {
       unsubscribe();
     };
