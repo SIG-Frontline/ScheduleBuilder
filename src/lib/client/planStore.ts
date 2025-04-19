@@ -99,6 +99,7 @@ interface PlanStoreState {
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
+  clearPlans: () => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -260,6 +261,12 @@ export const planStore = create<PlanStoreState>()(
         );
         set({ plans: newPlans });
       },
+      clearPlans: () => {
+        set({
+          plans: [],
+          currentSelectedPlan: null,
+        });
+      },
     }),
     {
       name: "plan-store",
@@ -309,4 +316,4 @@ export async function syncPlans() {
   } finally {
     globalState.setPlans = true;
   }
-};
+}

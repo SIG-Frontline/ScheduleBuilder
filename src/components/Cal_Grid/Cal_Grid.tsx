@@ -23,14 +23,15 @@ const Cal_Grid = () => {
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
-    setCardVisibility(false) // Hides info card when switching between plans
+    setCardVisibility(false); // Hides info card when switching between plans
 
     setCurrentSelectedPlan(
       plan_store.getPlan(
         plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
       )
     );
-  }, [plan_store.currentSelectedPlan, plan_store]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan_store.currentSelectedPlan]);
 
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
     setCurrentSelectedPlan(
@@ -39,6 +40,17 @@ const Cal_Grid = () => {
   });
 
   const day_store = dayStore();
+
+  useEffect(() => {
+    const shouldClearPlans = localStorage.getItem("shouldClearPlans");
+    // Set a flag so that plans are cleared after the page reloads
+    // If we clear the plans here, it causes a visual flicker as they disappear before logout.
+    // By deferring the clear to after reload, the transition appears smoother to the user.
+    if (shouldClearPlans) {
+      plan_store.clearPlans();
+      localStorage.removeItem("shouldClearPlans");
+    }
+  }, []);
 
   useEffect(() => {
     syncPlans();

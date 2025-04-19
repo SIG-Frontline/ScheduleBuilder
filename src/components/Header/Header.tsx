@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Avatar,
-  Button,
   Flex,
   Group,
   Menu,
@@ -10,7 +9,6 @@ import {
   Space,
   Text,
   Title,
-  Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
 import React from "react";
@@ -69,6 +67,12 @@ const Header = () => {
       autoClose: 2000,
       position: 'top-right'
     });
+
+    // Set a flag so that plans are cleared after the page reloads
+    // If we clear the plans here, it causes a visual flicker as they disappear before logout.
+    // By clearing plans after page reload, the transition appears smoother to the user.
+    // The plan clear logic occurs in Cal_Grid component when this flag is set
+    localStorage.setItem("shouldClearPlans", "true");
 
     // Redirect after both notifications
     setTimeout(() => {
