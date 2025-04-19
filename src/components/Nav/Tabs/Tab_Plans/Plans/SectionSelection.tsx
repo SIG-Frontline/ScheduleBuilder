@@ -54,7 +54,7 @@ const SectionSelection = ({
                     <Text size="md" fw={600}>
                         {courseCode}-{item.sectionNumber}
                     </Text>
-                    {item.meetingTimes[0].startTime && (
+                    {item.meetingTimes.length > 0 && (
                         <Badge variant="light" ms={"auto"}>
                             <Text size="xs" c="blue">
                                 {convertTime(item.meetingTimes[0].startTime)} -{" "}
