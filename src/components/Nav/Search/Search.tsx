@@ -5,6 +5,7 @@ import {
   UnstyledButton,
   Highlight,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { getSubjects } from "@/lib/server/actions/getSubjects";
 import { getClasses } from "@/lib/server/actions/getClasses";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
@@ -58,6 +59,7 @@ export default function Search({
   const [searchByTitle, setSearchByTitle] = useState(false);
   const subjectOptions = subject_store.subjects;
   const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [searchBarDisabled, setSearchBarDisabled] = useState(false);
   const searchWithoutSubject = useMemo(() => {
     if (specialSubjects.includes(selectedSubject)) {
       return textBoxValue.trim();
@@ -85,7 +87,15 @@ export default function Search({
         subject_store.setSubjects(courses, selectedPlan?.term ?? 0);
       });
     }
+    // if there is no selected plan, disable search bar and display a toast
   }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
+
+  useEffect(() => {
+    if (selectedPlanuuid) {
+      setSearchBarDisabled(false);
+    }
+  }, [selectedPlanuuid])
+
 
   //filter the class options based on the search value without the subject
   const filteredClassOptions = classOptions.filter((option) => {
@@ -204,9 +214,7 @@ export default function Search({
         // Simulate a click on the navbar element that opens the sections tab
         // This will likely need to be switched when the navbar is changed
         setTimeout(() => {
-          const sectionsTab = document.querySelector(
-            'button[id*="tab-plans"]'
-          );
+          const sectionsTab = document.querySelector('button[id*="tab-plans"]');
           if (
             sectionsTab instanceof HTMLElement &&
             sectionsTab.getAttribute("aria-selected") !== "true" //ensures that the sections tab is only clicked if it is not already selected
@@ -256,6 +264,19 @@ export default function Search({
     return [...new Set(matchedWords)];
   };
 
+  const handleInputClick = () => {
+    if (!selectedPlanuuid) {
+      setSearchBarDisabled(true);
+      notifications.show({
+        title: "Plan Required",
+        message: `Please create a plan before using the search bar!`,
+        color: "red",
+        autoClose: 2000,
+        position: "top-right",
+      });
+    }
+  };
+
   return (
     <div ref={ref} className="flex flex-col-reverse lg:flex-col relative">
       <TextInput
@@ -270,9 +291,11 @@ export default function Search({
             onBlurred();
           }
         }}
+        onClick={handleInputClick}
         label=""
         placeholder="Search for a course"
         value={textBoxValue}
+        disabled={searchBarDisabled}
         onChange={(e) => {
           // capitalizes textbox value && changes it only if the value has changed
           let newValue = e.currentTarget.value.toUpperCase();
