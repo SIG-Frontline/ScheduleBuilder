@@ -57,7 +57,7 @@ const SectionSelection = ({
                     <Badge variant="light" ms={"auto"}>
                         <Text size="xs" c="blue">
                             {convertTime(item.meetingTimes[0].startTime)} -{" "}
-                            {convertTime(item.meetingTimes[0].endTime)}
+                            {convertTime(item.meetingTimes[0].endTime, false)}
                         </Text>
                     </Badge>
                 </Group>
