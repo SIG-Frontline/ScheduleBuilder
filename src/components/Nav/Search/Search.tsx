@@ -87,7 +87,6 @@ export default function Search({
         subject_store.setSubjects(courses, selectedPlan?.term ?? 0);
       });
     }
-    // if there is no selected plan, disable search bar and display a toast
   }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
 
   useEffect(() => {
