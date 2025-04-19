@@ -5,7 +5,6 @@ import {
   UnstyledButton,
   Highlight,
 } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import { getSubjects } from "@/lib/server/actions/getSubjects";
 import { getClasses } from "@/lib/server/actions/getClasses";
 import { getSectionData } from "@/lib/server/actions/getSectionData";
@@ -75,6 +74,7 @@ export default function Search({
   // state to track if enter has been pressed once, resulting in auto completed class title
   const [autoCompletedText, setAutoCompletedText] = useState(false);
   const [textHovered, setTextHovered] = useState(-1);
+  const [searchInputPlaceholder, setSearchInputPlaceholder] = useState("Search for a course");
   const scrollAreaRef = createRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -92,6 +92,10 @@ export default function Search({
   useEffect(() => {
     if (selectedPlanuuid) {
       setSearchBarDisabled(false);
+      setSearchInputPlaceholder("Search for a course");
+    } else {
+      setSearchBarDisabled(true);
+      setSearchInputPlaceholder("Create a plan to start searching");
     }
   }, [selectedPlanuuid])
 
@@ -263,19 +267,6 @@ export default function Search({
     return [...new Set(matchedWords)];
   };
 
-  const handleInputClick = () => {
-    if (!selectedPlanuuid) {
-      setSearchBarDisabled(true);
-      notifications.show({
-        title: "Plan Required",
-        message: `Please create a plan before using the search bar!`,
-        color: "red",
-        autoClose: 2000,
-        position: "top-right",
-      });
-    }
-  };
-
   return (
     <div ref={ref} className="flex flex-col-reverse lg:flex-col relative">
       <TextInput
@@ -290,9 +281,8 @@ export default function Search({
             onBlurred();
           }
         }}
-        onClick={handleInputClick}
         label=""
-        placeholder="Search for a course"
+        placeholder={searchInputPlaceholder}
         value={textBoxValue}
         disabled={searchBarDisabled}
         onChange={(e) => {
