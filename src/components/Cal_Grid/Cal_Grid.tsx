@@ -50,7 +50,7 @@ const Cal_Grid = () => {
       plan_store.clearPlans();
       localStorage.removeItem("shouldClearPlans");
     }
-  }, []);
+  }, [plan_store]);
 
   useEffect(() => {
     syncPlans();

@@ -121,6 +121,7 @@ export const planStore = create<PlanStoreState>()(
           ...plan,
           selected: plan.uuid === uuid,
         }));
+        localStorage.setItem("lastSelectedPlanUUID", uuid);
         set({
           plans: newplans,
           currentSelectedPlan: uuid,
@@ -300,16 +301,38 @@ export async function syncPlans() {
   try {
     const user = await fetch("/auth/profile");
     if (user.status !== 200) return;
-    planStore.getState().setPlans([]);
-    const data = await getPlans(await getAccessToken());
-    if (!data) return;
-    let i = 0;
-    for (const plan of data) {
-      if (plan.planData && plan.planData.term) {
-        plan.selected = i === 0;
-        planStore.getState().addPlan(plan.planData);
-        i++;
+    const localPlans = [...planStore.getState().plans];
+    const localSelected = planStore.getState().currentSelectedPlan;
+    if (localSelected) {
+      localStorage.setItem("lastSelectedPlanUUID", localSelected);
+    }
+    for (const plan of localPlans) {
+      await uploadPlan(plan.uuid, plan, await getAccessToken());
+    }
+    const serverPlansRaw = await getPlans(await getAccessToken());
+    if (!serverPlansRaw) return;
+    const serverPlanMap = new Map<string, Plan>();
+    for (const { planData } of serverPlansRaw) {
+      if (planData?.uuid) {
+        serverPlanMap.set(planData.uuid, planData);
       }
+    }
+    planStore.getState().clearPlans();
+    const finalPlans: Plan[] = [];
+    for (const localPlan of localPlans) {
+      const synced = serverPlanMap.get(localPlan.uuid);
+      finalPlans.push(synced ?? localPlan);
+      serverPlanMap.delete(localPlan.uuid);
+    }
+    for (const remaining of serverPlanMap.values()) {
+      finalPlans.push(remaining);
+    }
+    for (const plan of finalPlans) {
+      planStore.getState().addPlan(plan);
+    }
+    const rememberedUUID = localStorage.getItem("lastSelectedPlanUUID");
+    if (rememberedUUID) {
+      planStore.getState().selectPlan(rememberedUUID);
     }
   } catch (error) {
     console.error("Failed to sync plans:", error);
