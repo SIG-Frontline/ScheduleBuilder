@@ -21,11 +21,14 @@ const Tab_Plans = () => {
     const plan_store = planStore();
     const plans = plan_store.plans;
     const terms = Array.from(new Set(plans.map((plan) => plan.term)));
-    const termPlans = terms.reduce<Record<string, typeof plans>>((acc, term) => {
+    const termPlans = terms.reduce<Record<string, typeof plans>>(
+        (acc, term) => {
             //Record is a utility type that creates an object type whose keys are of type K and values are of type T
             acc[term] = plans.filter((plan) => plan.term === term);
             return acc;
-        }, {});
+        },
+        {}
+    );
 
     return (
         <div className="pb-48">
@@ -59,9 +62,9 @@ const Tab_Plans = () => {
                     >
                         {termPlans[term].map((plan) => (
                             <PlanItem
-                                label={`(${sumCredits(plan.courses)}c) ${
-                                    plan.name
-                                }`}
+                                label={`${plan.name} (${sumCredits(
+                                    plan.courses
+                                )})`}
                                 key={plan.uuid}
                                 uuid={plan.uuid}
                             >

@@ -20,7 +20,7 @@ const PlanItem = ({
     return (
         <>
             <Accordion.Item value={uuid}>
-                <AccordionControl value={uuid} aria-label={label + "redits"}>
+                <AccordionControl value={uuid} aria-label={label + " credits"}>
                     {label}
                 </AccordionControl>
                 <Accordion.Panel>{children}</Accordion.Panel>

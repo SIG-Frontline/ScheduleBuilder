@@ -131,7 +131,7 @@ const CourseAccordion = ({ course }: { course: Course }) => {
                                     fw={600}
                                     className="overflow-ellipsis overflow-hidden whitespace-nowrap"
                                 >
-                                    ({course.credits}) {courseCode}
+                                    {courseCode} ({course.credits})
                                 </Text>
                             </Group>
                         </Accordion.Control>
