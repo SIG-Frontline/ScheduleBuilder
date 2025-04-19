@@ -74,7 +74,7 @@ export default function Search({
   // state to track if enter has been pressed once, resulting in auto completed class title
   const [autoCompletedText, setAutoCompletedText] = useState(false);
   const [textHovered, setTextHovered] = useState(-1);
-  const [searchInputPlaceholder, setSearchInputPlaceholder] = useState("Search for a course");
+  const [searchInputPlaceholder, setSearchInputPlaceholder] = useState<string>("Search for a course");
   const scrollAreaRef = createRef<HTMLDivElement>();
 
   useEffect(() => {
