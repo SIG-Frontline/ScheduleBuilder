@@ -56,7 +56,7 @@ const Cal_Grid = () => {
     const theReturnData = selectedSections.map((section) => {
       return section.meetingTimes.map((meetingTime) => {
         return {
-          title: `${courseCode} - ${section.sectionNumber} (${item.credits}) `,
+          title: `${courseCode} - ${section.sectionNumber}`,
           extendedProps: {
             title: courseTitle,
             crn: section.crn,
