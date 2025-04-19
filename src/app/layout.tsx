@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
+// import { UserProvider } from "@auth0/nextjs-auth0";
 import "material-symbols";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
@@ -12,6 +12,7 @@ import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
 import { Notifications } from "@mantine/notifications";
+
 
 import {
   ColorSchemeScript,
@@ -63,7 +64,6 @@ export default async function RootLayout({
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <UserProvider>
           <MantineProvider>
             <Notifications />
             {backendStatus ? (
@@ -74,7 +74,6 @@ export default async function RootLayout({
               <BackendOfflineMessage />
             )}
           </MantineProvider>
-        </UserProvider>
       </body>
     </html>
   );

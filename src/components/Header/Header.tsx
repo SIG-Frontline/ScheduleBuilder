@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import Icon from "../Icon/Icon";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from 'react';
@@ -44,7 +44,7 @@ const Header = () => {
       setHasLoggedIn(true);
       notifications.show({
         title: 'Welcome',
-        message: `You're logged in as ${user.name}`,
+        message: `You're now logged in`,
         color: 'green',
         icon: <span className="material-symbols-outlined">person</span>,
         autoClose: 2000,
@@ -72,14 +72,14 @@ const Header = () => {
 
     // Redirect after both notifications
     setTimeout(() => {
-      window.location.href = "/api/auth/logout";
+      window.location.href = "/auth/logout";
     }, 2000);
   };
 
   const icon = () => {
     // conditional rendering of the avatar or the settings icon
     if (isLoggedIn) {
-      return <Avatar src={user?.picture} alt={user?.name ?? ""} />;
+      return <Avatar alt={"logged in user"} />;
     } else {
       return (
         <ActionIcon variant="light" aria-label="Settings">
@@ -155,14 +155,14 @@ const Header = () => {
                 <Menu.Item
                   rightSection={<Icon> login </Icon>}
                   component={"a"}
-                  href={"/api/auth/login"}
+                  href={"/auth/login"}
                 >
                   Login
                 </Menu.Item>
               ) : (
                 <Menu.Item
                   rightSection={<Icon> logout </Icon>}
-                  href={"/api/auth/logout"}
+                  href={"/auth/logout"}
                   component={"a"}
                   onClick={handleLogout}
                 >

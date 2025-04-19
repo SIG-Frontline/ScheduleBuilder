@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { uploadPlan } from "../server/actions/uploadPlan";
 import { getPlans } from "../server/actions/getPlans";
 import { deletePlan } from "../server/actions/deletePlan";
+import { getAccessToken } from "@auth0/nextjs-auth0";
 
 function debounce(callback: () => void, delay: number) {
   let timeout: NodeJS.Timeout;
@@ -142,14 +143,13 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
-        const user = await fetch("/api/auth/me");
+        const user = await fetch("/auth/profile");
         if (!(user.status === 200)) {
           console.log("User is not authenticated");
           return;
         }
-        const json_user = await user.json();
-        const userId = json_user.sub;
-        deletePlan(userId, uuid);
+
+        deletePlan(await getAccessToken(), uuid);
       },
       getPlan: (uuid) => {
         const { plans } = get();
@@ -271,33 +271,30 @@ export const planStore = create<PlanStoreState>()(
 planStore.subscribe(
   debounce(async () => {
     if (!globalThis.location) return;
-    const user = await fetch("/api/auth/me");
+    const user = await fetch("/auth/profile");
     if (!(user.status === 200)) return;
     const json_user = await user.json();
     const currentPlanUUID = planStore.getState().currentSelectedPlan;
     const userId = json_user.sub;
     if (userId && currentPlanUUID) {
       const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-      uploadPlan(currentPlanUUID, currentPlan, userId);
+      uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
     } else {
       console.log("User is not authenticated");
     }
   }, 2500)
 );
 
-(async function syncPlans() {
+export async function syncPlans() {
   const globalState = globalThis as unknown as { setPlans?: boolean };
   if (globalState.setPlans) return;
   if (!globalThis.location) return;
 
   try {
-    const user = await fetch("/api/auth/me");
+    const user = await fetch("/auth/profile");
     if (user.status !== 200) return;
-    const json_user = await user.json();
-    const userId = json_user.sub;
-    if (!userId) return;
     planStore.getState().setPlans([]);
-    const data = await getPlans(userId);
+    const data = await getPlans(await getAccessToken());
     if (!data) return;
     let i = 0;
     for (const plan of data) {
@@ -312,4 +309,4 @@ planStore.subscribe(
   } finally {
     globalState.setPlans = true;
   }
-})();
+};
