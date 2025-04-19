@@ -5,11 +5,10 @@ import {
   Text,
   Radio,
   Stack,
-  ScrollArea,
   Title,
   ScrollAreaAutosize,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+// import { useMediaQuery } from "@mantine/hooks";
 import React, { useState } from "react";
 
 const SectionSelection = ({
@@ -21,16 +20,16 @@ const SectionSelection = ({
   sections: Section[];
   courseTitle: string;
 }) => {
-  const matches = useMediaQuery(
-    "only screen and (orientation: landscape) and (min-width: 1201px)"
-  );
+  // const matches = useMediaQuery(
+  //   "only screen and (orientation: landscape) and (min-width: 1201px)"
+  // );
   const selectSection = planStore((state) => state.selectSection);
 
   const [value, setValue] = useState<string | null>(
     sections.find((item) => item.selected)?.crn || null
   );
   const options = sections.map((item) => (
-    <Radio.Card radius="md" p={"sm"} value={item.crn} key={item.crn}>
+    <Radio.Card radius="md" p={"sm"} value={item.crn} key={item.crn} hidden={item.status.toLowerCase()=="cancelled" && item.crn != value}>
       <Group gap="sm" align="start">
         <Radio.Indicator />
         <Group gap="1" align="start" ms={"auto"}>
@@ -38,7 +37,7 @@ const SectionSelection = ({
             <Badge variant="light" key={time.day + time.startTime}>
               {time.day}
             </Badge>
-          ))}{" "}
+          ))}
         </Group>
       </Group>
       <Stack gap={0} align="flex-start">
