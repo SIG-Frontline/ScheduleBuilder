@@ -72,19 +72,27 @@ const SectionSelection = ({
                 </Text>
             </Stack>
             <Group>
-                {[
-                    ...new Set(
-                        item.meetingTimes.map(
-                            (time) => `${time.building} ${time.room}`
-                        )
-                    ),
-                ].map((location) => (
-                    <Badge variant="light" mt={"5"} key={location}>
-                        <Text size="xs" key={location} c="blue">
-                            {location}
+                {item.meetingTimes.length > 0 ? (
+                    [
+                        ...new Set(
+                            item.meetingTimes.map(
+                                (time) => `${time.building} ${time.room}`
+                            )
+                        ),
+                    ].map((location) => (
+                        <Badge variant="light" mt={"5"} key={location}>
+                            <Text size="xs" key={location} c="blue">
+                                {location}
+                            </Text>
+                        </Badge>
+                    ))
+                ) : (
+                    <Badge variant="light" mt={"5"}>
+                        <Text size="xs" c="blue">
+                            {"Online"}
                         </Text>
                     </Badge>
-                ))}
+                )}
             </Group>
         </Radio.Card>
     ));
