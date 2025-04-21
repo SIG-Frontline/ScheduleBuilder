@@ -1,5 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { uploadPlan } from "../server/actions/uploadPlan";
+import { getPlans } from "../server/actions/getPlans";
+import { deletePlan } from "../server/actions/deletePlan";
+import { getAccessToken } from "@auth0/nextjs-auth0";
 
 function debounce(callback: () => void, delay: number) {
   let timeout: NodeJS.Timeout;
@@ -60,20 +64,25 @@ export type Event = {
   color?: string;
 };
 export interface organizerSettings {
-	isCommuter: boolean;
-	commuteTimeHours: number;
-	compactPlan: boolean;
-	courseFilters: courseFilter[];
-};
+  isCommuter: boolean;
+  commuteTimeHours: number;
+  compactPlan: boolean;
+  courseFilters: courseFilter[];
+}
 
 export interface courseFilter {
-	courseCode: string;
-	instructor?: string;
-	honors?: boolean;
-	online?: instructionType;
-	section?: string;
-};
-export enum instructionType { ONLINE='online', HYBRID='hybrid', INPERSON='face-to-face', ANY='any' };
+  courseCode: string;
+  instructor?: string;
+  honors?: boolean;
+  online?: instructionType;
+  section?: string;
+}
+export enum instructionType {
+  ONLINE = "online",
+  HYBRID = "hybrid",
+  INPERSON = "face-to-face",
+  ANY = "any",
+}
 
 interface PlanStoreState {
   plans: Plan[];
@@ -122,7 +131,7 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.map((plan) => (plan.uuid === uuid ? updatedPlan : plan)),
         });
       },
-      removePlan: (uuid) => {
+      removePlan: async (uuid) => {
         const { plans, currentSelectedPlan } = get();
         let newSelectedPlan = currentSelectedPlan;
         if (currentSelectedPlan === uuid && plans.length > 1) {
@@ -134,6 +143,13 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
+        const user = await fetch("/auth/profile");
+        if (!(user.status === 200)) {
+          console.log("User is not authenticated");
+          return;
+        }
+
+        deletePlan(await getAccessToken(), uuid);
       },
       getPlan: (uuid) => {
         const { plans } = get();
@@ -255,66 +271,42 @@ export const planStore = create<PlanStoreState>()(
 planStore.subscribe(
   debounce(async () => {
     if (!globalThis.location) return;
-    const user = await fetch("/api/auth/me");
+    const user = await fetch("/auth/profile");
     if (!(user.status === 200)) return;
     const json_user = await user.json();
-    if (json_user?.sub) {
-      uploadPlan();
+    const currentPlanUUID = planStore.getState().currentSelectedPlan;
+    const userId = json_user.sub;
+    if (userId && currentPlanUUID) {
+      const currentPlan = planStore.getState().getPlan(currentPlanUUID);
+      uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
     } else {
       console.log("User is not authenticated");
     }
   }, 2500)
 );
 
-async function uploadPlan() {
-  const currentPlanUUID = planStore.getState().currentSelectedPlan;
-  if (currentPlanUUID) {
-    const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-    if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-      await fetch("/api/user_plans", {
-        method: "POST",
-        body: JSON.stringify(currentPlan),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-        });
-    }
-  }
-}
-
-(async function syncPlans() {
-  if (
-    (
-      globalThis as unknown as {
-        setPlans: boolean;
-      }
-    ).setPlans
-  )
-    return;
+export async function syncPlans() {
+  const globalState = globalThis as unknown as { setPlans?: boolean };
+  if (globalState.setPlans) return;
   if (!globalThis.location) return;
-  const user = await fetch("/api/auth/me");
-  if (!(user.status === 200)) return;
-  const json_user = await user.json();
-  if (json_user?.sub) {
-    //clear the plans
+
+  try {
+    const user = await fetch("/auth/profile");
+    if (user.status !== 200) return;
     planStore.getState().setPlans([]);
-    await fetch("/api/user_plans")
-      .then((res) => res.json())
-      .then((data) => {
-        let i = 0;
-        for (const plan of data) {
-          data.selected = i === 0;
-          planStore.getState().addPlan(plan.plandata);
-          i++;
-        }
-      })
-      .finally(() => {
-        (
-          globalThis as unknown as {
-            setPlans: boolean;
-          }
-        ).setPlans = true;
-      });
+    const data = await getPlans(await getAccessToken());
+    if (!data) return;
+    let i = 0;
+    for (const plan of data) {
+      if (plan.planData && plan.planData.term) {
+        plan.selected = i === 0;
+        planStore.getState().addPlan(plan.planData);
+        i++;
+      }
+    }
+  } catch (error) {
+    console.error("Failed to sync plans:", error);
+  } finally {
+    globalState.setPlans = true;
   }
-})();
+};

@@ -1,5 +1,35 @@
 import { courseCache, type ReqTree } from "./mongoClient";
 
+export type ClassRecommendation = ClassRec | ClassBranch | ClassWild;
+
+export type ClassRec = {
+	name?: string; 				// the name of the class
+	type: 'class'; 	// the type of this recommendation
+	course: string; 			// the course code (CS 100)
+	legacy?: boolean; 			// whether this is legacy (no longer available)
+}
+
+export type ClassWild = {
+	name?: string; 					// the name of the class
+	type: 'wildcard'; 	// the type of this recommendation
+	course: string; 				// the course code (CS 100)
+	legacy?: boolean; 				// whether this is legacy (no longer available)
+	credits: number;				// how many credits this wildcard has satisfied (used for parsing)
+	courses: number;				// how many courses this wildcard has satisfied (used for parsing)
+}
+
+export type ClassBranch = {
+	name: string; 						// name of the branch/section/group
+	type: 'branch'; 			// the type of this recommendation
+	numCredits?: number; 				// how many credits are required
+	numClasses?: number; 				// how many classes are required
+	operator: '&' | '|'; 				// group operator
+	classes: ClassRecommendation[]; 	// the recommendations that belong to this group
+}
+
+// FIX: EVERYTHING BELOW THIS IS UNUSED (for the most part)
+// Not removing for legacy purposes, once the routes are removed, these can also be removed
+
 export function check_tree(tree: ReqTree, requisites: string[]) {
   if (tree === null || tree === undefined || tree.length <= 0) {
     return true;
@@ -194,4 +224,15 @@ export async function check_prereq(course: string, requisites: string[]) {
   }
 
   return check_tree(staticData.tree, requisites);
+}
+
+export function escapeRegex(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+} 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function addRegexSearch(query: Record<string, any>, key: string, value: string) {
+  if (value) {
+    query[key] = { $regex: escapeRegex(value), $options: "i" };
+  }
 }

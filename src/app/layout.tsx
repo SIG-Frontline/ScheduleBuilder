@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
+// import { UserProvider } from "@auth0/nextjs-auth0";
 import "material-symbols";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
@@ -20,6 +20,8 @@ import {
   mantineHtmlProps,
 } from "@mantine/core";
 import Shell from "@/components/Shell/Shell";
+import { getBackendStatus } from "@/lib/server/actions/getBackendStatus";
+import BackendOfflineMessage from "@/components/BackendOffline/BackendOfflineMessage";
 export const viewport: Viewport = {
   themeColor: "#1c7ed6",
   initialScale: 1,
@@ -49,26 +51,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const backendStatus = await getBackendStatus();
+
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <UserProvider>
           <MantineProvider>
             <Notifications />
-            <WelcomeAlert />
-            <div style={{ overflow: "auto" }}>
-              <Shell>{children}</Shell>
-            </div>
+            <WelcomeAlert/>
+            {backendStatus ? (
+              <div style={{ overflow: "auto" }}>
+                <Shell>{children}</Shell>
+              </div>
+            ) : (
+              <BackendOfflineMessage />
+            )}
           </MantineProvider>
-        </UserProvider>
       </body>
     </html>
   );

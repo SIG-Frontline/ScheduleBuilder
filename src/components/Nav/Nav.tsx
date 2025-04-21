@@ -6,13 +6,11 @@ import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
 import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
 import Tab_Organizer from "./Tabs/Tab_Organizer/Tab_Organizer";
 import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
-import Tab_Settings from "./Tabs/Tab_Settings/Tab_Settings";
 import classes from "./Nav.module.css";
 import Search from "./Search/Search";
 import { createRef, useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
-import Tab_Sections from "./Tabs/Tab_Sections/Tab_Sections";
 
 const tabData = [
   //this array contains the data for each tab
@@ -23,18 +21,6 @@ const tabData = [
     label: "plans",
     icon: "list",
     component: Tab_Plans,
-  },
-  {
-    value: "sections",
-    label: "sections",
-    icon: "view_timeline",
-    component: Tab_Sections,
-  },
-  {
-    value: "settings",
-    label: "settings",
-    icon: "settings",
-    component: Tab_Settings,
   },
   {
     value: "events",

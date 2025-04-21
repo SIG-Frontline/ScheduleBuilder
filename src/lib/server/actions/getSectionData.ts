@@ -1,5 +1,7 @@
 "use server";
 
+import { SectionDocument, Time } from "../mongoClient";
+
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -12,106 +14,59 @@ export async function getSectionData(
   subject: string,
   courseCode: string
 ) {
-  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
-  const URL = `${baseURL}/api/courses?term=${term}&course=${
-    subject + " " + courseCode
-  }`;
-  const data = fetch(URL)
-    .then((res) => res.json())
-    .then((data) => {
-      return data.courses[0];
-    })
-    .then((course) => {
-      //replace the _id key with the "code" key
-      course.code = course._id;
-      delete course._id;
-      course.sections = course.sections.map(
-        //format the data for each section and make it match the schema... this is a bit of a mess
-        (section: {
-          INSTRUCTOR?: string;
-          instructor: string | undefined;
-          SECTION?: string;
-          sectionNumber: string | undefined;
-          STATUS?: string;
-          status: string | undefined;
-          NOW?: number;
-          currentEnrollment: number | undefined;
-          MAX?: number;
-          maxEnrollment: number | undefined;
-          IS_HONORS?: boolean;
-          is_honors: boolean | undefined;
-          IS_ASYNC?: boolean;
-          is_async: boolean | undefined;
-          INSTRUCTION_METHOD?: string;
-          instruction_type: string | undefined;
-          CRN?: string;
-          crn: string | undefined;
-          COMMENTS?: string;
-          comments: string | undefined;
-          TIMES?: {
-            day: string | undefined;
-            start: string | undefined;
-            end: string;
-            building: string | undefined;
-            room: string | undefined;
-          }[];
-          meetingTimes:
-            | {
-                day: string | undefined;
-                startTime: string | undefined;
-                endTime: string | undefined;
-                building: string | undefined;
-                room: string | undefined;
-              }[]
-            | undefined;
-        }) => {
-          if (section.IS_HONORS === undefined) {
-            section.IS_HONORS = false;
-          }
-          if (section.IS_ASYNC === undefined) {
-            section.IS_ASYNC = false;
-          }
-          section.instructor = section.INSTRUCTOR;
-          delete section.INSTRUCTOR;
-          section.sectionNumber = section.SECTION;
-          delete section.SECTION;
-          section.status = section.STATUS;
-          delete section.STATUS;
-          section.currentEnrollment = section.NOW;
-          delete section.NOW;
-          section.maxEnrollment = section.MAX;
-          delete section.MAX;
-          section.is_honors = section.IS_HONORS;
-          delete section.IS_HONORS;
-          section.is_async = section.IS_ASYNC;
-          delete section.IS_ASYNC;
-          section.instruction_type = section.INSTRUCTION_METHOD;
-          delete section.INSTRUCTION_METHOD;
-          section.crn = section.CRN;
-          delete section.CRN;
-          section.comments = section.COMMENTS;
-          delete section.COMMENTS;
-          section.meetingTimes = section.TIMES?.map((time) => {
-            return {
-              day: time.day,
-              startTime: time.start,
-              endTime: time.end,
-              building: time.building,
-              room: time.room,
-            };
-          });
-          delete section.TIMES;
-          return section;
-        }
-      );
+  try {
+    const baseURL = `${process.env.SBCORE_URL}`;
 
-      return course;
-    })
+    const queryParam = encodeURIComponent(subject && courseCode ? `${subject} ${courseCode}`.trim() : subject);
+    
+    const URL = `${baseURL}/sections?term=${term}&course=${queryParam}`;
+    const response = await fetch(URL, { method: "GET" });
+    
+    if (!response.ok) {
+      console.error("API URL: ", URL);
+      throw new Error(`Failed to fetch data: ${response.statusText}`);
+    }
 
-    .catch((err) => {
-      console.error(err);
-      return [];
-    });
+    const responseData = await response.json();
 
-  return data;
+    if (!responseData.course) {
+      throw new Error("Invalid response structure: 'course' field missing.");
+    }
+
+    const course = responseData.course;
+
+    // Replace _id with code
+    course.code = course._id;
+    delete course._id;
+
+    // Format sections
+    course.sections = course.sections.map(
+      (section: SectionDocument) => ({
+        instructor: section.INSTRUCTOR ?? "",
+        sectionNumber: section.SECTION ?? "",
+        status: section.STATUS ?? "Unknown",
+        currentEnrollment: section.NOW ?? 0,
+        maxEnrollment: section.MAX ?? 0,
+        is_honors: section.IS_HONORS ?? false,
+        is_async: section.IS_ASYNC ?? false,
+        crn: section.CRN ?? "",
+        comments: section.COMMENTS ?? "",
+		  instructionType: section.INSTRUCTION_METHOD ?? "",
+         
+        meetingTimes: (section.TIMES || []).map((time: Time) => ({
+          day: time.day,
+          startTime: time.start,
+          endTime: time.end,
+          building: time.building,
+          room: time.room,
+        })),
+		  selected: false,
+      })
+    );
+
+    return course;
+  } catch (err) {
+    console.error("Error fetching section data:", err);
+    return [];
+  }
 }

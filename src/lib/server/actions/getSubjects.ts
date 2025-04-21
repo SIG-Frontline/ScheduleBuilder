@@ -9,22 +9,14 @@ export async function getSubjects(term: number) {
   if (!term) {
     return { error: "term is required" };
   }
-  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
-  const URL = `${baseURL}/api/subjects/?term=${term}`;
+  const baseURL = `${process.env.SBCORE_URL}`;
+  const URL = `${baseURL}/subjects/${term}`;
   const data = fetch(URL)
     .then((res) => res.json())
     .then((data) => data.subjects)
-    .then((subjects) => {
-      const subjectIds = subjects.map(
-        // this is how we get the subject ids from the data
-        (course: { SUBJECT: string }) => course.SUBJECT
-      );
-      return subjectIds;
-    })
-
+    return data
     .catch((err) => {
       console.error(err);
       return [];
     });
-  return data;
 }

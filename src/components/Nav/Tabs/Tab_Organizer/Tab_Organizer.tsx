@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Button, Text, TextInput, Checkbox, Group } from "@mantine/core";
 import { planStore, organizerSettings } from "@/lib/client/planStore";
+import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 
-import { organizePlan } from "@/lib/server/organizer";
-
-const Tab_Optimiser = () => {
+const Tab_Organizer = () => {
   const [input, setInput] = useState({
 	 isCommuter: false,
 	 commuteTime: "",
@@ -38,7 +37,14 @@ const Tab_Optimiser = () => {
 	  if(selectedPlan.organizerSettings && selectedPlan.organizerSettings.courseFilters) settings.courseFilters = selectedPlan.organizerSettings.courseFilters
 	  selectedPlan.organizerSettings = settings;
 
-	  return await organizePlan(selectedPlan);
+  	  const result = await organizePlan(selectedPlan);
+
+		if ('error' in result) {
+			console.error(result);
+			return;
+		}
+
+	  return result;
   }
 
   return (
@@ -128,4 +134,4 @@ const Tab_Optimiser = () => {
   );
 };
 
-export default Tab_Optimiser;
+export default Tab_Organizer;

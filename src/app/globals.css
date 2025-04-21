@@ -4,19 +4,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
   --fc-non-business-color: #ecbcbc4d;
   --fc-page-bg-color: transparent;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+:root[data-mantine-color-scheme*="dark"] {
     --background: #0a0a0a;
     --foreground: #ededed;
-  }
 }
+
+:root:is([data-mantine-color-scheme*="light"], :not([data-mantine-color-scheme])) {
+    --background: #ffffff;
+    --foreground: #171717;
+}
+
 
 body {
   color: var(--foreground);
@@ -28,12 +31,12 @@ body {
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none !important; /* IE and Edge */
+    scrollbar-width: none !important; /* Firefox */
   }
 }
 

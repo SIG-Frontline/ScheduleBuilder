@@ -23,7 +23,7 @@ function FiltersDrawer() {
         className="!absolute right-0 top-0 z-20 m-1"
         onClick={open}
       >
-        <Icon>filter_list</Icon>
+        <Icon>filter_alt</Icon>
       </ActionIcon>
       <Drawer
         opened={filtersOpened}
