@@ -58,6 +58,7 @@ export default function Search({
   const [searchByTitle, setSearchByTitle] = useState(false);
   const subjectOptions = subject_store.subjects;
   const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [searchBarDisabled, setSearchBarDisabled] = useState(false);
   const searchWithoutSubject = useMemo(() => {
     if (specialSubjects.includes(selectedSubject)) {
       return textBoxValue.trim();
@@ -73,6 +74,7 @@ export default function Search({
   // state to track if enter has been pressed once, resulting in auto completed class title
   const [autoCompletedText, setAutoCompletedText] = useState(false);
   const [textHovered, setTextHovered] = useState(-1);
+  const [searchInputPlaceholder, setSearchInputPlaceholder] = useState<string>("Search for a course");
   const scrollAreaRef = createRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -86,6 +88,17 @@ export default function Search({
       });
     }
   }, [selectedPlan?.term, subjectOptions.length, subject_store]); //on mount - no dependencies
+
+  useEffect(() => {
+    if (selectedPlanuuid) {
+      setSearchBarDisabled(false);
+      setSearchInputPlaceholder("Search for a course");
+    } else {
+      setSearchBarDisabled(true);
+      setSearchInputPlaceholder("Create a plan to start searching");
+    }
+  }, [selectedPlanuuid])
+
 
   //filter the class options based on the search value without the subject
   const filteredClassOptions = classOptions.filter((option) => {
@@ -204,9 +217,7 @@ export default function Search({
         // Simulate a click on the navbar element that opens the sections tab
         // This will likely need to be switched when the navbar is changed
         setTimeout(() => {
-          const sectionsTab = document.querySelector(
-            'button[id*="tab-plans"]'
-          );
+          const sectionsTab = document.querySelector('button[id*="tab-plans"]');
           if (
             sectionsTab instanceof HTMLElement &&
             sectionsTab.getAttribute("aria-selected") !== "true" //ensures that the sections tab is only clicked if it is not already selected
@@ -271,8 +282,9 @@ export default function Search({
           }
         }}
         label=""
-        placeholder="Search for a course"
+        placeholder={searchInputPlaceholder}
         value={textBoxValue}
+        disabled={searchBarDisabled}
         onChange={(e) => {
           // capitalizes textbox value && changes it only if the value has changed
           let newValue = e.currentTarget.value.toUpperCase();

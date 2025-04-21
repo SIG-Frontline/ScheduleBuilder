@@ -43,6 +43,7 @@ const NewPlanButton = () => {
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
+  useEffect(()=>{
   if (terms.length === 0) {
     setTimeout(() => {
       //set timeout of 0 to delay the loading of terms until the callstack is empty
@@ -65,6 +66,7 @@ const NewPlanButton = () => {
       });
     }, 0);
   }
+})
   const plan_store = planStore();
 
   function addPlan(form_values: {
@@ -80,6 +82,10 @@ const NewPlanButton = () => {
       selected: false,
       courses: [],
       events: [],
+      organizerSettings: {  isCommuter: false,
+        commuteTimeHours: 0,
+        compactPlan: false,
+        courseFilters: []}
     });
   }
   return (
