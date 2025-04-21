@@ -5,8 +5,12 @@ import { Plan, planStore, syncPlans } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
-import { Group, Stack, Text } from "@mantine/core";
+import { Button, Group, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { uuidv4 } from "@/lib/uuidv4";
+import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
+import { notifications } from "@mantine/notifications";
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
@@ -23,7 +27,7 @@ const Cal_Grid = () => {
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
-    setCardVisibility(false) // Hides info card when switching between plans
+    setCardVisibility(false); // Hides info card when switching between plans
 
     setCurrentSelectedPlan(
       plan_store.getPlan(
@@ -45,6 +49,7 @@ const Cal_Grid = () => {
     return () => {
       unsubscribe();
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const eventData = currentSelectedPlanObj?.courses?.map((item) => {

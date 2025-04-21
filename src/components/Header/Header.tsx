@@ -13,12 +13,17 @@ import {
   Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
-import React from "react";
+import React, { useState } from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import { uuidv4 } from "@/lib/uuidv4";
+import { planStore } from "@/lib/client/planStore";
+import { useSearchParams } from "next/navigation";
+import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
+import classes from "./Header.module.css";
 
 const Header = () => {
   const days = [
@@ -35,20 +40,21 @@ const Header = () => {
 
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
-  const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
-  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [hasLoggedIn, setHasLoggedIn] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Notification when user logs in
   useEffect(() => {
     if (user && !hasLoggedIn && !isLoggingOut) {
       setHasLoggedIn(true);
+      console.log("Logged in!");
       notifications.show({
-        title: 'Welcome',
+        title: "Welcome",
         message: `You're now logged in`,
-        color: 'green',
+        color: "green",
         icon: <span className="material-symbols-outlined">person</span>,
         autoClose: 2000,
-        position: 'top-right'
+        position: "top-right",
       });
     }
   }, [user, hasLoggedIn, isLoggingOut]);
@@ -62,12 +68,12 @@ const Header = () => {
 
     // Notification when user is logging out
     notifications.show({
-      title: 'Logging Out',
-      message: 'Please wait...',
-      color: 'blue',
+      title: "Logging Out",
+      message: "Please wait...",
+      color: "blue",
       icon: <span className="material-symbols-outlined">logout</span>,
       autoClose: 2000,
-      position: 'top-right'
+      position: "top-right",
     });
 
     // Redirect after both notifications
@@ -87,6 +93,99 @@ const Header = () => {
         </ActionIcon>
       );
     }
+  };
+  const addPlan = planStore().addPlan;
+  const addCourseToPlan = planStore((state) => state.addCourseToPlan);
+  const searchParams = useSearchParams();
+
+  async () => {
+    await fetch("/auth/profile");
+    const importPlanFromURL = async () => {
+      const queryName = searchParams.get("name") ?? "Imported Plan";
+      const queryTerm = searchParams.get("term") ?? "202510";
+      const newUuid = uuidv4();
+      // TODO: Since this map is converted to an array whenever it is used, it shouldn't be a map to begin with. Rather a 2D array.
+      const crnValues = new Map();
+      const crnRegex = /crn\d+/;
+
+      console.log("Search Params:");
+      console.log(searchParams);
+
+      searchParams.forEach((value, key) => {
+        if (crnRegex.test(key)) {
+          if (key.includes("f")) crnValues.set(value, false);
+          else crnValues.set(value, true);
+        }
+      });
+      /*
+      Sorting the crn values here ensures that they are in the correct order when eventually paired with their courses in getSectionByCrn.
+      This is far from a perfect solution although I doubt this would change.
+      Right now this pairing of CRN values to courses relies on the fact that the order in which courses are returned from the database is also the order in which CRN's are paired with courses.
+      That is to say, CRN values in ascending order happen to match the order in which the courses are returned.
+      */
+      const sortedCrnValues = new Map(
+        [...crnValues.entries()].sort((a, b) => Number(a[0]) - Number(b[0]))
+      );
+      const crnValueArray: string[] = Array.from(sortedCrnValues.values());
+      const queryPlan = {
+        uuid: newUuid,
+        name: queryName,
+        description: "This is an imported plan",
+        term: parseInt(queryTerm, 10),
+        courses: [],
+        events: [],
+        selected: true,
+        isTemporary: true,
+      };
+
+      console.log(queryPlan);
+      addPlan(queryPlan);
+
+      const crnCodeMap = new Map();
+      getSectionDataByCrn(window.location.search).then((data) => {
+        data.forEach((course) => {
+          course.color = `rgba(
+                                  ${Math.floor(Math.random() * 256)},
+                                  ${Math.floor(Math.random() * 256)},
+                                  ${Math.floor(Math.random() * 256)},0.9)`;
+          addCourseToPlan(course);
+          queryPlan.courses.push(course);
+        });
+      });
+      notifications.show({
+        title: 'Previewing: "' + queryName + '"',
+        color: "red",
+        classNames: classes,
+        message: (
+          <div>
+            <p>
+              Any changes will not be saved unless you add it to your list of
+              plans.
+            </p>
+            <div className="flex justify-evenly">
+              <Button
+                color="gray"
+                onClick={() => {
+                  queryPlan.isTemporary = false;
+                  planStore.getState().updatePlan(queryPlan, queryPlan.uuid);
+                  notifications.clean();
+                }}
+              >
+                Save This Plan
+              </Button>
+            </div>
+          </div>
+        ),
+        autoClose: false, // Keeps the notification open until dismissed
+        position: "bottom-right",
+      });
+    };
+    if (searchParams.get("name")) {
+      importPlanFromURL();
+    }
+
+    // This clears the URL parameters so that refreshing the page does not re-add the plan:
+    window.history.replaceState({}, document.title, "/");
   };
   return (
     <>

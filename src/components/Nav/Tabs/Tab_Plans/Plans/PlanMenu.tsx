@@ -11,7 +11,7 @@ const PlanMenu = ({
   uuid,
 }: {
   children?: React.ReactNode;
-  uuid: string
+  uuid: string;
 }) => {
   const plan_store = planStore();
 
@@ -49,7 +49,7 @@ const PlanMenu = ({
     urlInfo.set("name", planName);
     urlInfo.set("term", term);
 
-      plan_store.getPlan(uuid)?.courses?.forEach((course, index) => {
+    plan_store.getPlan(uuid)?.courses?.forEach((course, index) => {
       let hasSelectedSection = false;
       course.sections.forEach((section) => {
         if (section.selected) {
@@ -70,7 +70,7 @@ const PlanMenu = ({
       .join("&");
 
     // console.log(queryString);
-      getSectionDataByCrn(queryString);
+    getSectionDataByCrn(queryString);
     const urlString: string = "localhost:3000/?" + queryString;
     // console.log(urlString);
     navigator.clipboard.writeText(urlString);
@@ -133,26 +133,26 @@ const PlanMenu = ({
           } else {
             console.log(section.meetingTimes);
             section.meetingTimes.forEach((meetTime) => {
-              textContent +=
-                `Day: ${meetTime.day} Start Time: ${
-                  new Date(meetTime.startTime)
-                    .toISOString()
-                    .split("T")[1]
-                    .split(".")[0]
-                    .substring(0,5)
-                } End Time: ${
-                  new Date(meetTime.endTime)
-                    .toISOString()
-                    .split("T")[1]
-                    .split(".")[0]
-                    .substring(0,5)
-                } Building: ${meetTime.building} Room: ${meetTime.room}\n`;
+              textContent += `Day: ${meetTime.day} Start Time: ${new Date(
+                meetTime.startTime
+              )
+                .toISOString()
+                .split("T")[1]
+                .split(".")[0]
+                .substring(0, 5)} End Time: ${new Date(meetTime.endTime)
+                .toISOString()
+                .split("T")[1]
+                .split(".")[0]
+                .substring(0, 5)} Building: ${meetTime.building} Room: ${
+                meetTime.room
+              }\n`;
             });
           }
         }
       });
       if (!hasSelectedSection) {
-        textContent += courseTextContent + `No section selected for this course\n`;
+        textContent +=
+          courseTextContent + `No section selected for this course\n`;
       }
       textContent += `\n=======================================================================\n\n`;
     });
@@ -186,7 +186,9 @@ const PlanMenu = ({
       return;
     }
 
-    let csvContent = `Plan Name,${currentPlan.name}\nTerm,${term.toString()}\n\n`;
+    let csvContent = `Plan Name,${
+      currentPlan.name
+    }\nTerm,${term.toString()}\n\n`;
     csvContent += `Code,Title,Instructor,CRN,Day,Start Time,End Time,Building,Room\n`;
     currentPlan.courses?.forEach((course) => {
       /* 
