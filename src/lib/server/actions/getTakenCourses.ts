@@ -16,8 +16,8 @@ export async function decryptArr(cipherText: string): Promise<string[]> {
 export async function encrypt(text: string) {
   try {
     const key = process.env.ENCRYPT_KEY;
-    if (!key) {
-		console.error("Encrypt: Invalid encryption");
+    if (!key || key.length != 44) {
+		console.error("Encrypt: Invalid encryption key");
 		return
 	}
 
@@ -47,8 +47,8 @@ export async function decrypt(text: string) {
     const encryptedText = Buffer.from(encryptedRaw, 'base64');
 
     const key = process.env.ENCRYPT_KEY;
-    if (!key) {
-		console.error("Decrypt: Invalid encryption");
+    if (!key || key.length != 44) {
+		console.error("Decrypt: Invalid encryption key");
 		return
 	}
 

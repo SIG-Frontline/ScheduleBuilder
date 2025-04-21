@@ -67,8 +67,7 @@ async function updateDB(encryptedArr: string) {
 	await setTakenCourses(userId, encryptedArr);
 }
 
-// FIX: should run on reload, similar to the plans
-export async function syncCourses() {
+(async function syncCourses() {
 	try {
 		console.log("Syncing courses...");
 		const user = await fetch("/api/auth/me");
@@ -87,4 +86,4 @@ export async function syncCourses() {
 	} catch (error) {
 		console.error("Failed to sync settings:", error);
 	} 
-}
+})();
