@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { decryptArr, encryptArr, getTakenCourses, setTakenCourses } from "../server/actions/getTakenCourses";
+import { getAccessToken } from "@auth0/nextjs-auth0";
 
 interface SettingsStoreState {
 	takenCourses: string; // Encrypted string[]
@@ -61,23 +62,19 @@ async function updateDB(encryptedArr: string) {
 		console.log("User is not authenticated");
 		return;
 	}
-	const json_user = await user.json();
-	const userId = json_user.sub;
 
-	await setTakenCourses(userId, encryptedArr);
+	await setTakenCourses(await getAccessToken(), encryptedArr);
 }
 
+// FIX: this should be ran on the load of the settings page
+// Right now it runs on reload, which might not always work 
 (async function syncCourses() {
 	try {
 		console.log("Syncing courses...");
 		const user = await fetch("/auth/profile");
 		if (user.status !== 200) return;
 
-		const json_user = await user.json();
-		const userId = json_user.sub;
-		if (!userId) return;
-
-		const data = await getTakenCourses(userId);
+		const data = await getTakenCourses(await getAccessToken());
 		if (!data) return;
 
 		settingsStore.getState().clearCourses();

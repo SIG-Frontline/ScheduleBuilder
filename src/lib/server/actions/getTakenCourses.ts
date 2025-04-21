@@ -66,10 +66,13 @@ export async function decrypt(text: string) {
   }
 }
 
-export async function getTakenCourses(userId: string) {
+export async function getTakenCourses(token: string) {
   const baseURL = `${process.env.SBCORE_URL}`;
-  const takenCourses = await fetch(`${baseURL}/settings/courses/${userId}`, {
+  const takenCourses = await fetch(`${baseURL}/settings/courses/`, {
     method: "GET",
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   }).then(async (res) => {
     if (res.status !== 200) {
       console.log("Get: No settings for that user");
@@ -80,10 +83,13 @@ export async function getTakenCourses(userId: string) {
   return takenCourses;
 }
 
-export async function setTakenCourses(userId: string, courses: string) {
+export async function setTakenCourses(token: string, courses: string) {
   const baseURL = `${process.env.SBCORE_URL}`;
-  await fetch(`${baseURL}/settings/courses/${userId}/${courses}`, {
+  await fetch(`${baseURL}/settings/courses/${encodeURI(courses)}`, {
     method: "POST",
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
   }).then(async (res) => {
 	if (res.status !== 201) console.log("Set: Invalid user/course");
   });
