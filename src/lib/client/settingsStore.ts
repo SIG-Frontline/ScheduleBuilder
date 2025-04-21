@@ -56,7 +56,7 @@ export const settingsStore = create<SettingsStoreState>()(
 
 // Helper function to update the database
 async function updateDB(encryptedArr: string) {
-	const user = await fetch("/api/auth/me");
+	const user = await fetch("/auth/profile");
 	if(!(user.status === 200)) {
 		console.log("User is not authenticated");
 		return;
@@ -70,7 +70,7 @@ async function updateDB(encryptedArr: string) {
 (async function syncCourses() {
 	try {
 		console.log("Syncing courses...");
-		const user = await fetch("/api/auth/me");
+		const user = await fetch("/auth/profile");
 		if (user.status !== 200) return;
 
 		const json_user = await user.json();

@@ -85,7 +85,7 @@ export async function setTakenCourses(userId: string, courses: string) {
   await fetch(`${baseURL}/settings/courses/${userId}/${courses}`, {
     method: "POST",
   }).then(async (res) => {
-	if (res.status !== 200) console.log("Set: Invalid user/course");
+	if (res.status !== 201) console.log("Set: Invalid user/course");
   });
 }
 
