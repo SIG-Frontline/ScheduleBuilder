@@ -151,6 +151,11 @@ const Header = () => {
                   </Group>
                 </Popover.Dropdown>
               </Popover>
+              <Menu.Item
+                leftSection={<Icon> error </Icon>}
+              >
+                Bug Report
+              </Menu.Item>
               {!isLoggedIn ? (
                 <Menu.Item
                   rightSection={<Icon> login </Icon>}

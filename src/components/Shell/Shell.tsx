@@ -7,7 +7,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { Alert, Group, Button } from '@mantine/core';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { useUser } from '@auth0/nextjs-auth0/client'; 
+import { useUser } from '@auth0/nextjs-auth0/'; 
 
 export function WelcomeAlert() {
   const { user, isLoading } = useUser();
