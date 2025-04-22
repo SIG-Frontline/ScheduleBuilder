@@ -32,6 +32,7 @@ const Header = () => {
   ];
   const day_store = dayStore();
   const { toggleColorScheme } = useMantineColorScheme();
+  const bugReportLink = "https://docs.google.com/forms/d/e/1FAIpQLSeHbJXjIc4ON4J3fLpIk2l5G9A4VAB-AUCqipjlmyK8EvI1_g/viewform?usp=header";
 
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
@@ -153,6 +154,16 @@ const Header = () => {
               </Popover>
               <Menu.Item
                 leftSection={<Icon> error </Icon>}
+                onClick={() => {
+                  const userAgent = encodeURIComponent(navigator.userAgent);
+                  const screenInfo = encodeURIComponent(`${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`);
+                  const timezone = encodeURIComponent(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                  const timestamp = encodeURIComponent(new Date().toISOString());
+
+                  const formUrl = `${bugReportLink}?usp=pp_url` + `&entry.798766012=${userAgent}` + `&entry.1633347189=${screenInfo}` +
+                  `&entry.1581071457=${timezone}` + `&entry.1561839137=${timestamp}`;
+
+                  window.open(formUrl)}}
               >
                 Bug Report
               </Menu.Item>
