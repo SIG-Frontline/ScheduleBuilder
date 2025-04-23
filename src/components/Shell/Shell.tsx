@@ -14,8 +14,7 @@ export function WelcomeAlert() {
   const [showAlert, setShowAlert] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const formUrl1 = "https://docs.google.com/forms/d/e/1FAIpQLSe1y5JvrW0zeHZLL2qVjxri0IpEKiR7bRtD0quBX2-648mzqQ/viewform?usp=header";
-  const formUrl2 = "https://docs.google.com/forms/d/e/1FAIpQLSeHbJXjIc4ON4J3fLpIk2l5G9A4VAB-AUCqipjlmyK8EvI1_g/viewform?usp=header";
+  const googleForm = "https://docs.google.com/forms/d/e/1FAIpQLSe1y5JvrW0zeHZLL2qVjxri0IpEKiR7bRtD0quBX2-648mzqQ/viewform?usp=header";
 
   useEffect(() => {
     const isNewLogin = sessionStorage.getItem('isLoggedIn') !== 'true';
@@ -30,7 +29,7 @@ export function WelcomeAlert() {
 
       return () => clearTimeout(timer);
     }
-    
+
     if (!user) {
       sessionStorage.removeItem('isLoggedIn');
     }
@@ -75,13 +74,13 @@ export function WelcomeAlert() {
             }}
           >
           <div>
-              Welcome to the Schedule Builder
+              Created by NJIT Students, for NJIT Students
             </div>
             
             <Group justify="space-between" mt="md">
               <Button 
                 variant="default" 
-                onClick={() => setShowAlert(false)}
+                onClick={() => {setShowAlert(false);}}
               >
                 Close
               </Button>
@@ -89,16 +88,7 @@ export function WelcomeAlert() {
                 <Button 
                   variant="default"
                   onClick={() => {
-                    window.open(formUrl2, '_blank', 'noonpener,noreferrer');
-                    setShowAlert(false);
-                  }}
-                >
-                  Copy Bug Report
-                </Button>
-                <Button 
-                  variant="default"
-                  onClick={() => {
-                    window.open(formUrl1, '_blank', 'noopener,noreferrer');
+                    window.open(googleForm, '_blank', 'noopener,noreferrer');
                     setShowAlert(false);
                   }}
                 >
