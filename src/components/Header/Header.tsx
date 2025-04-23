@@ -18,7 +18,8 @@ import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import { planStore } from "@/lib/client/planStore";
 
 const Header = () => {
   const days = [
@@ -43,15 +44,17 @@ const Header = () => {
     if (user && !hasLoggedIn && !isLoggingOut) {
       setHasLoggedIn(true);
       notifications.show({
-        title: 'Welcome',
+        title: "Welcome",
         message: `You're now logged in`,
-        color: 'green',
+        color: "green",
         icon: <span className="material-symbols-outlined">person</span>,
         autoClose: 2000,
-        position: 'top-right'
+        position: "top-right",
       });
     }
   }, [user, hasLoggedIn, isLoggingOut]);
+  let plan_store = planStore();
+  plan_store.refreshPlan();
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -62,12 +65,12 @@ const Header = () => {
 
     // Notification when user is logging out
     notifications.show({
-      title: 'Logging Out',
-      message: 'Please wait...',
-      color: 'blue',
+      title: "Logging Out",
+      message: "Please wait...",
+      color: "blue",
       icon: <span className="material-symbols-outlined">logout</span>,
       autoClose: 2000,
-      position: 'top-right'
+      position: "top-right",
     });
 
     // Redirect after both notifications
