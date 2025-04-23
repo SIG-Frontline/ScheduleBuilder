@@ -15,7 +15,7 @@ import { planStore } from "@/lib/client/planStore";
 import { prettyTermText } from "@/lib/client/prettyTermText";
 
 const ValidatePlanName = (name: string): boolean => {
-  const regexName = /^[a-zA-Z0-9\-_]{1,20}$/;
+  const regexName = /^[a-zA-Z0-9-_\s]{1,20}$/;
   return regexName.test(name);
 } 
 
@@ -39,7 +39,7 @@ const NewPlanButton = () => {
       "Plan Name": (value) =>
         ValidatePlanName(value)
           ? null
-          : "Enter a valid plan name. Minimum: 1 character. Maximum: 20 characters.",
+          : "Must be 1–20 characters. Letters, numbers, spaces, hyphens, and underscores only.",
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
