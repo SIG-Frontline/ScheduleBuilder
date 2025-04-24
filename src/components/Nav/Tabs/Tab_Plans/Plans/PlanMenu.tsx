@@ -1,7 +1,14 @@
 import Icon from "@/components/Icon/Icon";
 import { planStore } from "@/lib/client/planStore";
 import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
-import { Button, Menu, Popover, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  Menu,
+  Popover,
+  Stack,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import html2canvas from "html2canvas";
 import React from "react";
@@ -310,11 +317,23 @@ const PlanMenu = ({
               <Menu.Item leftSection={<Icon>share</Icon>}>Share</Menu.Item>
             </Popover.Target>
             <Popover.Dropdown>
-              <Button onClick={jsonSave}>Save as JSON</Button>
-              <Button onClick={imageSave}>Save as Image</Button>
-              <Button onClick={urlSave}>Save as URL</Button>
-              <Button onClick={textSave}>Save as TXT</Button>
-              <Button onClick={csvSave}>Save as CSV</Button>
+              <Stack gap="xs" w="80%" mx="auto">
+                <Button fullWidth onClick={jsonSave}>
+                  Save as JSON
+                </Button>
+                <Button fullWidth onClick={imageSave}>
+                  Save as Image
+                </Button>
+                <Button fullWidth onClick={urlSave}>
+                  Save as URL
+                </Button>
+                <Button fullWidth onClick={textSave}>
+                  Save as TXT
+                </Button>
+                <Button fullWidth onClick={csvSave}>
+                  Save as CSV
+                </Button>
+              </Stack>
             </Popover.Dropdown>
           </Popover>
 

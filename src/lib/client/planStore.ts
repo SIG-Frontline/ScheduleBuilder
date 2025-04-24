@@ -108,7 +108,7 @@ export const planStore = create<PlanStoreState>()(
       plans: [],
       currentSelectedPlan: null,
       setPlans: (plans) => {
-        set({ 
+        set({
           plans: plans.map((plan) => ({
             ...plan,
             isTemporary: plan.isTemporary ?? false,
@@ -120,9 +120,12 @@ export const planStore = create<PlanStoreState>()(
         if (plans.length === 0) {
           newPlan.selected = true;
         }
-        set({ 
-          plans: [...plans, { ...newPlan, isTemporary: newPlan.isTemporary ?? false}], 
-          currentSelectedPlan: newPlan.uuid 
+        set({
+          plans: [
+            ...plans,
+            { ...newPlan, isTemporary: newPlan.isTemporary ?? false },
+          ],
+          currentSelectedPlan: newPlan.uuid,
         });
       },
       selectPlan: (uuid) => {
@@ -277,7 +280,7 @@ export const planStore = create<PlanStoreState>()(
       partialize: (state) => ({
         ...state,
         plans: state.plans.filter((plan) => !plan.isTemporary),
-      })
+      }),
     }
   )
 );
@@ -300,8 +303,8 @@ planStore.subscribe(
         (plan) => plan.uuid === currentPlanUUID
       );
       //planStore.getState().getPlan(currentPlanUUID);
-      if (currentPlan) uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
-
+      if (currentPlan)
+        uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
     } else {
       console.log("User is not authenticated");
     }
@@ -332,4 +335,4 @@ export async function syncPlans() {
   } finally {
     globalState.setPlans = true;
   }
-};
+}
