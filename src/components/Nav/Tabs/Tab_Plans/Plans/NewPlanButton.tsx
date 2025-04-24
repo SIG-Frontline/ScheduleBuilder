@@ -16,7 +16,7 @@ import { prettyTermText } from "@/lib/client/prettyTermText";
 
 const ValidatePlanName = (name: string): boolean => {
   const regexName = /^[a-zA-Z0-9-_\s]{1,20}$/;
-  return regexName.test(name);
+  return regexName.test(name) && name.trim().length > 0;
 } 
 
 const NewPlanButton = () => {
