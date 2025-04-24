@@ -39,7 +39,7 @@ const NewPlanButton = () => {
       "Plan Name": (value) =>
         ValidatePlanName(value)
           ? null
-          : "Must be 1–20 characters. Letters, numbers, spaces, hyphens, and underscores only.",
+          : "Must be 1-20 characters. Letters, numbers, spaces, hyphens, and underscores only.",
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
