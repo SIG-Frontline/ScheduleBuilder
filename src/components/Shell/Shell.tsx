@@ -17,14 +17,14 @@ export function WelcomeAlert() {
   const googleForm = "https://docs.google.com/forms/d/e/1FAIpQLSe1y5JvrW0zeHZLL2qVjxri0IpEKiR7bRtD0quBX2-648mzqQ/viewform?usp=header";
 
   useEffect(() => {
-    const isNewLogin = sessionStorage.getItem('isLoggedIn') !== 'true';
-    
-    if (user && !isLoading && isNewLogin) {
-      sessionStorage.setItem('isLoggedIn', 'true');
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
+  
+    if (user && !isLoading && !hasSeenWelcome) {
       
       const timer = setTimeout(() => {
         setShowAlert(true);
         setIsLoaded(true);
+        localStorage.setItem("hasSeenWelcome", "true");
       }, 2000);
 
       return () => clearTimeout(timer);
@@ -109,6 +109,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   );
   return (
     <>
+      <WelcomeAlert />
       <AppShell
         aside={{ width: 350, breakpoint: "lg" }}
         header={{ height: 60 }}
