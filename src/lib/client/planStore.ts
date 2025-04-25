@@ -385,12 +385,10 @@ function equalPlans(a: Plan, b: Plan): boolean {
   return a.uuid === b.uuid;
 }
 
-export async function checkIfNotificationNeeded(): Promise<boolean> {
+export async function checkIfModalNeeded(): Promise<boolean> {
   const localPlans = planStore.getState().plans;
-  const showSyncNoti = localStorage.getItem("showSyncNoti");
 
   if (localPlans.length === 0) return false;
-  if (showSyncNoti === "false") return false;
   try {
     const user = await fetch("/auth/profile");
     if (user.status !== 200) return false;

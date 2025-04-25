@@ -20,7 +20,7 @@ import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import {
-  checkIfNotificationNeeded,
+  checkIfModalNeeded,
   clearAndLoadServerPlans,
   mergeLocalAndServerPlans,
   planStore,
@@ -85,9 +85,7 @@ const Header = () => {
         "navigation"
       )[0] as PerformanceNavigationTiming;
       if (navigation?.type !== "reload") {
-        const shouldNotify = await checkIfNotificationNeeded();
-        console.log("!alreadyHandledSync:", !alreadyHandledSync);
-        console.log("shouldNotify:", shouldNotify);
+        const shouldNotify = await checkIfModalNeeded();
         if (!alreadyHandledSync && shouldNotify) {
           setOpenPlanSyncModal(true);
         } else {
@@ -103,7 +101,6 @@ const Header = () => {
     setOpenPlanSyncModal(false);
     setAlreadyHandledSync(true);
     await clearAndLoadServerPlans();
-    localStorage.setItem("showSyncNoti", "false");
     setOpenConfirmPlanSyncModal(false);
   };
 
@@ -111,7 +108,6 @@ const Header = () => {
     setAlreadyHandledSync(true);
     setOpenPlanSyncModal(false);
     await mergeLocalAndServerPlans();
-    localStorage.setItem("showSyncNoti", "false");
     setOpenConfirmPlanSyncModal(false);
   };
 
@@ -141,7 +137,6 @@ const Header = () => {
     // Redirect after both notifications
     setTimeout(() => {
       window.location.href = "/auth/logout";
-      localStorage.removeItem("showSyncNoti");
     }, 2000);
   };
 
