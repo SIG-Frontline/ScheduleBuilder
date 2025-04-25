@@ -63,6 +63,8 @@ const Cal_Grid = () => {
             instructor: section.instructor,
             location: meetingTime.building + " " + meetingTime.room,
             credits: item.credits,
+            maxSeats: section.maxEnrollment,
+            currentSeats: section.currentEnrollment,
           },
           startTime:
             new Date(meetingTime.startTime)
@@ -151,7 +153,8 @@ const Cal_Grid = () => {
                 ["crn", info.event.extendedProps.crn],
                 ["instructor", info.event.extendedProps.instructor],
                 ["location", info.event.extendedProps.location],
-                ["seats", info.event.extendedProps.seats],
+                ["maxSeats", info.event.extendedProps.maxSeats],
+                ["currentSeats", info.event.extendedProps.currentSeats],
               ])
             );
           }}

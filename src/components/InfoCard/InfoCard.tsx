@@ -164,7 +164,10 @@ function InfoCard(props: InfoCardProps) {
         </div>
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>chair</Icon>
-          <p>Seats: {courseInfo.get("seats")}</p>
+          <p>
+            Seats: {courseInfo.get("currentSeats")} /{" "}
+            {courseInfo.get("maxSeats")}
+          </p>
         </div>
       </Stack>
     </Paper>
