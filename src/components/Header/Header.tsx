@@ -5,6 +5,7 @@ import {
   Flex,
   Group,
   Menu,
+  Modal,
   MultiSelect,
   Popover,
   Space,
@@ -13,12 +14,13 @@ import {
   Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
-import React from "react";
+import React, {useState} from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from 'react';
+import { useRouter, useSearchParams } from "next/navigation";
 
 const Header = () => {
   const days = [
@@ -32,11 +34,21 @@ const Header = () => {
   ];
   const day_store = dayStore();
   const { toggleColorScheme } = useMantineColorScheme();
-
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
   const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [openInvalidEmail, setopenInvalidEmail] = useState(false)
+  const searchparams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const errorParam = searchparams.get("error");
+    if(errorParam === "invalid_email"){
+      setopenInvalidEmail(true);
+    }
+    return;
+  }, [searchparams])
 
   // Notification when user logs in
   useEffect(() => {
@@ -70,10 +82,7 @@ const Header = () => {
       position: 'top-right'
     });
 
-    // Redirect after both notifications
-    setTimeout(() => {
-      window.location.href = "/auth/logout";
-    }, 2000);
+    router.push("/auth/logout");
   };
 
   const icon = () => {
@@ -90,6 +99,30 @@ const Header = () => {
   };
   return (
     <>
+    <Modal
+        title="Invalid Email Address"
+        opened={openInvalidEmail}
+        withCloseButton={false}
+        trapFocus={true}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        onClose={() => {}}
+      >
+        <p className="text-sm mb-4">
+          Invalid email was not used. Please log in with an @njit.edu email after logging out.
+        </p>
+        <div className="flex items-center justify-center gap-8">
+          <Button
+            size="md"
+            w="100%"
+            variant="light"
+            color="red"
+            onClick={() => router.push("/auth/logout")}
+          >
+            Logout
+          </Button>
+        </div>
+      </Modal>
       <Flex justify="space-between" align={"center"} py={10} px={20}>
         <Title
           className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap "
