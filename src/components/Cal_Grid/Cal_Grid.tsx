@@ -1,19 +1,12 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
-import {
-  checkIfNotificationNeeded,
-  clearAndLoadServerPlans,
-  mergeLocalAndServerPlans,
-  Plan,
-  planStore,
-} from "@/lib/client/planStore";
+import { Plan, planStore } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
-import { Button, Group, Stack, Text } from "@mantine/core";
+import { Group, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { notifications } from "@mantine/notifications";
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
@@ -40,72 +33,7 @@ const Cal_Grid = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan_store.currentSelectedPlan]);
 
-  const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
-    setCurrentSelectedPlan(
-      plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
-    );
-  });
-
   const day_store = dayStore();
-
-  useEffect(() => {
-    const shouldClearPlans = localStorage.getItem("shouldClearPlans");
-    // Set a flag so that plans are cleared after the page reloads
-    // If we clear the plans here, it causes a visual flicker as they disappear before logout.
-    // By deferring the clear to after reload, the transition appears smoother to the user.
-    if (shouldClearPlans) {
-      plan_store.clearPlans();
-      localStorage.removeItem("shouldClearPlans");
-    }
-  }, [plan_store]);
-
-  useEffect(() => {
-    const runSync = async () => {
-      const shouldNotify = await checkIfNotificationNeeded();
-      if (shouldNotify) {
-        const notificationID = "sync-plans";
-        notifications.show({
-          id: notificationID,
-          title: "Unsynced Plans Found",
-          message: (
-            <div className="flex items-center gap-2">
-              <Button
-                size="xs"
-                variant="light"
-                onClick={async () => {
-                  await mergeLocalAndServerPlans();
-                  localStorage.setItem("showSyncNoti", "false");
-                  notifications.hide(notificationID);
-                }}
-              >
-                Save
-              </Button>
-              <Button
-                size="xs"
-                variant="light"
-                onClick={async () => {
-                  await clearAndLoadServerPlans();
-                  localStorage.setItem("showSyncNoti", "false");
-                  notifications.hide(notificationID);
-                }}
-              >
-                Discard
-              </Button>
-            </div>
-          ),
-          autoClose: false,
-          color: "blue",
-          position: "top-right",
-        });
-      } else {
-        await clearAndLoadServerPlans();
-      }
-    };
-    const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-    if (navigation?.type !== "reload") {
-      runSync();
-    }
-  }, []);
 
   const eventData = currentSelectedPlanObj?.courses?.map((item) => {
     const courseCode = item.code;

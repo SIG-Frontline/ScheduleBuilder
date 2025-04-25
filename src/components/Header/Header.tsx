@@ -1,9 +1,11 @@
 import {
   ActionIcon,
   Avatar,
+  Button,
   Flex,
   Group,
   Menu,
+  Modal,
   MultiSelect,
   Popover,
   Space,
@@ -11,14 +13,22 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
-import React from "react";
+import React, { useState } from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
+import {
+  checkIfNotificationNeeded,
+  clearAndLoadServerPlans,
+  mergeLocalAndServerPlans,
+  planStore,
+} from "@/lib/client/planStore";
+import { useMediaQuery } from "@mantine/hooks";
 
 const Header = () => {
+  const plan_store = planStore();
   const days = [
     { label: "Su", value: "0" },
     { label: "Mo", value: "1" },
@@ -30,11 +40,16 @@ const Header = () => {
   ];
   const day_store = dayStore();
   const { toggleColorScheme } = useMantineColorScheme();
+  const largerThanSm = useMediaQuery("(min-width: 768px)");
 
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
-  const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
-  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [hasLoggedIn, setHasLoggedIn] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [openPlanSyncModal, setOpenPlanSyncModal] = useState(false);
+  const [alreadyHandledSync, setAlreadyHandledSync] = useState(false);
+  const [openConfirmPlanSyncModal, setOpenConfirmPlanSyncModal] =
+    useState(false);
 
   // Notification when user logs in
   useEffect(() => {
@@ -55,6 +70,50 @@ const Header = () => {
       }
     }
   }, [user, hasLoggedIn, isLoggingOut]);
+
+  useEffect(() => {
+    const shouldClearPlans = localStorage.getItem("shouldClearPlans");
+    if (shouldClearPlans) {
+      plan_store.clearPlans();
+      localStorage.removeItem("shouldClearPlans");
+    }
+  }, []);
+
+  useEffect(() => {
+    const runSync = async () => {
+      const navigation = performance.getEntriesByType(
+        "navigation"
+      )[0] as PerformanceNavigationTiming;
+      if (navigation?.type !== "reload") {
+        const shouldNotify = await checkIfNotificationNeeded();
+        console.log("!alreadyHandledSync:", !alreadyHandledSync);
+        console.log("shouldNotify:", shouldNotify);
+        if (!alreadyHandledSync && shouldNotify) {
+          setOpenPlanSyncModal(true);
+        } else {
+          clearAndLoadServerPlans();
+        }
+      }
+    };
+
+    runSync();
+  }, []);
+
+  const handleDiscard = async () => {
+    setOpenPlanSyncModal(false);
+    setAlreadyHandledSync(true);
+    await clearAndLoadServerPlans();
+    localStorage.setItem("showSyncNoti", "false");
+    setOpenConfirmPlanSyncModal(false);
+  };
+
+  const handleSave = async () => {
+    setAlreadyHandledSync(true);
+    setOpenPlanSyncModal(false);
+    await mergeLocalAndServerPlans();
+    localStorage.setItem("showSyncNoti", "false");
+    setOpenConfirmPlanSyncModal(false);
+  };
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -100,6 +159,95 @@ const Header = () => {
   };
   return (
     <>
+      <Modal.Stack>
+        <Modal
+          title="Select Plan Sync Option"
+          opened={openPlanSyncModal}
+          withCloseButton={false}
+          trapFocus={false}
+          closeOnClickOutside={false}
+          closeOnEscape={false}
+          onClose={() => {}}
+        >
+          <p className="text-md mb-4">
+            It looks like you have a plan stored locally that's not stored in
+            your account, would you like to save this plan to your account or
+            discard it?
+          </p>
+          <div className="flex items-center justify-center gap-8">
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={() => {
+                setOpenConfirmPlanSyncModal(true)
+                setOpenPlanSyncModal(false);
+              }}
+            >
+              Discard
+            </Button>
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </div>
+        </Modal>
+        <Modal
+          title="Select Plan Sync Option"
+          opened={openConfirmPlanSyncModal}
+          withCloseButton={false}
+          trapFocus={false}
+          closeOnClickOutside={false}
+          closeOnEscape={false}
+          onClose={() => {}}
+        >
+          <p className="text-md mb-4">
+            Are you sure you want to discard your local plan?
+          </p>
+          <div className="flex items-center justify-center gap-8">
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={handleSave}
+            >
+              No
+            </Button>
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={handleDiscard}
+            >
+              Yes
+            </Button>
+          </div>
+        </Modal>
+      </Modal.Stack>
       <Flex justify="space-between" align={"center"} py={10} px={20}>
         <Title
           className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap "
