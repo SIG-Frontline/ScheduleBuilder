@@ -64,7 +64,7 @@ function InfoCard(props: InfoCardProps) {
   useEffect(() => {
     // Mouse move handler for dragging
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || width < 640) return; 
+      if (!isDragging || width < 640) return;
       e.preventDefault(); // To prevent text highlighting
       const newX = e.clientX - offset.x;
       const newY = e.clientY - offset.y;
@@ -126,7 +126,9 @@ function InfoCard(props: InfoCardProps) {
         onMouseDown={handleMouseDown}
       >
         <div className="flex justify-between items-center w-full p-3 pr-4 pl-5">
-          <p className="font-bold text-center pr-1">{courseInfo.get("title")}</p>
+          <p className="font-bold text-center pr-1">
+            {courseInfo.get("title")}
+          </p>
           <ActionIcon
             variant="transparent"
             className="close-icon"
@@ -141,7 +143,6 @@ function InfoCard(props: InfoCardProps) {
       </Paper>
 
       <Stack align="flex-start">
-
         {courseInfo.get("location") == "Online" || (
           <div className="flex flex-row items-left space-x-2 pl-2 ">
             <Icon>schedule</Icon>
@@ -160,6 +161,10 @@ function InfoCard(props: InfoCardProps) {
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>tag</Icon>
           <p>CRN: {courseInfo.get("crn")}</p>
+        </div>
+        <div className="flex flex-row items-center space-x-2 pl-2">
+          <Icon>chair</Icon>
+          <p>Seats: {courseInfo.get("seats")}</p>
         </div>
       </Stack>
     </Paper>

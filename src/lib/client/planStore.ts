@@ -62,6 +62,7 @@ export type Event = {
   endTime: string;
   daysOfWeek: number[];
   color?: string;
+  seats: number;
 };
 export interface organizerSettings {
   isCommuter: boolean;
@@ -309,4 +310,4 @@ export async function syncPlans() {
   } finally {
     globalState.setPlans = true;
   }
-};
+}
