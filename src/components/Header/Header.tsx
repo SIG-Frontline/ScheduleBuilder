@@ -19,11 +19,6 @@ import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
-import { uuidv4 } from "@/lib/uuidv4";
-import { planStore } from "@/lib/client/planStore";
-import { useSearchParams } from "next/navigation";
-import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
-import classes from "./Header.module.css";
 
 const Header = () => {
   const days = [
