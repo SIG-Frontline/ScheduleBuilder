@@ -1,12 +1,19 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
-import { Plan, planStore, syncPlans } from "@/lib/client/planStore";
+import {
+  checkIfNotificationNeeded,
+  clearAndLoadServerPlans,
+  mergeLocalAndServerPlans,
+  Plan,
+  planStore,
+} from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
-import { Group, Stack, Text } from "@mantine/core";
+import { Button, Group, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
+import { notifications } from "@mantine/notifications";
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
@@ -30,7 +37,7 @@ const Cal_Grid = () => {
         plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
       )
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan_store.currentSelectedPlan]);
 
   const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
@@ -53,12 +60,53 @@ const Cal_Grid = () => {
   }, [plan_store]);
 
   useEffect(() => {
-    syncPlans();
-    return () => {
-      unsubscribe();
+    const runSync = async () => {
+      const shouldNotify = await checkIfNotificationNeeded();
+      if (shouldNotify) {
+        const notificationID = "sync-plans";
+        notifications.show({
+          id: notificationID,
+          title: "Unsynced Plans Found",
+          message: (
+            <div className="flex items-center gap-2">
+              <Button
+                size="xs"
+                variant="light"
+                onClick={async () => {
+                  await mergeLocalAndServerPlans();
+                  localStorage.setItem("showSyncNoti", "false");
+                  notifications.hide(notificationID);
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                size="xs"
+                variant="light"
+                onClick={async () => {
+                  await clearAndLoadServerPlans();
+                  localStorage.setItem("showSyncNoti", "false");
+                  notifications.hide(notificationID);
+                }}
+              >
+                Discard
+              </Button>
+            </div>
+          ),
+          autoClose: false,
+          color: "blue",
+          position: "top-right",
+        });
+      } else {
+        await clearAndLoadServerPlans();
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+    if (navigation?.type !== "reload") {
+      runSync();
+    }
   }, []);
+
   const eventData = currentSelectedPlanObj?.courses?.map((item) => {
     const courseCode = item.code;
     const sections = item.sections;

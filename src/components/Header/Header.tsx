@@ -16,7 +16,7 @@ import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 const Header = () => {
   const days = [
@@ -38,16 +38,21 @@ const Header = () => {
 
   // Notification when user logs in
   useEffect(() => {
-    if (user && !hasLoggedIn && !isLoggingOut) {
-      setHasLoggedIn(true);
-      notifications.show({
-        title: 'Welcome',
-        message: `You're now logged in`,
-        color: 'green',
-        icon: <span className="material-symbols-outlined">person</span>,
-        autoClose: 2000,
-        position: 'top-right'
-      });
+    const navigation = performance.getEntriesByType(
+      "navigation"
+    )[0] as PerformanceNavigationTiming;
+    if (navigation?.type !== "reload") {
+      if (user && !hasLoggedIn && !isLoggingOut) {
+        setHasLoggedIn(true);
+        notifications.show({
+          title: "Welcome",
+          message: `You're now logged in`,
+          color: "green",
+          icon: <span className="material-symbols-outlined">person</span>,
+          autoClose: 2000,
+          position: "top-right",
+        });
+      }
     }
   }, [user, hasLoggedIn, isLoggingOut]);
 
@@ -60,12 +65,12 @@ const Header = () => {
 
     // Notification when user is logging out
     notifications.show({
-      title: 'Logging Out',
-      message: 'Please wait...',
-      color: 'blue',
+      title: "Logging Out",
+      message: "Please wait...",
+      color: "blue",
       icon: <span className="material-symbols-outlined">logout</span>,
       autoClose: 2000,
-      position: 'top-right'
+      position: "top-right",
     });
 
     // Set a flag so that plans are cleared after the page reloads
@@ -77,6 +82,7 @@ const Header = () => {
     // Redirect after both notifications
     setTimeout(() => {
       window.location.href = "/auth/logout";
+      localStorage.removeItem("showSyncNoti");
     }, 2000);
   };
 

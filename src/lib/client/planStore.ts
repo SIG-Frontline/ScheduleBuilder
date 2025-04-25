@@ -293,7 +293,40 @@ planStore.subscribe(
   }, 2500)
 );
 
-export async function syncPlans() {
+export async function clearAndLoadServerPlans(clear: boolean = true) {
+  const globalState = globalThis as unknown as { setPlans?: boolean };
+  if (globalState.setPlans) return;
+  if (!globalThis.location) return;
+
+  try {
+    const user = await fetch("/auth/profile");
+    if (user.status !== 200) return;
+
+    planStore.getState().clearPlans();
+
+    const serverPlans = await getPlans(await getAccessToken());
+    if (!serverPlans) return;
+
+    for (const { planData } of serverPlans) {
+      if (planData) {
+        planStore.getState().addPlan(planData);
+      }
+    }
+
+    const rememberedUUID = localStorage.getItem("lastSelectedPlanUUID");
+    if (rememberedUUID) {
+      planStore.getState().selectPlan(rememberedUUID);
+    } else if (serverPlans.length !== 0) {
+      planStore.getState().selectPlan(serverPlans[0].uuid);
+    }
+  } catch (error) {
+    console.error("Failed to sync plans:", error);
+  } finally {
+    globalState.setPlans = true;
+  }
+}
+
+export async function mergeLocalAndServerPlans() {
   const globalState = globalThis as unknown as { setPlans?: boolean };
   if (globalState.setPlans) return;
   if (!globalThis.location) return;
@@ -303,27 +336,34 @@ export async function syncPlans() {
     if (user.status !== 200) return;
     const localPlans = [...planStore.getState().plans];
     const localSelected = planStore.getState().currentSelectedPlan;
+
     if (localSelected) {
       localStorage.setItem("lastSelectedPlanUUID", localSelected);
     }
+
     for (const plan of localPlans) {
       await uploadPlan(plan.uuid, plan, await getAccessToken());
     }
-    const serverPlansRaw = await getPlans(await getAccessToken());
-    if (!serverPlansRaw) return;
+
+    const serverPlans = await getPlans(await getAccessToken());
+    if (!serverPlans) return;
+
     const serverPlanMap = new Map<string, Plan>();
-    for (const { planData } of serverPlansRaw) {
+    for (const { planData } of serverPlans) {
       if (planData?.uuid) {
         serverPlanMap.set(planData.uuid, planData);
       }
     }
+
     planStore.getState().clearPlans();
     const finalPlans: Plan[] = [];
+
     for (const localPlan of localPlans) {
       const synced = serverPlanMap.get(localPlan.uuid);
       finalPlans.push(synced ?? localPlan);
       serverPlanMap.delete(localPlan.uuid);
     }
+
     for (const remaining of serverPlanMap.values()) {
       finalPlans.push(remaining);
     }
@@ -338,5 +378,42 @@ export async function syncPlans() {
     console.error("Failed to sync plans:", error);
   } finally {
     globalState.setPlans = true;
+  }
+}
+
+function equalPlans(a: Plan, b: Plan): boolean {
+  return a.uuid === b.uuid;
+}
+
+export async function checkIfNotificationNeeded(): Promise<boolean> {
+  const localPlans = planStore.getState().plans;
+  const showSyncNoti = localStorage.getItem("showSyncNoti");
+
+  if (localPlans.length === 0) return false;
+  if (showSyncNoti === "false") return false;
+  try {
+    const user = await fetch("/auth/profile");
+    if (user.status !== 200) return false;
+
+    const serverPlansRaw: { planData: Plan | null }[] = await getPlans(
+      await getAccessToken()
+    );
+    const serverPlans: Plan[] = serverPlansRaw
+      .map(({ planData }) => planData)
+      .filter((p): p is Plan => !!p);
+
+    const serverMap = new Map(serverPlans.map((p) => [p.uuid, p]));
+
+    for (const localPlan of localPlans) {
+      const matchingServerPlan = serverMap.get(localPlan.uuid);
+      if (!matchingServerPlan || !equalPlans(localPlan, matchingServerPlan)) {
+        return true;
+      }
+    }
+
+    return false;
+  } catch (err) {
+    console.error("Failed to check sync status:", err);
+    return false;
   }
 }
