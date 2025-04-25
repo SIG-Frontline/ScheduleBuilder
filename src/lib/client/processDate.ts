@@ -7,6 +7,7 @@ export default function convertTime(
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
+		timeZone: 'UTC'
     });
 
     return h12 ? formattedTime.replace(/ AM| PM/, "") : formattedTime;
