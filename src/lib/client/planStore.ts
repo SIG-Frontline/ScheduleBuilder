@@ -171,11 +171,11 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.map((plan) =>
             plan.uuid === currentSelectedPlan
               ? {
-                  ...plan,
-                  courses: plan.courses
-                    ? plan.courses.concat(course)
-                    : [course],
-                }
+            ...plan,
+            courses: plan.courses
+              ? [course, ...plan.courses]
+              : [course],
+          }
               : plan
           ),
         });
