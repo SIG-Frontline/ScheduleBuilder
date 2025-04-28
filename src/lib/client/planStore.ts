@@ -4,6 +4,7 @@ import { uploadPlan } from "../server/actions/uploadPlan";
 import { getPlans } from "../server/actions/getPlans";
 import { deletePlan } from "../server/actions/deletePlan";
 import { getAccessToken } from "@auth0/nextjs-auth0";
+import { getSectionData } from "../server/actions/getSectionData";
 
 function debounce(callback: () => void, delay: number) {
   let timeout: NodeJS.Timeout;
@@ -32,6 +33,7 @@ export type Course = {
   credits: number;
   sections: Section[];
   color?: string;
+  exp: Date;
 };
 
 export type Section = {
@@ -99,6 +101,7 @@ interface PlanStoreState {
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
+  refreshPlan: () => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -167,6 +170,12 @@ export const planStore = create<PlanStoreState>()(
           alert("Course already in plan");
           return;
         }
+        //add the expiration date to the course
+        const expirationDate = new Date();
+        //add 3 days to the current date
+        expirationDate.setDate(expirationDate.getDate() + 3);
+        course.exp = expirationDate;
+
         set({
           plans: plans.map((plan) =>
             plan.uuid === currentSelectedPlan
@@ -260,6 +269,60 @@ export const planStore = create<PlanStoreState>()(
         );
         set({ plans: newPlans });
       },
+      refreshPlan: async () => {
+        const { plans } = get();
+        //set on global state to prevent multiple calls
+        const globalState = globalThis as unknown as { setPlans?: boolean };
+        if (globalState.setPlans) return;
+        globalState.setPlans = true;
+        console.log(plans);
+
+        //loop over all plans
+        plans.forEach((plan) => {
+          // courses
+          plan.courses?.forEach(async (course) => {
+            const exp_date = course.exp;
+            // if the course is expired,refresh the course
+            if (exp_date) {
+              const currentDate = new Date();
+              const expirationDate = new Date(exp_date);
+
+              if (expirationDate < currentDate) {
+                console.log(`Course ${course.code} is expired, refreshing...`);
+
+                const newExpirationDate = new Date();
+                //add 3 days to the current date
+                newExpirationDate.setDate(newExpirationDate.getDate() + 3);
+                //update the course with the new expiration date
+                // setTimeout(async () => {
+                const newCourseData = await getSectionData(
+                  plan?.term ?? 202490,
+                  course.code.split(" ")[0],
+                  course.code.split(" ")[1]
+                );
+                const newCourse = {
+                  ...newCourseData,
+                  exp: newExpirationDate,
+                  color: course.color,
+                };
+                set((state) => ({
+                  plans: state.plans.map((p) =>
+                    p.uuid === plan.uuid
+                      ? {
+                          ...p,
+                          courses: p.courses?.map((c) =>
+                            c.code === course.code ? newCourse : c
+                          ),
+                        }
+                      : p
+                  ),
+                }));
+                // }, 0);
+              }
+            }
+          });
+        });
+      },
     }),
     {
       name: "plan-store",
@@ -309,4 +372,4 @@ export async function syncPlans() {
   } finally {
     globalState.setPlans = true;
   }
-};
+}
