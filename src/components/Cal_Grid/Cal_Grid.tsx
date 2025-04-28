@@ -25,7 +25,6 @@ const Cal_Grid = () => {
   useEffect(() => {
     setCardVisibility(false); // Hide info card when switching plans
   
-    // Set initial selected plan
     setCurrentSelectedPlan(
       plan_store.getPlan(
         planStore.getState().currentSelectedPlan ?? planStore.getState().plans[0]?.uuid
@@ -40,9 +39,9 @@ const Cal_Grid = () => {
     });
   
     return () => {
-      unsubscribe(); // Cleanup here inside SAME useEffect
+      unsubscribe();
     };
-  }, []); // 🚨 Only run once on mount
+  }, []);
 
   const day_store = dayStore();
 
