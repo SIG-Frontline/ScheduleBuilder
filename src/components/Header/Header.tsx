@@ -19,6 +19,7 @@ import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from 'react';
+import { bugReportLink, feedbackForm } from "@/lib/forms";
 
 const Header = () => {
   const days = [
@@ -32,7 +33,6 @@ const Header = () => {
   ];
   const day_store = dayStore();
   const { toggleColorScheme } = useMantineColorScheme();
-  const bugReportLink = "https://docs.google.com/forms/d/e/1FAIpQLSeHbJXjIc4ON4J3fLpIk2l5G9A4VAB-AUCqipjlmyK8EvI1_g/viewform?usp=header";
 
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
@@ -165,6 +165,20 @@ const Header = () => {
                   window.open(formUrl)}}
               >
                 Bug Report
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<Icon> question_answer </Icon>}
+                onClick={() => {
+                  window.open(feedbackForm)}}
+              >
+                Feedback Form
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<Icon> account_circle </Icon>}
+                onClick={() => {
+                  window.open(feedbackForm)}}
+              >
+                Welcome
               </Menu.Item>
               {!isLoggedIn ? (
                 <Menu.Item

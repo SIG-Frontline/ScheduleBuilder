@@ -8,13 +8,12 @@ import { Alert, Group, Button } from '@mantine/core';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/'; 
+import { feedbackForm } from "@/lib/forms";
 
 export function WelcomeAlert() {
   const { user, isLoading } = useUser();
   const [showAlert, setShowAlert] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-
-  const googleForm = "https://docs.google.com/forms/d/e/1FAIpQLSe1y5JvrW0zeHZLL2qVjxri0IpEKiR7bRtD0quBX2-648mzqQ/viewform?usp=header";
 
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
@@ -88,7 +87,7 @@ export function WelcomeAlert() {
                 <Button 
                   variant="default"
                   onClick={() => {
-                    window.open(googleForm, '_blank', 'noopener,noreferrer');
+                    window.open(feedbackForm, '_blank', 'noopener,noreferrer');
                     setShowAlert(false);
                   }}
                 >
