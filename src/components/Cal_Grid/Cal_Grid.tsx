@@ -3,9 +3,10 @@ import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
 import {
   checkIfNotificationNeeded,
+  clearAndLoadServerPlans,
+  mergeLocalAndServerPlans,
   Plan,
   planStore,
-  syncPlans,
 } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -72,7 +73,7 @@ const Cal_Grid = () => {
                 size="xs"
                 variant="light"
                 onClick={async () => {
-                  await syncPlans();
+                  await mergeLocalAndServerPlans();
                   localStorage.setItem("showSyncNoti", "false");
                   notifications.hide(notificationID);
                 }}
@@ -83,7 +84,7 @@ const Cal_Grid = () => {
                 size="xs"
                 variant="light"
                 onClick={async () => {
-                  await syncPlans(false);
+                  await clearAndLoadServerPlans();
                   localStorage.setItem("showSyncNoti", "false");
                   notifications.hide(notificationID);
                 }}
@@ -97,7 +98,7 @@ const Cal_Grid = () => {
           position: "top-right",
         });
       } else {
-        await syncPlans();
+        await clearAndLoadServerPlans();
       }
     };
     const navigation = performance.getEntriesByType(
