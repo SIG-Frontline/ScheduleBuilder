@@ -87,6 +87,7 @@ export enum instructionType {
 interface PlanStoreState {
   plans: Plan[];
   currentSelectedPlan: string | null;
+  openCourseId: string | null;
   setPlans: (plans: Plan[]) => void;
   addPlan: (newPlan: Plan) => void;
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
@@ -100,7 +101,6 @@ interface PlanStoreState {
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
   clearPlans: () => void;
-  openCourseId: string | null;
   setOpenCourseId: (id: string | null) => void;
 }
 
@@ -175,11 +175,9 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.map((plan) =>
             plan.uuid === currentSelectedPlan
               ? {
-            ...plan,
-            courses: plan.courses
-              ? [course, ...plan.courses]
-              : [course],
-          }
+                  ...plan,
+                  courses: plan.courses ? [course, ...plan.courses] : [course],
+                }
               : plan
           ),
           openCourseId: course.code,
