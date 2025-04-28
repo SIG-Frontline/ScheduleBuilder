@@ -51,7 +51,7 @@ const NewPlanButton = () => {
         for (let i = 0; i < terms_val.length; i++) {
           terms_val[i] = {
             value: terms_val[i],
-            label: prettyTermText(terms_val[i], 2),
+            label: prettyTermText(terms_val[i]),
           };
         }
         setTerms(terms_val);
@@ -96,7 +96,7 @@ const NewPlanButton = () => {
       position="bottom"
       withArrow
       shadow="md"
-      closeOnClickOutside={false}
+      closeOnClickOutside={true}
     >
       <Popover.Target>
         <Button onClick={() => setPopoverOpen(!popoverOpen)}>New Plan</Button>

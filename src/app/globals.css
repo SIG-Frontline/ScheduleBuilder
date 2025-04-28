@@ -1,25 +1,27 @@
-@import '@mantine/core/styles.css';
-@import '@mantine/notifications/styles.css';
+@import "@mantine/core/styles.css";
+@import "@mantine/notifications/styles.css";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --fc-non-business-color: #ecbcbc4d;
+  --fc-non-business-color: rgba(140, 144, 209, 0.4);
   --fc-page-bg-color: transparent;
 }
 
 :root[data-mantine-color-scheme*="dark"] {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
-:root:is([data-mantine-color-scheme*="light"], :not([data-mantine-color-scheme])) {
-    --background: #ffffff;
-    --foreground: #171717;
+:root:is(
+    [data-mantine-color-scheme*="light"],
+    :not([data-mantine-color-scheme])
+  ) {
+  --background: #ffffff;
+  --foreground: #171717;
 }
-
 
 body {
   color: var(--foreground);
