@@ -108,7 +108,7 @@ const CourseAccordion = ({ course }: { course: Course }) => {
                                                             ""
                                                         ) ?? "#f0f"
                                                     }
-                                                    format="rgba"
+                                                    format="hsla"
                                                     onChange={(val) => {
                                                         updateCourseColor(
                                                             course,

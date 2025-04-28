@@ -25,7 +25,7 @@ export function prettyTermText(
   const seasonText = seasonMap[season];
   //if the char_len is -1, return the full term text, otherwise return the shortened term text
   if (char_len === -1) {
-    return `${seasonText} ${year}`;
+    return `${year} ${seasonText}`;
   }
   return `${seasonText.slice(0, char_len)}' ${year}`;
 }
