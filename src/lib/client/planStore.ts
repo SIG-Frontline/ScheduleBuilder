@@ -99,6 +99,8 @@ interface PlanStoreState {
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
+  openCourseId: string | null;
+  setOpenCourseId: (id: string | null) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -178,6 +180,7 @@ export const planStore = create<PlanStoreState>()(
           }
               : plan
           ),
+          openCourseId: course.code,
         });
       },
       selectSection: (course, crn) => {
@@ -260,6 +263,8 @@ export const planStore = create<PlanStoreState>()(
         );
         set({ plans: newPlans });
       },
+      openCourseId: null,
+      setOpenCourseId: (id) => set({ openCourseId: id }),
     }),
     {
       name: "plan-store",
@@ -309,4 +314,4 @@ export async function syncPlans() {
   } finally {
     globalState.setPlans = true;
   }
-};
+}
