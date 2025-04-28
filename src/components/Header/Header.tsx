@@ -44,8 +44,9 @@ const Header = () => {
 
   useEffect(() => {
     const errorParam = searchparams.get("error");
-    if(errorParam === "invalid_email"){
+    if(errorParam === "invalid_email" || sessionStorage.getItem("invalidLogin") == "true"){
       setopenInvalidEmail(true);
+      sessionStorage.setItem("invalidLogin", "true");
     }
     return;
   }, [searchparams])
@@ -109,7 +110,7 @@ const Header = () => {
         onClose={() => {}}
       >
         <p className="text-sm mb-4">
-          Invalid email was not used. Please log in with an @njit.edu email after logging out.
+          Invalid email was not used. Please start the log out process below and try logging back in with an @njit.edu email.
         </p>
         <div className="flex items-center justify-center gap-8">
           <Button
@@ -117,7 +118,10 @@ const Header = () => {
             w="100%"
             variant="light"
             color="red"
-            onClick={() => router.push("/auth/logout")}
+            onClick={() => {
+              sessionStorage.setItem("invalidLogin", "false");
+              router.push("/auth/logout");
+            }}
           >
             Logout
           </Button>
