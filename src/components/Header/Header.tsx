@@ -21,10 +21,9 @@ import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import {
   checkIfModalNeeded,
-  clearAndLoadServerPlans,
   loadLocalPlans,
-  mergeLocalAndServerPlans,
   planStore,
+  syncPlans,
 } from "@/lib/client/planStore";
 import { useMediaQuery } from "@mantine/hooks";
 
@@ -91,7 +90,7 @@ const Header = () => {
         if (!alreadyHandledSync && shouldNotify) {
           setOpenPlanSyncModal(true);
         } else if (hasLoggedIn) {
-          clearAndLoadServerPlans();
+          syncPlans(false);
         } else {
           await loadLocalPlans();
         }
@@ -101,19 +100,12 @@ const Header = () => {
     runSync();
   }, [hasLoggedIn, alreadyHandledSync]);
 
-  const handleDiscard = async () => {
-    setOpenPlanSyncModal(false);
-    setAlreadyHandledSync(true);
-    await clearAndLoadServerPlans();
-    setOpenConfirmPlanSyncModal(false);
-  };
-
-  const handleSave = async () => {
+  const handleModalClick = async (saveLocal: boolean) => {
     setAlreadyHandledSync(true);
     setOpenPlanSyncModal(false);
-    await mergeLocalAndServerPlans();
+    await syncPlans(saveLocal);
     setOpenConfirmPlanSyncModal(false);
-  };
+  }
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -199,7 +191,7 @@ const Header = () => {
                   fontSize: largerThanSm ? "16px" : "14px",
                 },
               }}
-              onClick={handleSave}
+              onClick={() => handleModalClick(true)}
             >
               Save
             </Button>
@@ -227,7 +219,7 @@ const Header = () => {
                   fontSize: largerThanSm ? "16px" : "14px",
                 },
               }}
-              onClick={handleSave}
+              onClick={() => handleModalClick(true)}
             >
               No
             </Button>
@@ -240,7 +232,7 @@ const Header = () => {
                   fontSize: largerThanSm ? "16px" : "14px",
                 },
               }}
-              onClick={handleDiscard}
+              onClick={() => handleModalClick(false)}
             >
               Yes
             </Button>
