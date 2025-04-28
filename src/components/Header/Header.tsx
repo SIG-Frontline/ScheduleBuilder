@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Avatar,
-  Button,
   Flex,
   Group,
   Menu,
@@ -10,7 +9,6 @@ import {
   Space,
   Text,
   Title,
-  Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
 import React from "react";
