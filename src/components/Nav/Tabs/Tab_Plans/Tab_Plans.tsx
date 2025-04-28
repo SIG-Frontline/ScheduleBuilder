@@ -54,7 +54,7 @@ const Tab_Plans = () => {
                         maw={400}
                         mx="auto"
                         onChange={(e) => {
-                            if (e === null || e === undefined) {plan_store.selectPlan(""); return;}; //make sure there is a plan selected at all times
+                            if (e === null || e === undefined) {plan_store.selectPlan(""); return;}; // allows behavior for plans to deselect
                             plan_store.selectPlan(e);
                             console.log(plan_store.currentSelectedPlan);
                         }}
