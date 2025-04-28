@@ -355,12 +355,10 @@ function equalPlans(a: Plan, b: Plan): boolean {
   return a.uuid === b.uuid;
 }
 
-export async function checkIfNotificationNeeded(): Promise<boolean> {
+export async function checkIfModalNeeded(): Promise<boolean> {
   const localPlans = planStore.getState().plans;
-  const showSyncNoti = localStorage.getItem("showSyncNoti");
 
   if (localPlans.length === 0) return false;
-  if (showSyncNoti === "false") return false;
   try {
     const user = await fetch("/auth/profile");
     if (user.status !== 200) return false;
@@ -385,5 +383,22 @@ export async function checkIfNotificationNeeded(): Promise<boolean> {
   } catch (err) {
     console.error("Failed to check sync status:", err);
     return false;
+  }
+}
+
+export async function loadLocalPlans() {
+  const plans = planStore.getState().plans;
+
+  if (plans.length === 0) {
+    console.log("No local plans found");
+    return;
+  }
+
+  const rememberedUUID = localStorage.getItem("lastSelectedPlanUUID");
+
+  if (rememberedUUID) {
+    planStore.getState().selectPlan(rememberedUUID);
+  } else {
+    planStore.getState().selectPlan(plans[0].uuid);
   }
 }
