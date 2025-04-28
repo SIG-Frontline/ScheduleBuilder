@@ -415,3 +415,20 @@ export async function checkIfModalNeeded(): Promise<boolean> {
     return false;
   }
 }
+
+export async function loadLocalPlans() {
+  const plans = planStore.getState().plans;
+
+  if (plans.length === 0) {
+    console.log("No local plans found");
+    return;
+  }
+
+  const rememberedUUID = localStorage.getItem("lastSelectedPlanUUID");
+
+  if (rememberedUUID) {
+    planStore.getState().selectPlan(rememberedUUID);
+  } else {
+    planStore.getState().selectPlan(plans[0].uuid);
+  }
+}

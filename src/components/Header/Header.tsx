@@ -22,6 +22,7 @@ import { useEffect } from "react";
 import {
   checkIfModalNeeded,
   clearAndLoadServerPlans,
+  loadLocalPlans,
   mergeLocalAndServerPlans,
   planStore,
 } from "@/lib/client/planStore";
@@ -81,6 +82,7 @@ const Header = () => {
 
   useEffect(() => {
     const runSync = async () => {
+      if (alreadyHandledSync) return; 
       const navigation = performance.getEntriesByType(
         "navigation"
       )[0] as PerformanceNavigationTiming;
@@ -88,14 +90,16 @@ const Header = () => {
         const shouldNotify = await checkIfModalNeeded();
         if (!alreadyHandledSync && shouldNotify) {
           setOpenPlanSyncModal(true);
-        } else {
+        } else if (hasLoggedIn) {
           clearAndLoadServerPlans();
+        } else {
+          await loadLocalPlans();
         }
       }
     };
 
     runSync();
-  }, []);
+  }, [hasLoggedIn, alreadyHandledSync]);
 
   const handleDiscard = async () => {
     setOpenPlanSyncModal(false);

@@ -23,15 +23,26 @@ const Cal_Grid = () => {
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
-    setCardVisibility(false); // Hides info card when switching between plans
-
+    setCardVisibility(false); // Hide info card when switching plans
+  
+    // Set initial selected plan
     setCurrentSelectedPlan(
       plan_store.getPlan(
-        plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
+        planStore.getState().currentSelectedPlan ?? planStore.getState().plans[0]?.uuid
       )
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan_store.currentSelectedPlan]);
+  
+    // Subscribe to store changes
+    const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
+      setCurrentSelectedPlan(
+        plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
+      );
+    });
+  
+    return () => {
+      unsubscribe(); // Cleanup here inside SAME useEffect
+    };
+  }, []); // 🚨 Only run once on mount
 
   const day_store = dayStore();
 
