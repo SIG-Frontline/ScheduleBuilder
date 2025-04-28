@@ -3,10 +3,9 @@ import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
 import {
   checkIfNotificationNeeded,
-  clearAndLoadServerPlans,
-  mergeLocalAndServerPlans,
   Plan,
   planStore,
+  syncPlans,
 } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -73,7 +72,7 @@ const Cal_Grid = () => {
                 size="xs"
                 variant="light"
                 onClick={async () => {
-                  await mergeLocalAndServerPlans();
+                  await syncPlans();
                   localStorage.setItem("showSyncNoti", "false");
                   notifications.hide(notificationID);
                 }}
@@ -84,7 +83,7 @@ const Cal_Grid = () => {
                 size="xs"
                 variant="light"
                 onClick={async () => {
-                  await clearAndLoadServerPlans();
+                  await syncPlans(false);
                   localStorage.setItem("showSyncNoti", "false");
                   notifications.hide(notificationID);
                 }}
@@ -98,10 +97,12 @@ const Cal_Grid = () => {
           position: "top-right",
         });
       } else {
-        await clearAndLoadServerPlans();
+        await syncPlans();
       }
     };
-    const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+    const navigation = performance.getEntriesByType(
+      "navigation"
+    )[0] as PerformanceNavigationTiming;
     if (navigation?.type !== "reload") {
       runSync();
     }
