@@ -15,8 +15,8 @@ import { planStore } from "@/lib/client/planStore";
 import { prettyTermText } from "@/lib/client/prettyTermText";
 
 const ValidatePlanName = (name: string): boolean => {
-  const regexName = /^[a-zA-Z0-9\-_]{1,20}$/;
-  return regexName.test(name);
+  const regexName = /^[a-zA-Z0-9-_\s]{1,20}$/;
+  return regexName.test(name) && name.trim().length > 0;
 } 
 
 const NewPlanButton = () => {
@@ -39,7 +39,7 @@ const NewPlanButton = () => {
       "Plan Name": (value) =>
         ValidatePlanName(value)
           ? null
-          : "Enter a valid plan name. Minimum: 1 character. Maximum: 20 characters.",
+          : "Must be 1-20 characters. Letters, numbers, spaces, hyphens, and underscores only.",
       "Plan Term": (value) => (value ? null : "Please select a term"),
     },
   });
@@ -51,7 +51,7 @@ const NewPlanButton = () => {
         for (let i = 0; i < terms_val.length; i++) {
           terms_val[i] = {
             value: terms_val[i],
-            label: prettyTermText(terms_val[i], 2),
+            label: prettyTermText(terms_val[i]),
           };
         }
         setTerms(terms_val);
@@ -96,7 +96,7 @@ const NewPlanButton = () => {
       position="bottom"
       withArrow
       shadow="md"
-      closeOnClickOutside={false}
+      closeOnClickOutside={true}
     >
       <Popover.Target>
         <Button onClick={() => setPopoverOpen(!popoverOpen)}>New Plan</Button>

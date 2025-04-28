@@ -100,6 +100,8 @@ interface PlanStoreState {
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
   clearPlans: () => void;
+  openCourseId: string | null;
+  setOpenCourseId: (id: string | null) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -173,13 +175,14 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.map((plan) =>
             plan.uuid === currentSelectedPlan
               ? {
-                  ...plan,
-                  courses: plan.courses
-                    ? plan.courses.concat(course)
-                    : [course],
-                }
+            ...plan,
+            courses: plan.courses
+              ? [course, ...plan.courses]
+              : [course],
+          }
               : plan
           ),
+          openCourseId: course.code,
         });
       },
       selectSection: (course, crn) => {
@@ -268,6 +271,8 @@ export const planStore = create<PlanStoreState>()(
           currentSelectedPlan: null,
         });
       },
+      openCourseId: null,
+      setOpenCourseId: (id) => set({ openCourseId: id }),
     }),
     {
       name: "plan-store",

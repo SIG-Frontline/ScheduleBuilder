@@ -87,6 +87,13 @@ const Cal_Grid = () => {
     ...(currentSelectedPlanObj?.events ?? []),
   ];
 
+  const calcBgColor = (color:string): string => {
+    if(color.startsWith("hsla")){
+      return `hsla(0,0%,${parseInt(color.split(",").at(2) ?? "0") < 50 ? "100" : "0"}%,1)`;
+    }
+    return "#fff";
+  };
+
   return (
     <>
       <Stack className="h-full" gap={0}>
@@ -114,24 +121,27 @@ const Cal_Grid = () => {
           events={events_and_classes}
           allDaySlot={false}
           nowIndicator={false}
-          eventContent={(eventContent) => (
-            // eventContent.backgroundColor
-            <Group
-              gap={"1px"}
-              className="p-1  leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
-            >
-              <Text fw={600} size="sm">
+          eventContent={(eventContent) => {
+            const textColor = calcBgColor(eventContent.backgroundColor)
+            return (
+              // eventContent.backgroundColor
+              <Group
+                gap={"1px"}
+                className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+              >
+              <Text fw={600} size="sm" c={textColor}>
                 {eventContent.event.title}
               </Text>
-              <Text size="xs">{eventContent.event.extendedProps.title}</Text>
-              <Text size="xs">{eventContent.timeText}</Text> @
-              <Text size="xs">{eventContent.event.extendedProps.location}</Text>
-              <Text size="xs">
+              <Text size="xs" c={textColor}>{eventContent.event.extendedProps.title}</Text>
+              <Text size="xs" c={textColor}>{eventContent.timeText} @</Text>
+              <Text size="xs" c={textColor}>{eventContent.event.extendedProps.location}</Text>
+              <Text size="xs" c={textColor}>
                 {eventContent.event.extendedProps.instructor}
               </Text>
               <br />
             </Group>
-          )}
+            )
+          }}
           eventClick={(info) => {
             console.log(info);
             setCardVisibility(true);
@@ -237,7 +247,7 @@ const Cal_Grid = () => {
                       className="w-4 h-4 rounded-full"
                     ></div>
                     <div>
-                      <Text
+                      <Text 
                         className="overflow-ellipsis overflow-x-hidden whitespace-nowrap max-w-52"
                         size="md"
                       >
