@@ -95,7 +95,7 @@ export default function Search({
       setSearchInputPlaceholder("Search for a course");
     } else {
       setSearchBarDisabled(true);
-      setSearchInputPlaceholder("Create a plan to start searching");
+      setSearchInputPlaceholder("Create or select a plan to start searching");
     }
   }, [selectedPlanuuid])
 

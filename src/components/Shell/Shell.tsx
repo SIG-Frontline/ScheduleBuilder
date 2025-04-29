@@ -56,7 +56,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         isTemporary: true,
       };
 
-      console.log(queryPlan);
+      console.log(`Adding plan: ${queryPlan}`);
       addPlan(queryPlan);
 
       getSectionDataByCrn(window.location.search).then((data) => {
@@ -82,20 +82,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
               <Button
                 onClick={() => {
                   queryPlan.isTemporary = false;
-                  // addPlan(queryPlan);
                   planStore.getState().updatePlan(queryPlan, queryPlan.uuid);
                   syncPlans();
                   notifications.clean();
-
-                  // I don't know what else to do to ensure plans get saved.
-                  // So I added this notification that tells the user to wait 5 seconds.
-                  // syncPlans() just seems to take some time and refreshing interrupts
-                  notifications.show({
-                    title: "Saving plan...",
-                    message:
-                      "Please wait a moment before reloading the page...",
-                    autoClose: 5000,
-                  });
                 }}
               >
                 Save This Plan
@@ -106,10 +95,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         autoClose: false, // Keeps the notification open until dismissed
         position: "bottom-right",
       });
+      // This clears the URL parameters so that refreshing the page does not re-add the plan:
       window.history.replaceState({}, document.title, "/");
     };
 
-    // This clears the URL parameters so that refreshing the page does not re-add the plan:
     if (searchParams.get("name")) {
       importPlanFromURL();
     }

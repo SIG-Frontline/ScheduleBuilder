@@ -113,7 +113,7 @@ const Tab_Organizer = () => {
 			}
 
 			// HACK: don't save the organizer settings to the database as things are changing a lot
-			delete bestPlan.organizerSettings;
+			delete bestPlan?.organizerSettings;
 
 			// Update the current plan to the generated one
 			// TODO: maybe ask the user if they want to create a new one to not override the current plan? 

@@ -1,7 +1,7 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
-import { Plan, planStore, syncPlans } from "@/lib/client/planStore";
+import { Plan, planStore } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
@@ -23,31 +23,31 @@ const Cal_Grid = () => {
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
-    setCardVisibility(false); // Hides info card when switching between plans
+    setCardVisibility(false); // Hide info card when switching plans
 
     setCurrentSelectedPlan(
       plan_store.getPlan(
-        plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
+        planStore.getState().currentSelectedPlan ??
+          planStore.getState().plans[0]?.uuid
       )
     );
-  }, [plan_store.currentSelectedPlan, plan_store]);
 
-  const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
-    setCurrentSelectedPlan(
-      plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
+    // Subscribe to store changes
+    const unsubscribe = planStore.subscribe(
+      ({ currentSelectedPlan, plans }) => {
+        setCurrentSelectedPlan(
+          plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
+        );
+      }
     );
-  });
 
-  const day_store = dayStore();
-
-  useEffect(() => {
-    syncPlans();
     return () => {
       unsubscribe();
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const day_store = dayStore();
+
   const eventData = currentSelectedPlanObj?.courses?.map((item) => {
     const courseCode = item.code;
     const sections = item.sections;
@@ -90,6 +90,15 @@ const Cal_Grid = () => {
     ...(currentSelectedPlanObj?.events ?? []),
   ];
 
+  const calcBgColor = (color: string): string => {
+    if (color.startsWith("hsla")) {
+      return `hsla(0,0%,${
+        parseInt(color.split(",").at(2) ?? "0") < 50 ? "100" : "0"
+      }%,1)`;
+    }
+    return "#fff";
+  };
+
   return (
     <>
       <Stack className="h-full" gap={0}>
@@ -117,24 +126,33 @@ const Cal_Grid = () => {
           events={events_and_classes}
           allDaySlot={false}
           nowIndicator={false}
-          eventContent={(eventContent) => (
-            // eventContent.backgroundColor
-            <Group
-              gap={"1px"}
-              className="p-1  leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
-            >
-              <Text fw={600} size="sm">
-                {eventContent.event.title}
-              </Text>
-              <Text size="xs">{eventContent.event.extendedProps.title}</Text>
-              <Text size="xs">{eventContent.timeText}</Text> @
-              <Text size="xs">{eventContent.event.extendedProps.location}</Text>
-              <Text size="xs">
-                {eventContent.event.extendedProps.instructor}
-              </Text>
-              <br />
-            </Group>
-          )}
+          eventContent={(eventContent) => {
+            const textColor = calcBgColor(eventContent.backgroundColor);
+            return (
+              // eventContent.backgroundColor
+              <Group
+                gap={"1px"}
+                className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
+              >
+                <Text fw={600} size="sm" c={textColor}>
+                  {eventContent.event.title}
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.event.extendedProps.title}
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.timeText} @
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.event.extendedProps.location}
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.event.extendedProps.instructor}
+                </Text>
+                <br />
+              </Group>
+            );
+          }}
           eventClick={(info) => {
             console.log(info);
             setCardVisibility(true);
