@@ -65,7 +65,7 @@ const SectionSelection = ({
         <Text size="sm" c="dimmed">
           {item.instructor}
         </Text>
-        {/* <Badge
+        <Badge
           variant="light"
           color={
             item.currentEnrollment / item.maxEnrollment === 1
@@ -74,22 +74,9 @@ const SectionSelection = ({
               ? "orange"
               : "blue"
           }
-        > */}
-        <Text
-          size="xs"
-          //   c="dimmed"
-          style={{
-            color:
-              item.currentEnrollment / item.maxEnrollment === 1
-                ? "#ff696b" // Custom red
-                : item.currentEnrollment / item.maxEnrollment > 0.75
-                ? "#ffa940" // Custom orange
-                : "#52c41a", // Custom green
-          }}
         >
           {item.currentEnrollment} / {item.maxEnrollment}
-        </Text>
-        {/* </Badge> */}
+        </Badge>
       </Stack>
       <Group>
         {item.meetingTimes.length > 0 ? (
