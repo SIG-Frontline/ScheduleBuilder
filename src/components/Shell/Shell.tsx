@@ -4,99 +4,79 @@ import { AppShell } from "@mantine/core";
 import Nav from "@/components/Nav/Nav";
 import Header from "../Header/Header";
 import { useMediaQuery } from "@mantine/hooks";
-import { Alert, Group, Button } from '@mantine/core';
+import { Button, Modal } from '@mantine/core';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/'; 
-import { feedbackForm } from "@/lib/forms";
+import { create } from "domain";
+import React, { createContext } from "react";
 
-export function WelcomeAlert() {
-  const { user, isLoading } = useUser();
+export const WelcomeModal =  createContext<{ isOpen: boolean }>({ isOpen: false});
+
+export function WelcomeAlert({ isOpen, onClose}: { isOpen: boolean, onClose:() => void}) {
   const [showAlert, setShowAlert] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
+  
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
-  
-    if (user && !isLoading && !hasSeenWelcome) {
-      
-      const timer = setTimeout(() => {
+    if (hasSeenWelcome === "true") {
+      setShowAlert(false);
+    }
+    
+    if (!hasSeenWelcome) {
         setShowAlert(true);
-        setIsLoaded(true);
-        localStorage.setItem("hasSeenWelcome", "true");
-      }, 2000);
-
-      return () => clearTimeout(timer);
     }
-
-    if (!user) {
-      sessionStorage.removeItem('isLoggedIn');
-    }
-  }, [user, isLoading]); 
-
-  if (!user || isLoading) return null;
+  },); 
 
   return (
     <>
       {showAlert && (
-        <>
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              backdropFilter: 'blur(1px)',
-              zIndex: 9998,
-            }}
-          />
-          <Alert
-            title="Welcome to the Schedule Builder"
-            withCloseButton={false}
-            variant="filled"   
-            color="blue"
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 9999,
-              maxWidth: '500px',
-              width: '90%',
-              boxShadow: '0 0 20px rgba(0,0,0,0.2)',
-              backgroundColor: 'var(--mantine-color-blue-6)',
-              opacity: isLoaded ? 1 : 0,
-              transition: 'opacity 0.5s ease-in-out',
-              visibility: isLoaded ? 'visible' : 'hidden'
-            }}
+          <Modal
+        title="Welcome to Frontline-Lynk Schedule Builder"
+        opened={showAlert}
+        withCloseButton={false}
+        trapFocus={true}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        onClose={() => {}}
+      >
+        <p className="text-sm mb-4">
+          Created by NJIT Students, for NJIT Students. As development is ongoing, some features may be incomplete. We welcome your feedback via the top-right menu.
+        </p>
+        <p className="text-sm mb-4">          
+          All information is sourced from the official{" "}
+          <a
+          href="https://catalog.njit.edu/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800"
           >
-          <div>
-              Created by NJIT Students, for NJIT Students
-            </div>
-            
-            <Group justify="space-between" mt="md">
-              <Button 
-                variant="default" 
-                onClick={() => {setShowAlert(false);}}
-              >
-                Close
-              </Button>
-              <Group>
-                <Button 
-                  variant="default"
-                  onClick={() => {
-                    window.open(feedbackForm, '_blank', 'noopener,noreferrer');
-                    setShowAlert(false);
-                  }}
-                >
-                  Form
-                </Button>
-              </Group>
-            </Group>
-          </Alert>
-        </>
+           NJIT Catalog
+          </a>
+          {" "}and{" "}
+          <a
+          href="https://generalssb-prod.ec.njit.edu/BannerExtensibility/customPage/page/stuRegCrseSched"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline hover:text-blue-800"
+          >
+            Course Schedule.
+          </a>
+        </p>
+        <div className="flex items-center justify-center gap-8">
+          <Button
+            size="md"
+            w="100%"
+            variant="dark"
+            color="blue"
+            onClick={() => {
+              localStorage.setItem("hasSeenWelcome", "true");
+              setShowAlert(false);
+            }} 
+          >
+            Close
+          </Button>
+        </div>
+      </Modal>
       )}
     </>
   );
@@ -108,7 +88,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   );
   return (
     <>
-      <WelcomeAlert />
       <AppShell
         aside={{ width: 350, breakpoint: "lg" }}
         header={{ height: 60 }}

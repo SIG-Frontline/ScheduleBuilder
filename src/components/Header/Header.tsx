@@ -20,8 +20,11 @@ import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useEffect } from 'react';
 import { bugReportLink, feedbackForm } from "@/lib/forms";
+import { WelcomeModal } from "@/components/Shell/Shell";
 
 const Header = () => {
+  const { isOpen: isWelcomeModalOpen } = React.useContext(WelcomeModal);
+
   const days = [
     { label: "Su", value: "0" },
     { label: "Mo", value: "1" },
@@ -41,7 +44,7 @@ const Header = () => {
 
   // Notification when user logs in
   useEffect(() => {
-    if (user && !hasLoggedIn && !isLoggingOut) {
+    if (user && !hasLoggedIn && !isLoggingOut && !isWelcomeModalOpen) {
       setHasLoggedIn(true);
       notifications.show({
         title: 'Welcome',
@@ -52,7 +55,7 @@ const Header = () => {
         position: 'top-right'
       });
     }
-  }, [user, hasLoggedIn, isLoggingOut]);
+  }, [user, hasLoggedIn, isLoggingOut, isWelcomeModalOpen]);
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -172,13 +175,6 @@ const Header = () => {
                   window.open(feedbackForm)}}
               >
                 Feedback Form
-              </Menu.Item>
-              <Menu.Item
-                leftSection={<Icon> account_circle </Icon>}
-                onClick={() => {
-                  window.open(feedbackForm)}}
-              >
-                Welcome
               </Menu.Item>
               {!isLoggedIn ? (
                 <Menu.Item
