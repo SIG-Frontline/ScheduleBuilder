@@ -11,18 +11,25 @@ import {
   Space,
   Text,
   Title,
-  Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
-import { useEffect } from 'react';
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import {
+  checkIfModalNeeded,
+  loadLocalPlans,
+  planStore,
+  syncPlans,
+} from "@/lib/client/planStore";
+import { useMediaQuery } from "@mantine/hooks";
 
 const Header = () => {
+  const plan_store = planStore();
   const days = [
     { label: "Su", value: "0" },
     { label: "Mo", value: "1" },
@@ -34,14 +41,19 @@ const Header = () => {
   ];
   const day_store = dayStore();
   const { toggleColorScheme } = useMantineColorScheme();
+  const largerThanSm = useMediaQuery("(min-width: 768px)");
+  const router = useRouter();
+  const searchparams = useSearchParams();
+  const [openInvalidEmail, setopenInvalidEmail] = useState(false)
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
-  const [hasLoggedIn, setHasLoggedIn] = React.useState(false);
-  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
-  const [openInvalidEmail, setopenInvalidEmail] = useState(false)
-  const searchparams = useSearchParams();
-  const router = useRouter();
-
+  const [hasLoggedIn, setHasLoggedIn] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [openPlanSyncModal, setOpenPlanSyncModal] = useState(false);
+  const [alreadyHandledSync, setAlreadyHandledSync] = useState(false);
+  const [openConfirmPlanSyncModal, setOpenConfirmPlanSyncModal] =
+    useState(false);
+  
   useEffect(() => {
     const errorParam = searchparams.get("error");
     if(errorParam === "invalid_email" || sessionStorage.getItem("invalidLogin") == "true"){
@@ -53,18 +65,59 @@ const Header = () => {
 
   // Notification when user logs in
   useEffect(() => {
-    if (user && !hasLoggedIn && !isLoggingOut) {
-      setHasLoggedIn(true);
-      notifications.show({
-        title: 'Welcome',
-        message: `You're now logged in`,
-        color: 'green',
-        icon: <span className="material-symbols-outlined">person</span>,
-        autoClose: 2000,
-        position: 'top-right'
-      });
+    const navigation = performance.getEntriesByType(
+      "navigation"
+    )[0] as PerformanceNavigationTiming;
+    if (navigation?.type !== "reload") {
+      if (user && !hasLoggedIn && !isLoggingOut) {
+        setHasLoggedIn(true);
+        notifications.show({
+          title: "Welcome",
+          message: `You're now logged in`,
+          color: "green",
+          icon: <span className="material-symbols-outlined">person</span>,
+          autoClose: 2000,
+          position: "top-right",
+        });
+      }
     }
   }, [user, hasLoggedIn, isLoggingOut]);
+
+  useEffect(() => {
+    const shouldClearPlans = localStorage.getItem("shouldClearPlans");
+    if (shouldClearPlans) {
+      plan_store.clearPlans();
+      localStorage.removeItem("shouldClearPlans");
+    }
+  }, []);
+
+  useEffect(() => {
+    const runSync = async () => {
+      if (alreadyHandledSync) return; 
+      const navigation = performance.getEntriesByType(
+        "navigation"
+      )[0] as PerformanceNavigationTiming;
+      if (navigation?.type !== "reload") {
+        const shouldNotify = await checkIfModalNeeded();
+        if (!alreadyHandledSync && shouldNotify) {
+          setOpenPlanSyncModal(true);
+        } else if (hasLoggedIn) {
+          syncPlans(false);
+        } else {
+          await loadLocalPlans();
+        }
+      }
+    };
+
+    runSync();
+  }, [hasLoggedIn, alreadyHandledSync]);
+
+  const handleModalClick = async (saveLocal: boolean) => {
+    setAlreadyHandledSync(true);
+    setOpenPlanSyncModal(false);
+    await syncPlans(saveLocal);
+    setOpenConfirmPlanSyncModal(false);
+  }
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -75,15 +128,22 @@ const Header = () => {
 
     // Notification when user is logging out
     notifications.show({
-      title: 'Logging Out',
-      message: 'Please wait...',
-      color: 'blue',
+      title: "Logging Out",
+      message: "Please wait...",
+      color: "blue",
       icon: <span className="material-symbols-outlined">logout</span>,
       autoClose: 2000,
-      position: 'top-right'
+      position: "top-right",
     });
 
     router.push("/auth/logout");
+
+    // Set a flag so that plans are cleared after the page reloads
+    // If we clear the plans here, it causes a visual flicker as they disappear before logout.
+    // By clearing plans after page reload, the transition appears smoother to the user.
+    // The plan clear logic occurs in Cal_Grid component when this flag is set
+    localStorage.setItem("shouldClearPlans", "true");
+
   };
 
   const icon = () => {
@@ -127,6 +187,95 @@ const Header = () => {
           </Button>
         </div>
       </Modal>
+      <Modal.Stack>
+        <Modal
+          title="Select Plan Sync Option"
+          opened={openPlanSyncModal}
+          withCloseButton={false}
+          trapFocus={false}
+          closeOnClickOutside={false}
+          closeOnEscape={false}
+          onClose={() => {}}
+        >
+          <p className="text-md mb-4">
+            It looks like you have a plan stored locally that's not stored in
+            your account, would you like to save this plan to your account or
+            discard it?
+          </p>
+          <div className="flex items-center justify-center gap-8">
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={() => {
+                setOpenConfirmPlanSyncModal(true)
+                setOpenPlanSyncModal(false);
+              }}
+            >
+              Discard
+            </Button>
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={() => handleModalClick(true)}
+            >
+              Save
+            </Button>
+          </div>
+        </Modal>
+        <Modal
+          title="Select Plan Sync Option"
+          opened={openConfirmPlanSyncModal}
+          withCloseButton={false}
+          trapFocus={false}
+          closeOnClickOutside={false}
+          closeOnEscape={false}
+          onClose={() => {}}
+        >
+          <p className="text-md mb-4">
+            Are you sure you want to discard your local plan?
+          </p>
+          <div className="flex items-center justify-center gap-8">
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={() => handleModalClick(true)}
+            >
+              No
+            </Button>
+            <Button
+              size="md"
+              w="30%"
+              variant="light"
+              styles={{
+                label: {
+                  fontSize: largerThanSm ? "16px" : "14px",
+                },
+              }}
+              onClick={() => handleModalClick(false)}
+            >
+              Yes
+            </Button>
+          </div>
+        </Modal>
+      </Modal.Stack>
       <Flex justify="space-between" align={"center"} py={10} px={20}>
         <Title
           className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap "

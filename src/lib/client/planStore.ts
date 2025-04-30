@@ -21,7 +21,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
-  organizerSettings: organizerSettings;
+  organizerSettings?: organizerSettings;
 };
 
 export type Course = {
@@ -87,6 +87,7 @@ export enum instructionType {
 interface PlanStoreState {
   plans: Plan[];
   currentSelectedPlan: string | null;
+  openCourseId: string | null;
   setPlans: (plans: Plan[]) => void;
   addPlan: (newPlan: Plan) => void;
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
@@ -99,6 +100,8 @@ interface PlanStoreState {
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
+  clearPlans: () => void;
+  setOpenCourseId: (id: string | null) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -120,6 +123,7 @@ export const planStore = create<PlanStoreState>()(
           ...plan,
           selected: plan.uuid === uuid,
         }));
+        localStorage.setItem("lastSelectedPlanUUID", uuid);
         set({
           plans: newplans,
           currentSelectedPlan: uuid,
@@ -172,12 +176,11 @@ export const planStore = create<PlanStoreState>()(
             plan.uuid === currentSelectedPlan
               ? {
                   ...plan,
-                  courses: plan.courses
-                    ? plan.courses.concat(course)
-                    : [course],
+                  courses: plan.courses ? [course, ...plan.courses] : [course],
                 }
               : plan
           ),
+          openCourseId: course.code,
         });
       },
       selectSection: (course, crn) => {
@@ -260,6 +263,14 @@ export const planStore = create<PlanStoreState>()(
         );
         set({ plans: newPlans });
       },
+      clearPlans: () => {
+        set({
+          plans: [],
+          currentSelectedPlan: null,
+        });
+      },
+      openCourseId: null,
+      setOpenCourseId: (id) => set({ openCourseId: id }),
     }),
     {
       name: "plan-store",
@@ -285,28 +296,112 @@ planStore.subscribe(
   }, 2500)
 );
 
-export async function syncPlans() {
+export async function syncPlans(saveLocal: boolean = true) {
   const globalState = globalThis as unknown as { setPlans?: boolean };
   if (globalState.setPlans) return;
   if (!globalThis.location) return;
-
+  let localPlans: Plan[] = [];
   try {
     const user = await fetch("/auth/profile");
     if (user.status !== 200) return;
-    planStore.getState().setPlans([]);
-    const data = await getPlans(await getAccessToken());
-    if (!data) return;
-    let i = 0;
-    for (const plan of data) {
-      if (plan.planData && plan.planData.term) {
-        plan.selected = i === 0;
-        planStore.getState().addPlan(plan.planData);
-        i++;
+
+    if (!saveLocal) {
+      planStore.getState().clearPlans();
+    } else {
+      localPlans = [...planStore.getState().plans]; // variable of local plans to be added
+      const localSelected = planStore.getState().currentSelectedPlan; // if a local plan is selected
+      if (localSelected) {
+        localStorage.setItem("lastSelectedPlanUUID", localSelected);
       }
+
+      for (const plan of localPlans) {
+        await uploadPlan(plan.uuid, plan, await getAccessToken());
+      }
+    }
+    const serverPlans = await getPlans(await getAccessToken());
+    if (!serverPlans) return;
+
+    const serverPlanMap = new Map<string, Plan>();
+    for (const { planData } of serverPlans) {
+      if (planData?.uuid) {
+        serverPlanMap.set(planData.uuid, planData);
+      }
+    }
+    planStore.getState().clearPlans();
+    const finalPlans: Plan[] = [];
+    if (saveLocal) {
+      for (const localPlan of localPlans) {
+        const synced = serverPlanMap.get(localPlan.uuid);
+        finalPlans.push(synced ?? localPlan);
+        serverPlanMap.delete(localPlan.uuid);
+      }
+    }
+
+    for (const remaining of serverPlanMap.values()) {
+      finalPlans.push(remaining);
+    }
+    for (const plan of finalPlans) {
+      planStore.getState().addPlan(plan);
+    }
+    const rememberedUUID = localStorage.getItem("lastSelectedPlanUUID");
+    if (rememberedUUID) {
+      planStore.getState().selectPlan(rememberedUUID);
     }
   } catch (error) {
     console.error("Failed to sync plans:", error);
   } finally {
     globalState.setPlans = true;
   }
-};
+}
+
+function equalPlans(a: Plan, b: Plan): boolean {
+  return a.uuid === b.uuid;
+}
+
+export async function checkIfModalNeeded(): Promise<boolean> {
+  const localPlans = planStore.getState().plans;
+
+  if (localPlans.length === 0) return false;
+  try {
+    const user = await fetch("/auth/profile");
+    if (user.status !== 200) return false;
+
+    const serverPlansRaw: { planData: Plan | null }[] = await getPlans(
+      await getAccessToken()
+    );
+    const serverPlans: Plan[] = serverPlansRaw
+      .map(({ planData }) => planData)
+      .filter((p): p is Plan => !!p);
+
+    const serverMap = new Map(serverPlans.map((p) => [p.uuid, p]));
+
+    for (const localPlan of localPlans) {
+      const matchingServerPlan = serverMap.get(localPlan.uuid);
+      if (!matchingServerPlan || !equalPlans(localPlan, matchingServerPlan)) {
+        return true;
+      }
+    }
+
+    return false;
+  } catch (err) {
+    console.error("Failed to check sync status:", err);
+    return false;
+  }
+}
+
+export async function loadLocalPlans() {
+  const plans = planStore.getState().plans;
+
+  if (plans.length === 0) {
+    console.log("No local plans found");
+    return;
+  }
+
+  const rememberedUUID = localStorage.getItem("lastSelectedPlanUUID");
+
+  if (rememberedUUID) {
+    planStore.getState().selectPlan(rememberedUUID);
+  } else {
+    planStore.getState().selectPlan(plans[0].uuid);
+  }
+}
