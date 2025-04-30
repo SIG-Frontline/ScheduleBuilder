@@ -1,7 +1,7 @@
 "use client";
 import { dayStore } from "@/lib/client/dayStore";
 import InfoCard from "../InfoCard/InfoCard";
-import { Plan, planStore, syncPlans } from "@/lib/client/planStore";
+import { Plan, planStore } from "@/lib/client/planStore";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"; // for selectable
@@ -23,30 +23,28 @@ const Cal_Grid = () => {
   const [cardVisible, setCardVisibility] = useState<boolean>(false);
 
   useEffect(() => {
-    setCardVisibility(false) // Hides info card when switching between plans
-
+    setCardVisibility(false); // Hide info card when switching plans
+  
     setCurrentSelectedPlan(
       plan_store.getPlan(
-        plan_store.currentSelectedPlan ?? plan_store.plans[0]?.uuid
+        planStore.getState().currentSelectedPlan ?? planStore.getState().plans[0]?.uuid
       )
     );
-  }, [plan_store.currentSelectedPlan, plan_store]);
-
-  const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
-    setCurrentSelectedPlan(
-      plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
-    );
-  });
-
-  const day_store = dayStore();
-
-  useEffect(() => {
-    syncPlans();
+  
+    // Subscribe to store changes
+    const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
+      setCurrentSelectedPlan(
+        plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
+      );
+    });
+  
     return () => {
       unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const day_store = dayStore();
+
   const eventData = currentSelectedPlanObj?.courses?.map((item) => {
     const courseCode = item.code;
     const sections = item.sections;
