@@ -45,3 +45,7 @@ body {
 .fc .fc-timegrid-col.fc-day-today {
   background-color: unset;
 }
+
+.fc-event-main {
+	overflow: hidden;
+}
