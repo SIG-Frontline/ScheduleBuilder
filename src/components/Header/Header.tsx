@@ -91,8 +91,11 @@ const Header = () => {
         if (!alreadyHandledSync && shouldNotify) {
           setOpenPlanSyncModal(true);
         } else if (hasLoggedIn) {
-          syncPlans();
-        } else {
+          const tempPlan = localStorage.getItem("temporaryPlan");
+          if (tempPlan !== "true") {
+            syncPlans();
+          }
+        } else { 
           await loadLocalPlans();
         }
       }

@@ -7,7 +7,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useEffect } from "react";
 import { uuidv4 } from "@/lib/uuidv4";
 import { useSearchParams } from "next/navigation";
-import { planStore, syncPlans } from "@/lib/client/planStore";
+import { Course, planStore, syncPlans } from "@/lib/client/planStore";
 import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
 import { notifications } from "@mantine/notifications";
 
@@ -55,12 +55,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         selected: true,
         isTemporary: true,
       };
-
       console.log(`Adding plan: ${queryPlan}`);
       addPlan(queryPlan);
-
+      localStorage.setItem("temporaryPlan", "true");
+      localStorage.setItem("lastSelectedPlanUUID", newUuid);
       getSectionDataByCrn(window.location.search).then((data) => {
-        data.forEach((course) => {
+        data.forEach((course: Course) => {
           course.color = `rgba(
                                     ${Math.floor(Math.random() * 256)},
                                     ${Math.floor(Math.random() * 256)},
