@@ -308,6 +308,9 @@ const PlanMenu = ({
             </Popover.Dropdown>
           </Popover>
 
+          <Menu.Item leftSection={<Icon>download</Icon>} onClick={jsonSave}>
+            Export
+          </Menu.Item>
           <Popover
             withinPortal={false}
             trapFocus
@@ -321,14 +324,11 @@ const PlanMenu = ({
             </Popover.Target>
             <Popover.Dropdown>
               <Stack gap="xs" w="80%" mx="auto">
-                <Button fullWidth onClick={jsonSave}>
-                  Save as JSON
+                <Button fullWidth onClick={urlSave}>
+                  Copy URL
                 </Button>
                 <Button fullWidth onClick={imageSave}>
                   Save as Image
-                </Button>
-                <Button fullWidth onClick={urlSave}>
-                  Save as URL
                 </Button>
                 <Button fullWidth onClick={textSave}>
                   Save as TXT
