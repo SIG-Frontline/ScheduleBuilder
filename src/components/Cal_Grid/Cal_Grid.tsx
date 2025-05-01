@@ -24,20 +24,23 @@ const Cal_Grid = () => {
 
   useEffect(() => {
     setCardVisibility(false); // Hide info card when switching plans
-  
+
     setCurrentSelectedPlan(
       plan_store.getPlan(
-        planStore.getState().currentSelectedPlan ?? planStore.getState().plans[0]?.uuid
+        planStore.getState().currentSelectedPlan ??
+          planStore.getState().plans[0]?.uuid
       )
     );
-  
+
     // Subscribe to store changes
-    const unsubscribe = planStore.subscribe(({ currentSelectedPlan, plans }) => {
-      setCurrentSelectedPlan(
-        plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
-      );
-    });
-  
+    const unsubscribe = planStore.subscribe(
+      ({ currentSelectedPlan, plans }) => {
+        setCurrentSelectedPlan(
+          plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
+        );
+      }
+    );
+
     return () => {
       unsubscribe();
     };
@@ -87,9 +90,11 @@ const Cal_Grid = () => {
     ...(currentSelectedPlanObj?.events ?? []),
   ];
 
-  const calcBgColor = (color:string): string => {
-    if(color.startsWith("hsla")){
-      return `hsla(0,0%,${parseInt(color.split(",").at(2) ?? "0") < 50 ? "100" : "0"}%,1)`;
+  const calcBgColor = (color: string): string => {
+    if (color.startsWith("hsla")) {
+      return `hsla(0,0%,${
+        parseInt(color.split(",").at(2) ?? "0") < 50 ? "100" : "0"
+      }%,1)`;
     }
     return "#fff";
   };
@@ -122,25 +127,31 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => {
-            const textColor = calcBgColor(eventContent.backgroundColor)
+            const textColor = calcBgColor(eventContent.backgroundColor);
             return (
               // eventContent.backgroundColor
               <Group
                 gap={"1px"}
                 className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
               >
-              <Text fw={600} size="sm" c={textColor}>
-                {eventContent.event.title}
-              </Text>
-              <Text size="xs" c={textColor}>{eventContent.event.extendedProps.title}</Text>
-              <Text size="xs" c={textColor}>{eventContent.timeText} @</Text>
-              <Text size="xs" c={textColor}>{eventContent.event.extendedProps.location}</Text>
-              <Text size="xs" c={textColor}>
-                {eventContent.event.extendedProps.instructor}
-              </Text>
-              <br />
-            </Group>
-            )
+                <Text fw={600} size="sm" c={textColor}>
+                  {eventContent.event.title}
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.event.extendedProps.title}
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.timeText} @
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.event.extendedProps.location}
+                </Text>
+                <Text size="xs" c={textColor}>
+                  {eventContent.event.extendedProps.instructor}
+                </Text>
+                <br />
+              </Group>
+            );
           }}
           eventClick={(info) => {
             console.log(info);
@@ -247,7 +258,7 @@ const Cal_Grid = () => {
                       className="w-4 h-4 rounded-full"
                     ></div>
                     <div>
-                      <Text 
+                      <Text
                         className="overflow-ellipsis overflow-x-hidden whitespace-nowrap max-w-52"
                         size="md"
                       >
