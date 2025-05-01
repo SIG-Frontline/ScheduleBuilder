@@ -38,7 +38,7 @@ const SectionSelection = ({
       hidden={item.status.toLowerCase() == "cancelled" && item.crn != value}
     >
       <Group gap="sm" align="start">
-        <Radio.Indicator />
+        <Radio.Indicator className="hover:cursor-pointer" />
         <Group gap={2} align="start" ms={"auto"}>
           {item.meetingTimes.map((time) => (
             <Badge variant="light" key={time.day + time.startTime}>
