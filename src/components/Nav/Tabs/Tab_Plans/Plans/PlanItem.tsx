@@ -28,7 +28,7 @@ const PlanItem = ({
           {label}
           {temp && (
             <Tooltip label="This plan will not be saved after you leave this page!">
-              <Badge ml="sm">Preview Only</Badge>
+              <Badge ml="sm">Shared View</Badge>
             </Tooltip>
           )}
         </AccordionControl>

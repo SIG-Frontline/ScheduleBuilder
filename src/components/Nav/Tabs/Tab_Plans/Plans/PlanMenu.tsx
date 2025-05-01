@@ -1,13 +1,15 @@
 import Icon from "@/components/Icon/Icon";
-import { planStore } from "@/lib/client/planStore";
+import { planStore, syncPlans } from "@/lib/client/planStore";
 import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
 import {
   Button,
   Menu,
   Popover,
   Stack,
+  Text,
   Textarea,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import html2canvas from "html2canvas";
@@ -255,7 +257,7 @@ const PlanMenu = ({
       shadow="md"
       width={200}
       closeOnItemClick={false}
-      closeOnClickOutside={false}
+      closeOnClickOutside={true}
     >
       <Menu.Target>
         {/* <Button>Toggle menu</Button> */}
@@ -267,6 +269,7 @@ const PlanMenu = ({
           <Menu.Label>Plan Options</Menu.Label>
 
           <Popover
+            closeOnClickOutside={true}
             withinPortal={false}
             trapFocus
             key="edit"
@@ -337,14 +340,47 @@ const PlanMenu = ({
             </Popover.Dropdown>
           </Popover>
 
-          <Menu.Item
+          {plan_store.getPlan(uuid)?.isTemporary && (
+            <Tooltip label="Save this temporary plan to your plans">
+              <Menu.Item
+                leftSection={<Icon>check</Icon>}
+                onClick={() => {
+                  let currentPlan: Plan | undefined = plan_store.getPlan(uuid);
+                  currentPlan.isTemporary = false;
+                  planStore.getState().updatePlan(currentPlan, uuid);
+                  syncPlans();
+                }}
+              >
+                Save Plan
+              </Menu.Item>
+            </Tooltip>
+          )}
+
+          <Popover
+            withinPortal={false}
+            trapFocus
             key="delete"
-            leftSection={<Icon>delete</Icon>}
-            onClick={() => plan_store.removePlan(uuid)}
-            color="red"
+            width={250}
+            position="left-start"
+            withArrow
           >
-            Delete
-          </Menu.Item>
+            <Popover.Target>
+              <Menu.Item color="red" leftSection={<Icon>delete</Icon>}>
+                Delete
+              </Menu.Item>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Stack>
+                <Text ta="center">
+                  Are you sure you want to delete this plan?<br></br> This
+                  cannot be undone!
+                </Text>
+                <Button color="red" onClick={() => plan_store.removePlan(uuid)}>
+                  Delete it!
+                </Button>
+              </Stack>
+            </Popover.Dropdown>
+          </Popover>
         </div>
       </Menu.Dropdown>
     </Menu>
