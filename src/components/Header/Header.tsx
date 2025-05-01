@@ -311,8 +311,11 @@ const Header = () => {
                   const screenInfo = encodeURIComponent(`${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`);
                   const timestamp = encodeURIComponent(new Date().toISOString());
 
-                  const formUrl = `${bugReportLink}?usp=pp_url` + `&entry.798766012=${userAgent}` + 
-                  `&entry.1633347189=${screenInfo}` +`&entry.1561839137=${timestamp}`;
+                  const formUrl = `${bugReportLink}?usp=pp_url` + 
+                  `&entry.798766012=${userAgent}` + 
+                  `&entry.1633347189=${screenInfo}` +
+                  `&entry.1561839137=${timestamp}` + 
+                  `&entry.1425119412=${user?.sub?user.sub: "unauth"}`;
 
                   window.open(formUrl)}}
               >

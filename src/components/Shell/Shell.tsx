@@ -31,7 +31,11 @@ export function WelcomeAlert({ isOpen, onClose}: { isOpen: boolean, onClose:() =
     <>
       {showAlert && (
           <Modal
-        title="Welcome to Frontline-Lynk Schedule Builder"
+        title={
+          <div className="text-1xl font-semibold tracking-tight text-neutral-750">
+            Welcome to Frontline-Lynk Schedule Builder
+          </div>
+        }
         opened={showAlert}
         withCloseButton={false}
         trapFocus={true}
