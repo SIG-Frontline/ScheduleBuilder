@@ -18,6 +18,7 @@ import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import {
   checkIfModalNeeded,
@@ -41,7 +42,9 @@ const Header = () => {
   const day_store = dayStore();
   const { toggleColorScheme } = useMantineColorScheme();
   const largerThanSm = useMediaQuery("(min-width: 768px)");
-
+  const router = useRouter();
+  const searchparams = useSearchParams();
+  const [openInvalidEmail, setopenInvalidEmail] = useState(false)
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
   const [hasLoggedIn, setHasLoggedIn] = useState(false);
@@ -50,6 +53,15 @@ const Header = () => {
   const [alreadyHandledSync, setAlreadyHandledSync] = useState(false);
   const [openConfirmPlanSyncModal, setOpenConfirmPlanSyncModal] =
     useState(false);
+  
+  useEffect(() => {
+    const errorParam = searchparams.get("error");
+    if(errorParam === "invalid_email" || sessionStorage.getItem("invalidLogin") == "true"){
+      setopenInvalidEmail(true);
+      sessionStorage.setItem("invalidLogin", "true");
+    }
+    return;
+  }, [searchparams])
 
   // Notification when user logs in
   useEffect(() => {
@@ -124,16 +136,14 @@ const Header = () => {
       position: "top-right",
     });
 
+    router.push("/auth/logout");
+
     // Set a flag so that plans are cleared after the page reloads
     // If we clear the plans here, it causes a visual flicker as they disappear before logout.
     // By clearing plans after page reload, the transition appears smoother to the user.
     // The plan clear logic occurs in Cal_Grid component when this flag is set
     localStorage.setItem("shouldClearPlans", "true");
 
-    // Redirect after both notifications
-    setTimeout(() => {
-      window.location.href = "/auth/logout";
-    }, 2000);
   };
 
   const icon = () => {
@@ -150,6 +160,33 @@ const Header = () => {
   };
   return (
     <>
+    <Modal
+        title="Invalid Email Address"
+        opened={openInvalidEmail}
+        withCloseButton={false}
+        trapFocus={true}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        onClose={() => {}}
+      >
+        <p className="text-sm mb-4">
+          Invalid email was not used. Please start the log out process below and try logging back in with an @njit.edu email.
+        </p>
+        <div className="flex items-center justify-center gap-8">
+          <Button
+            size="md"
+            w="100%"
+            variant="light"
+            color="red"
+            onClick={() => {
+              sessionStorage.setItem("invalidLogin", "false");
+              router.push("/auth/logout");
+            }}
+          >
+            Logout
+          </Button>
+        </div>
+      </Modal>
       <Modal.Stack>
         <Modal
           title="Select Plan Sync Option"
