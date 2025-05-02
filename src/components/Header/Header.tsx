@@ -27,9 +27,13 @@ import {
   syncPlans,
 } from "@/lib/client/planStore";
 import { useMediaQuery } from "@mantine/hooks";
+import { bugReportLink, feedbackForm } from "@/lib/forms";
+import { WelcomeModal } from "@/components/Shell/Shell";
 
 const Header = () => {
   const plan_store = planStore();
+  const { isOpen: isWelcomeModalOpen } = React.useContext(WelcomeModal);
+
   const days = [
     { label: "Su", value: "0" },
     { label: "Mo", value: "1" },
@@ -69,7 +73,7 @@ const Header = () => {
       "navigation"
     )[0] as PerformanceNavigationTiming;
     if (navigation?.type !== "reload") {
-      if (user && !hasLoggedIn && !isLoggingOut) {
+      if (user && !hasLoggedIn && !isLoggingOut && !isWelcomeModalOpen) {
         setHasLoggedIn(true);
         notifications.show({
           title: "Welcome",
@@ -81,7 +85,7 @@ const Header = () => {
         });
       }
     }
-  }, [user, hasLoggedIn, isLoggingOut]);
+  }, [user, hasLoggedIn, isLoggingOut, isWelcomeModalOpen]);
 
   useEffect(() => {
     const shouldClearPlans = localStorage.getItem("shouldClearPlans");
@@ -337,6 +341,30 @@ const Header = () => {
                   </Group>
                 </Popover.Dropdown>
               </Popover>
+              <Menu.Item
+                leftSection={<Icon> error </Icon>}
+                onClick={() => {
+                  const userAgent = encodeURIComponent(navigator.userAgent);
+                  const screenInfo = encodeURIComponent(`${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`);
+                  const timestamp = encodeURIComponent(new Date().toISOString());
+
+                  const formUrl = `${bugReportLink}?usp=pp_url` + 
+                  `&entry.798766012=${userAgent}` + 
+                  `&entry.1633347189=${screenInfo}` +
+                  `&entry.1561839137=${timestamp}` + 
+                  `&entry.1425119412=${user?.sub?user.sub: "unauth"}`;
+
+                  window.open(formUrl)}}
+              >
+                Bug Report
+              </Menu.Item>
+              <Menu.Item
+                leftSection={<Icon> question_answer </Icon>}
+                onClick={() => {
+                  window.open(feedbackForm)}}
+              >
+                Feedback Form
+              </Menu.Item>
               {!isLoggedIn ? (
                 <Menu.Item
                   rightSection={<Icon> login </Icon>}
