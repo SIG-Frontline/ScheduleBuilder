@@ -96,6 +96,7 @@ interface PlanStoreState {
   selectPlan: (uuid: string) => void;
   addCourseToPlan: (course: Course) => void;
   selectSection: (course: string, crn: string) => void;
+  findSelectedSections: (plan: Plan) => { courseCode: string, section: Section }[];
   deleteCourseFromPlan: (course: string) => void;
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
@@ -205,6 +206,17 @@ export const planStore = create<PlanStoreState>()(
             : plan
         );
         set({ plans: newPlans });
+      },
+      findSelectedSections: (plan: Plan) => {
+        if (!plan.courses) return [];
+        return plan.courses.flatMap((course) =>
+          course.sections
+            .filter((section) => section.selected)
+            .map((section) => ({
+              courseCode: course.code,
+              section,
+            }))
+        );
       },
       addEventToPlan: (event) => {
         const { plans, currentSelectedPlan } = get();
