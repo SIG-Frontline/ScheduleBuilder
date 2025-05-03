@@ -1,6 +1,6 @@
 "use client";
 
-import { AppShell, Button } from "@mantine/core";
+import { AppShell, Button, Modal } from "@mantine/core";
 import Nav from "@/components/Nav/Nav";
 import Header from "../Header/Header";
 import { useMediaQuery } from "@mantine/hooks";
@@ -10,12 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { Course, planStore, syncPlans } from "@/lib/client/planStore";
 import { getSectionDataByCrn } from "@/lib/server/actions/getSectionDataByCrn";
 import { notifications } from "@mantine/notifications";
-import { Button, Modal } from '@mantine/core';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { useUser } from '@auth0/nextjs-auth0/'; 
-import { create } from "domain";
-import React, { createContext } from "react";
+import React, { createContext, useState } from "react";
 
 export const WelcomeModal =  createContext<{ isOpen: boolean }>({ isOpen: false});
 
