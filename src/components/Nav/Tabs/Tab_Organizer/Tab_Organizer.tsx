@@ -219,7 +219,7 @@ const Tab_Organizer = () => {
   }
 
   return (
-    <ScrollAreaAutosize className="px-4 pt-2 pb-8" type="hover">
+    <ScrollAreaAutosize className="px-4 pt-2 pb-24" type="hover">
       <div className="mb-2">
         <Text c="dimmed">
           Customize your schedule according to your preferences.
