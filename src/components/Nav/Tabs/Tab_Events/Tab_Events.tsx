@@ -141,7 +141,7 @@ const Tab_Events = () => {
                   radius="xl"
                   placeholder="Input placeholder"
                   value={event.color}
-                  format="rgba"
+                  format="hsla"
                   onChange={(val) => {
                     setEvent({ ...event, color: val });
                   }}
@@ -151,7 +151,7 @@ const Tab_Events = () => {
             <Popover.Dropdown>
               <div>
                 <ColorPicker
-                  format="rgba"
+                  format="hsla"
                   onChange={(val) => {
                     setEvent({ ...event, color: val });
                   }}

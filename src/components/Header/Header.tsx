@@ -302,7 +302,7 @@ const Header = () => {
             shadow="md"
             width={200}
             closeOnItemClick={false}
-            closeOnClickOutside={false}
+            closeOnClickOutside={true}
           >
             <Menu.Target>
               <span className="flex">{icon()}</span>
