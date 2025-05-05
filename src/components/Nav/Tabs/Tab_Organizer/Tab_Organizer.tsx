@@ -12,8 +12,13 @@ import {
   Title,
   Select,
   Divider,
+  Modal,
 } from "@mantine/core";
-import { planStore, organizerSettings } from "@/lib/client/planStore";
+import {
+  planStore,
+  organizerSettings,
+  instructionType,
+} from "@/lib/client/planStore";
 import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 import { notifications } from "@mantine/notifications";
 
@@ -29,14 +34,15 @@ const Tab_Organizer = () => {
     []
   );
   const [selectedInstructors, setSelectedInstructors] = useState<
-  Record<string, string>
+    Record<string, string>
   >({});
   const [selectedInstructionMethods, setSelectedInstructionMethods] = useState<
-  Record<string, string>
+    Record<string, string>
   >({});
+  const originalSettingsRef = useRef<organizerSettings | null>(null);
   const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
+  const hasShownNotification = useRef(false);
   const plan_store = planStore();
-  const hasShownNotification = useRef(false)
   // Creates the new plan based on the term of the currently selected plan
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
@@ -74,7 +80,6 @@ const Tab_Organizer = () => {
         })
     : [];
 
-
   const handleInstructionMethodSelect = (
     method: string,
     courseCode: string
@@ -83,6 +88,12 @@ const Tab_Organizer = () => {
       ...prev,
       [courseCode]: prev[courseCode] === method ? "" : method,
     }));
+  };
+
+  const methodToEnum: Record<string, instructionType> = {
+    "in person": instructionType.INPERSON,
+    Hybrid: instructionType.HYBRID,
+    online: instructionType.ONLINE,
   };
 
   useEffect(() => {
@@ -108,6 +119,14 @@ const Tab_Organizer = () => {
     }
 
     if (settings) {
+      originalSettingsRef.current = {
+        isCommuter: settings.isCommuter,
+        commuteDays: settings.commuteDays,
+        compactPlan: settings.compactPlan,
+        eventPriority: settings.eventPriority,
+        courseFilters: settings.courseFilters || [],
+      };
+
       const lockedCourses: string[] = [];
       const restoredInstructors: Record<string, string> = {};
       const restoredMethods: Record<string, string> = {};
@@ -140,8 +159,11 @@ const Tab_Organizer = () => {
           filter.courseCode &&
           typeof filter.online === "string"
         ) {
-          restoredMethods[filter.courseCode] = filter.online;
-          setAccordionOpened("advanced-mode");
+          const method = filter.online as instructionType;
+          if (Object.values(instructionType).includes(method)) {
+            restoredMethods[filter.courseCode] = method;
+            setAccordionOpened("advanced-mode");
+          }
         }
       }
 
@@ -205,7 +227,7 @@ const Tab_Organizer = () => {
       ...structuredClone(selectedPlan),
       organizerSettings: settings,
     };
-    
+
     const organizedPlan = await organizePlan(newPlan);
 
     if ("error" in organizedPlan) {
@@ -414,7 +436,7 @@ const Tab_Organizer = () => {
                       }
                       onChange={() =>
                         handleInstructionMethodSelect(
-                          "face-to-face",
+                          instructionType.INPERSON,
                           courseCode
                         )
                       }
@@ -425,7 +447,10 @@ const Tab_Organizer = () => {
                         selectedInstructionMethods[courseCode] === "online"
                       }
                       onChange={() =>
-                        handleInstructionMethodSelect("online", courseCode)
+                        handleInstructionMethodSelect(
+                          instructionType.ONLINE,
+                          courseCode
+                        )
                       }
                     />
                     <Checkbox
@@ -434,7 +459,10 @@ const Tab_Organizer = () => {
                         selectedInstructionMethods[courseCode] === "Hybrid"
                       }
                       onChange={() =>
-                        handleInstructionMethodSelect("hybrid", courseCode)
+                        handleInstructionMethodSelect(
+                          instructionType.HYBRID,
+                          courseCode
+                        )
                       }
                     />
                   </Group>

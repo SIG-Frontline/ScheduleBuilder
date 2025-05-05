@@ -65,7 +65,7 @@ export type Event = {
 };
 export interface organizerSettings {
   isCommuter: boolean;
-  commuteDays: number;
+  commuteDays: number | undefined;
   compactPlan: boolean;
   eventPriority: boolean;
   courseFilters: courseFilter[];
