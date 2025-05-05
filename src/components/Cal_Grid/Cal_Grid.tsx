@@ -63,7 +63,10 @@ const Cal_Grid = () => {
             title: courseTitle,
             crn: section.crn,
             instructor: section.instructor,
-            location: meetingTime.building + " " + meetingTime.room,
+            location:
+              meetingTime.building == null || meetingTime.room == null
+                ? null
+                : meetingTime.building + " " + meetingTime.room,
             credits: item.credits,
             maxSeats: section.maxEnrollment,
             currentSeats: section.currentEnrollment,
@@ -140,7 +143,7 @@ const Cal_Grid = () => {
                 Title: {eventContent.event.title} <br />
                 {eventContent.event.extendedProps.title}
                 <br />
-                Location: {eventContent.event.extendedProps.location}
+                Location: {eventContent.event.extendedProps.location || "Unknown"}
                 <br />
                 Time: {eventContent.timeText} <br />
                 Instructor: {eventContent.event.extendedProps.instructor}
@@ -187,9 +190,11 @@ const Cal_Grid = () => {
                         <Text size="xs" c={textColor}>
                           {eventContent.timeText}
                         </Text>
-                        <Text size="xs" c={textColor}>
-                          {eventContent.event.extendedProps.location}
-                        </Text>
+                        {eventContent.event.extendedProps.location != null && (
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.location}
+                          </Text>
+                        )}
                         <Text size="xs" c={textColor}>
                           {eventContent.event.extendedProps.instructor}
                         </Text>
@@ -221,7 +226,7 @@ const Cal_Grid = () => {
                 ["title", info.event.extendedProps.title],
                 ["crn", info.event.extendedProps.crn],
                 ["instructor", info.event.extendedProps.instructor],
-                ["location", info.event.extendedProps.location],
+                ["location", info.event.extendedProps.location || "Unknown"],
                 ["maxSeats", info.event.extendedProps.maxSeats],
                 ["currentSeats", info.event.extendedProps.currentSeats],
               ])
