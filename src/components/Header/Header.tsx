@@ -2,6 +2,9 @@ import {
   ActionIcon,
   Avatar,
   Button,
+  Checkbox,
+  CheckboxGroup,
+  Divider,
   Flex,
   Group,
   Menu,
@@ -9,6 +12,8 @@ import {
   MultiSelect,
   Popover,
   Space,
+  Stack,
+  Switch,
   Text,
   Title,
   useMantineColorScheme,
@@ -44,11 +49,11 @@ const Header = () => {
     { label: "Sa", value: "6" },
   ];
   const day_store = dayStore();
-  const { toggleColorScheme } = useMantineColorScheme();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const largerThanSm = useMediaQuery("(min-width: 768px)");
   const router = useRouter();
   const searchparams = useSearchParams();
-  const [openInvalidEmail, setopenInvalidEmail] = useState(false)
+  const [openInvalidEmail, setopenInvalidEmail] = useState(false);
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
   const [hasLoggedIn, setHasLoggedIn] = useState(false);
@@ -57,15 +62,18 @@ const Header = () => {
   const [alreadyHandledSync, setAlreadyHandledSync] = useState(false);
   const [openConfirmPlanSyncModal, setOpenConfirmPlanSyncModal] =
     useState(false);
-  
+
   useEffect(() => {
     const errorParam = searchparams.get("error");
-    if(errorParam === "invalid_email" || sessionStorage.getItem("invalidLogin") == "true"){
+    if (
+      errorParam === "invalid_email" ||
+      sessionStorage.getItem("invalidLogin") == "true"
+    ) {
       setopenInvalidEmail(true);
       sessionStorage.setItem("invalidLogin", "true");
     }
     return;
-  }, [searchparams])
+  }, [searchparams]);
 
   // Notification when user logs in
   useEffect(() => {
@@ -97,7 +105,7 @@ const Header = () => {
 
   useEffect(() => {
     const runSync = async () => {
-      if (alreadyHandledSync) return; 
+      if (alreadyHandledSync) return;
       const navigation = performance.getEntriesByType(
         "navigation"
       )[0] as PerformanceNavigationTiming;
@@ -121,7 +129,7 @@ const Header = () => {
     setOpenPlanSyncModal(false);
     await syncPlans(saveLocal);
     setOpenConfirmPlanSyncModal(false);
-  }
+  };
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -147,7 +155,6 @@ const Header = () => {
     // By clearing plans after page reload, the transition appears smoother to the user.
     // The plan clear logic occurs in Cal_Grid component when this flag is set
     localStorage.setItem("shouldClearPlans", "true");
-
   };
 
   const icon = () => {
@@ -164,7 +171,7 @@ const Header = () => {
   };
   return (
     <>
-    <Modal
+      <Modal
         title="Invalid Email Address"
         opened={openInvalidEmail}
         withCloseButton={false}
@@ -174,7 +181,8 @@ const Header = () => {
         onClose={() => {}}
       >
         <p className="text-sm mb-4">
-          Invalid email was not used. Please start the log out process below and try logging back in with an @njit.edu email.
+          Invalid email was not used. Please start the log out process below and
+          try logging back in with an @njit.edu email.
         </p>
         <div className="flex items-center justify-center gap-8">
           <Button
@@ -217,7 +225,7 @@ const Header = () => {
                 },
               }}
               onClick={() => {
-                setOpenConfirmPlanSyncModal(true)
+                setOpenConfirmPlanSyncModal(true);
                 setOpenPlanSyncModal(false);
               }}
             >
@@ -288,83 +296,101 @@ const Header = () => {
           Schedule Builder
         </Title>
         <Group wrap="nowrap">
-          <ActionIcon
-            // className="m-1"
-            variant="light"
-            onClick={toggleColorScheme}
-          >
-            <Icon>
-              <p className="dark:hidden">light_mode</p>
-              <p className="hidden dark:block">dark_mode</p>
-            </Icon>
-          </ActionIcon>
           <Menu
             shadow="md"
-            width={200}
+            width={"200"}
             closeOnItemClick={false}
             closeOnClickOutside={true}
           >
             <Menu.Target>
-              <span className="flex">{icon()}</span>
+              <ActionIcon variant="light" aria-label="Settings">
+                <Icon>more_vert</Icon>
+              </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
-              <Popover withinPortal={false} width={400} withArrow shadow="md">
-                <Popover.Target>
-                  <Menu.Item leftSection={<Icon> settings </Icon>}>
-                    Settings
-                  </Menu.Item>
-                </Popover.Target>
-                <Popover.Dropdown>
-                  <Group>
-                    {/* <Group m="sm"> */}
-                    {/* <Tooltip label="Toggle color scheme">
-                    
-                    </Tooltip>
-                    <Text size="md">Color Scheme</Text> */}
-                    {/* </Group> */}
-                    <Space h="md" />
-                    <Text size="md" ta={"center"}>
-                      Days of the Week
-                    </Text>
-                    <MultiSelect
-                      comboboxProps={{ withinPortal: false }}
-                      mx="md"
-                      label="Hidden days"
-                      placeholder="Select hidden days"
-                      data={days}
-                      maxValues={6}
-                      onChange={(values) => {
-                        day_store.setDays(values.map((day) => parseInt(day)));
-                      }}
-                      value={day_store.days.map((day) => day.toString())}
-                    />
-                  </Group>
-                </Popover.Dropdown>
-              </Popover>
+              <Flex align="center" gap="sm" my="sm">
+                <Divider w="10%" /> {/* left line: 1/3 width */}
+                <Text fw={600}>Settings</Text>
+                <Divider flex={1} /> {/* right line grows to fill the rest */}
+              </Flex>
+
+              <Stack mx="md">
+                <Text fw={400} size="sm">
+                  Visible Days
+                </Text>
+                <Checkbox.Group
+                  my={0}
+                  value={[0, 1, 2, 3, 4, 5, 6]
+                    .filter((day) => !day_store.days.includes(day)) // Calculate shown days
+                    .map((day) => day.toString())}
+                  onChange={(values) => {
+                    // Update hidden days by subtracting shown days from the full list
+                    const shownDays = values.map((day) => parseInt(day));
+                    const hiddenDays = [0, 1, 2, 3, 4, 5, 6].filter(
+                      (day) => !shownDays.includes(day)
+                    );
+                    day_store.setDays(hiddenDays);
+                  }}
+                >
+                  <Stack mx="md" my={0}>
+                    {days.map((day) => (
+                      <Checkbox
+                        my={0}
+                        key={day.value}
+                        value={day.value}
+                        label={day.label}
+                      />
+                    ))}
+                  </Stack>
+                </Checkbox.Group>
+                <Text fw={400} size="sm">
+                  Toggle Color Scheme
+                </Text>
+                <Switch
+                  checked={colorScheme === "dark"}
+                  size="md"
+                  offLabel={<Icon className="text-yellow-400">light_mode</Icon>}
+                  onLabel={<Icon>dark_mode</Icon>}
+                  onClick={toggleColorScheme}
+                />
+              </Stack>
+              <Flex align="center" gap="sm" my="sm">
+                <Divider w="10%" /> {/* left line: 1/3 width */}
+                <Text fw={600}>Feedback</Text>
+                <Divider flex={1} /> {/* right line grows to fill the rest */}
+              </Flex>
               <Menu.Item
                 leftSection={<Icon> error </Icon>}
                 onClick={() => {
                   const userAgent = encodeURIComponent(navigator.userAgent);
-                  const screenInfo = encodeURIComponent(`${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`);
-                  const timestamp = encodeURIComponent(new Date().toISOString());
+                  const screenInfo = encodeURIComponent(
+                    `${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`
+                  );
+                  const timestamp = encodeURIComponent(
+                    new Date().toISOString()
+                  );
 
-                  const formUrl = `${bugReportLink}?usp=pp_url` + 
-                  `&entry.798766012=${userAgent}` + 
-                  `&entry.1633347189=${screenInfo}` +
-                  `&entry.1561839137=${timestamp}` + 
-                  `&entry.1425119412=${user?.sub?user.sub: "unauth"}`;
+                  const formUrl =
+                    `${bugReportLink}?usp=pp_url` +
+                    `&entry.798766012=${userAgent}` +
+                    `&entry.1633347189=${screenInfo}` +
+                    `&entry.1561839137=${timestamp}` +
+                    `&entry.1425119412=${user?.sub ? user.sub : "unauth"}`;
 
-                  window.open(formUrl)}}
+                  window.open(formUrl);
+                }}
               >
                 Bug Report
               </Menu.Item>
               <Menu.Item
                 leftSection={<Icon> question_answer </Icon>}
                 onClick={() => {
-                  window.open(feedbackForm)}}
+                  window.open(feedbackForm);
+                }}
               >
                 Feedback Form
               </Menu.Item>
+              <Divider my="xs" labelPosition="left" />
               {!isLoggedIn ? (
                 <Menu.Item
                   rightSection={<Icon> login </Icon>}
@@ -375,12 +401,13 @@ const Header = () => {
                 </Menu.Item>
               ) : (
                 <Menu.Item
+                  color="red"
                   rightSection={<Icon> logout </Icon>}
                   href={"/auth/logout"}
                   component={"a"}
                   onClick={handleLogout}
                 >
-                  Logout
+                  <Text fw={600}>Logout</Text>
                 </Menu.Item>
               )}
             </Menu.Dropdown>
