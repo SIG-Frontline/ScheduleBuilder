@@ -12,6 +12,7 @@ export async function organizePlan(currentPlan: Plan) : Promise<Plan | {error:st
 	if(!currentPlan) return {
 		error: "No plan provided!"
 	} 
+	console.log(currentPlan.organizerSettings);
 
 	const baseURL = `${process.env.SBCORE_URL}`;
 	const URL = `${baseURL}/organizer`;

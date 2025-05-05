@@ -21,7 +21,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
-  organizerSettings?: organizerSettings;
+  organizerSettings: organizerSettings;
 };
 
 export type Course = {
@@ -65,8 +65,9 @@ export type Event = {
 };
 export interface organizerSettings {
   isCommuter: boolean;
-  commuteTimeHours: number;
+  commuteDays: number;
   compactPlan: boolean;
+  eventPriority: boolean;
   courseFilters: courseFilter[];
 }
 
@@ -96,13 +97,16 @@ interface PlanStoreState {
   selectPlan: (uuid: string) => void;
   addCourseToPlan: (course: Course) => void;
   selectSection: (course: string, crn: string) => void;
-  findSelectedSections: (plan: Plan) => { courseCode: string, section: Section }[];
+  findSelectedSections: (
+    plan: Plan
+  ) => { courseCode: string; section: Section }[];
   deleteCourseFromPlan: (course: string) => void;
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
   clearPlans: () => void;
   setOpenCourseId: (id: string | null) => void;
+  updatePlanSettings: (settings: organizerSettings, planUUID: string) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -113,10 +117,23 @@ export const planStore = create<PlanStoreState>()(
       setPlans: (plans) => set({ plans }),
       addPlan: (newPlan) => {
         const { plans } = get();
+        const initializedPlan: Plan = {
+          ...newPlan,
+          organizerSettings: newPlan.organizerSettings ?? {
+            isCommuter: false,
+            commuteDays: 0,
+            compactPlan: false,
+            eventPriority: false,
+            courseFilters: [],
+          },
+        };
         if (plans.length === 0) {
-          newPlan.selected = true;
+          initializedPlan.selected = true;
         }
-        set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
+        set({
+          plans: [...plans, initializedPlan],
+          currentSelectedPlan: initializedPlan.uuid,
+        });
       },
       selectPlan: (uuid) => {
         const { plans } = get();
@@ -132,9 +149,10 @@ export const planStore = create<PlanStoreState>()(
       },
       updatePlan: (updatedPlan, uuid) => {
         const { plans } = get();
-        set({
-          plans: plans.map((plan) => (plan.uuid === uuid ? updatedPlan : plan)),
-        });
+        const newPlans = plans.map((plan) =>
+          plan.uuid === uuid ? structuredClone(updatedPlan) : plan
+        );
+        set({ plans: newPlans });
       },
       removePlan: async (uuid) => {
         const { plans, currentSelectedPlan } = get();
@@ -280,6 +298,32 @@ export const planStore = create<PlanStoreState>()(
           plans: [],
           currentSelectedPlan: null,
         });
+      },
+      updatePlanSettings: (settings, uuid) => {
+        const { getPlan, updatePlan } = get();
+        const plan = getPlan(uuid);
+        if (!plan) return;
+
+        const defaultSettings: organizerSettings = plan.organizerSettings ?? {
+          isCommuter: false,
+          commuteDays: 0,
+          compactPlan: false,
+          eventPriority: false,
+          courseFilters: [],
+        };
+
+        const updatedSettings: organizerSettings = {
+          isCommuter: settings.isCommuter ?? defaultSettings.isCommuter,
+          commuteDays:
+            settings.commuteDays ?? defaultSettings.commuteDays,
+          compactPlan: settings.compactPlan ?? defaultSettings.compactPlan,
+          eventPriority:
+            settings.eventPriority ?? defaultSettings.eventPriority,
+          courseFilters:
+            settings.courseFilters ?? defaultSettings.courseFilters,
+        };
+
+        updatePlan({ ...plan, organizerSettings: updatedSettings }, uuid);
       },
       openCourseId: null,
       setOpenCourseId: (id) => set({ openCourseId: id }),

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   Text,
@@ -9,15 +9,19 @@ import {
   MultiSelect,
   Accordion,
   ScrollAreaAutosize,
+  Title,
+  Select,
+  Divider,
 } from "@mantine/core";
 import { planStore, organizerSettings } from "@/lib/client/planStore";
 import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
+import { notifications } from "@mantine/notifications";
 
 const Tab_Organizer = () => {
   const [input, setInput] = useState({
     isCommuter: false,
-    commuteTime: "",
-    condenseSchedules: false,
+    commuteDays: "",
+    compactPlan: false,
     eventPriority: false,
     error: "",
   });
@@ -25,7 +29,10 @@ const Tab_Organizer = () => {
   const [selectedLockedCourses, setSelectedLockedCourses] = useState<string[]>(
     []
   );
-
+  const [selectedInstructors, setSelectedInstructors] = useState<
+    Record<string, string>
+  >({});
+  const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
   // Creates the new plan based on the term of the currently selected plan
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
@@ -38,42 +45,181 @@ const Tab_Organizer = () => {
           return `${courseCode}-${section.sectionNumber}`;
         })
     : [];
-  async function organizeClasses() {
-    // Sanitizes the temp input
-    const commuteTime = isNaN(parseInt(input.commuteTime))
-      ? 2
-      : parseInt(input.commuteTime);
+
+  const instructorsPerCourse = selectedPlan?.courses
+    ? selectedPlan.courses
+        .filter((course) => {
+          return !selectedLockedCourses.some((locked) =>
+            locked.startsWith(course.code)
+          );
+        })
+        .map((course) => {
+          const instructors = new Set<string>();
+
+          course.sections.forEach((section) => {
+            const name = section.instructor?.trim();
+            if (name) {
+              instructors.add(name);
+            }
+          });
+
+          return {
+            courseCode: course.code,
+            instructors: Array.from(instructors),
+          };
+        })
+    : [];
+
+  const hasShownNotification = useRef(false);
+  const [selectedInstructionMethods, setSelectedInstructionMethods] = useState<
+    Record<string, string>
+  >({});
+
+  const handleInstructionMethodSelect = (
+    method: string,
+    courseCode: string
+  ) => {
+    setSelectedInstructionMethods((prev) => ({
+      ...prev,
+      [courseCode]: prev[courseCode] === method ? "" : method,
+    }));
+  };
+
+  useEffect(() => {
+    const settings = selectedPlan?.organizerSettings;
+
+    const shouldNotify =
+      settings &&
+      !hasShownNotification.current &&
+      (settings.isCommuter ||
+        settings.compactPlan ||
+        settings.eventPriority ||
+        settings.courseFilters?.length);
+
+    if (shouldNotify) {
+      notifications.show({
+        title: "Organizer Settings",
+        message: `You're previously used organizer settings have been autofilled`,
+        color: "blue",
+        autoClose: 3000,
+        position: "top-right",
+      });
+      hasShownNotification.current = true;
+    }
+
+    if (settings) {
+      const lockedCourses: string[] = [];
+      const restoredInstructors: Record<string, string> = {};
+      const restoredMethods: Record<string, string> = {};
+
+      for (const filter of settings.courseFilters ?? []) {
+        if ("section" in filter && filter.courseCode && filter.section) {
+          const isValid = selectedPlan?.courses?.some(
+            (course) =>
+              course.code === filter.courseCode &&
+              course.sections.some(
+                (section) => section.sectionNumber === filter.section
+              )
+          );
+          if (isValid) {
+            lockedCourses.push(`${filter.courseCode}-${filter.section}`);
+          }
+        }
+
+        if (
+          "instructor" in filter &&
+          filter.courseCode &&
+          typeof filter.instructor === "string"
+        ) {
+          restoredInstructors[filter.courseCode] = filter.instructor;
+          setAccordionOpened("advanced-mode");
+        }
+
+        if (
+          "online" in filter &&
+          filter.courseCode &&
+          typeof filter.online === "string"
+        ) {
+          restoredMethods[filter.courseCode] = filter.online;
+          setAccordionOpened("advanced-mode");
+        }
+      }
+
+      setInput((prev) => ({
+        ...prev,
+        isCommuter: settings.isCommuter,
+        commuteDays:
+          settings.commuteDays !== undefined
+            ? settings.commuteDays.toString()
+            : "",
+        compactPlan: settings.compactPlan,
+        eventPriority: settings.eventPriority ?? false,
+      }));
+
+      setSelectedLockedCourses(lockedCourses);
+      setSelectedInstructors(restoredInstructors);
+      setSelectedInstructionMethods(restoredMethods);
+    }
+  }, [selectedPlanuuid]);
+
+  async function organizeClasses(
+    lockedCourses: string[],
+    instructors: Record<string, string>,
+    instructionMethod: Record<string, string>,
+    inputState: typeof input
+  ) {
+    const courseFilters = [
+      ...lockedCourses.map((locked) => {
+        const [courseCode, section] = locked.split("-");
+        return { courseCode, section };
+      }),
+      ...Object.entries(instructors)
+        .filter(([_, instructor]) => instructor !== "")
+        .map(([courseCode, instructor]) => ({
+          courseCode,
+          instructor,
+        })),
+      ...Object.entries(instructionMethod)
+        .filter(([_, method]) => method !== "")
+        .map(([courseCode, method]) => ({
+          courseCode,
+          online: method === "in person" ? "face-to-face" : method,
+        })),
+    ];
     const settings = {
-      isCommuter: input.isCommuter,
-      commuteTimeHours: commuteTime,
-      compactPlan: input.condenseSchedules,
-      courseFilters: [],
+      isCommuter: inputState.isCommuter,
+      commuteDays: inputState.isCommuter
+        ? isNaN(parseInt(inputState.commuteDays))
+          ? 2
+          : parseInt(inputState.commuteDays)
+        : undefined,
+      compactPlan: inputState.compactPlan,
+      eventPriority: inputState.eventPriority,
+      courseFilters,
     } as organizerSettings;
 
-    if (!selectedPlan) return;
+    if (!selectedPlan || !selectedPlanuuid) return;
 
-    // HACK: inject settings into the plan
+    plan_store.updatePlanSettings(settings, selectedPlanuuid);
+    const organizedPlan = await organizePlan(selectedPlan);
 
-    // Saves the course filters if they are already stored (mostly for the tests, this will be changed with the new UI)
-    if (
-      selectedPlan.organizerSettings &&
-      selectedPlan.organizerSettings.courseFilters
-    )
-      settings.courseFilters = selectedPlan.organizerSettings.courseFilters;
-    selectedPlan.organizerSettings = settings;
-
-    const result = await organizePlan(selectedPlan);
-
-    if ("error" in result) {
-      console.error(result);
+    if ("error" in organizedPlan) {
+      console.error(organizedPlan);
       return;
     }
 
-    return result;
+    const finalPlan = {
+      ...organizedPlan,
+      organizerSettings: settings,
+    };
+
+    plan_store.updatePlan(finalPlan, finalPlan.uuid);
+
+    return finalPlan;
   }
 
   return (
-    <ScrollAreaAutosize className="px-4 py-2" type="hover">
+    <ScrollAreaAutosize className="px-4 pt-2 pb-8" type="hover">
       <div className="mb-2">
         <Text c="dimmed">
           Customize your schedule according to your preferences.
@@ -90,7 +236,7 @@ const Tab_Organizer = () => {
                   *
                 </Text>
               </Text>
-              <Text size="s" c="dimmed">
+              <Text size="xs" c="dimmed">
                 Selected sections will not be changed during customization.
               </Text>
               <MultiSelect
@@ -114,7 +260,12 @@ const Tab_Organizer = () => {
           <Checkbox
             checked={input.isCommuter}
             onChange={(event) => {
-              setInput({ ...input, isCommuter: event.currentTarget.checked });
+              const isChecked = event.currentTarget.checked;
+              setInput({
+                ...input,
+                isCommuter: isChecked,
+                commuteDays: isChecked ? input.commuteDays : "",
+              });
             }}
             size="md"
             label={
@@ -134,20 +285,24 @@ const Tab_Organizer = () => {
             <TextInput
               description="The numbers of days you want to spend on campus"
               placeholder="2"
-              onChange={(e) =>
-                setInput({ ...input, commuteTime: e.currentTarget.value })
-              }
+              value={input.commuteDays}
+              onChange={(event) => {
+                setInput({
+                  ...input,
+                  commuteDays: event.currentTarget.value,
+                });
+              }}
             />
           )}
         </Card>
         {/* Compact */}
         <Card withBorder={true} radius="md" className="flex flex-col gap-2">
           <Checkbox
-            checked={input.condenseSchedules}
+            checked={input.compactPlan}
             onChange={(event) => {
               setInput({
                 ...input,
-                condenseSchedules: event.currentTarget.checked,
+                compactPlan: event.currentTarget.checked,
               });
             }}
             size="md"
@@ -194,33 +349,122 @@ const Tab_Organizer = () => {
             events.
           </Text>
         </Card>
-        <Accordion chevronPosition="left" className="border rounded-md p-4">
-          <Text fw={600} size="lg">
-            Advanced Mode
-          </Text>
+        <Accordion
+          chevronPosition="left"
+          className="border rounded-md"
+          value={accordionOpened}
+          onChange={setAccordionOpened}
+        >
+          <Accordion.Item value="advanced-mode">
+            <Accordion.Control>
+              <Text fw={600} size="lg">
+                Advanced Mode
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Text size="xs" c="dimmed">
+                Advanced mode allows you to select specific instructors, or
+                instruction methods for each course.
+              </Text>
+            </Accordion.Panel>
+            <Accordion.Panel>
+              <Text size="xs" c="red">
+                Note: Courses locked in the option above will not appear in this
+                menu, unselect them first if you would like to customize them
+                here.
+              </Text>
+            </Accordion.Panel>
+            {instructorsPerCourse.map(({ courseCode, instructors }) => (
+              <React.Fragment key={courseCode}>
+                <Accordion.Panel className="mt-2">
+                  <Title order={5}>{courseCode}</Title>
+                  <Select
+                    label={
+                      <Text size="xs" c="dimmed" mb={8}>
+                        Select one of the following course instructors
+                      </Text>
+                    }
+                    checkIconPosition="right"
+                    placeholder="Pick value"
+                    data={instructors}
+                    value={selectedInstructors[courseCode] || null}
+                    onChange={(value) => {
+                      setSelectedInstructors((prev) => ({
+                        ...prev,
+                        [courseCode]: value || "",
+                      }));
+                    }}
+                  />
+                </Accordion.Panel>
+                <Accordion.Panel>
+                  <Text size="xs" c="dimmed" mb={8}>
+                    Select one of the following instruction methods
+                  </Text>
+                  <Group mt="sm">
+                    <Checkbox
+                      label="In Person"
+                      checked={
+                        selectedInstructionMethods[courseCode] ===
+                        "face-to-face"
+                      }
+                      onChange={() =>
+                        handleInstructionMethodSelect(
+                          "face-to-face",
+                          courseCode
+                        )
+                      }
+                    />
+                    <Checkbox
+                      label="Online"
+                      checked={
+                        selectedInstructionMethods[courseCode] === "online"
+                      }
+                      onChange={() =>
+                        handleInstructionMethodSelect("online", courseCode)
+                      }
+                    />
+                    <Checkbox
+                      label="Hybrid"
+                      checked={
+                        selectedInstructionMethods[courseCode] === "Hybrid"
+                      }
+                      onChange={() =>
+                        handleInstructionMethodSelect("hybrid", courseCode)
+                      }
+                    />
+                  </Group>
+                </Accordion.Panel>
+                <Divider
+                  className={
+                    accordionOpened === "advanced-mode" ? "block" : "hidden"
+                  }
+                />
+              </React.Fragment>
+            ))}
+          </Accordion.Item>
         </Accordion>
         <Button
           variant="filled"
           onClick={async () => {
-            const bestPlan = await organizeClasses();
-
+            const bestPlan = await organizeClasses(
+              selectedLockedCourses,
+              selectedInstructors,
+              selectedInstructionMethods,
+              input
+            );
             if (!bestPlan) {
-              setInput({ ...input, error: "No plan could be generated!" });
+              setInput((prev) => ({
+                ...prev,
+                error: "No plan could be generated!",
+              }));
               return;
             }
-
-            // HACK: don't save the organizer settings to the database as things are changing a lot
-            delete bestPlan?.organizerSettings;
-
-            // Update the current plan to the generated one
-            // TODO: maybe ask the user if they want to create a new one to not override the current plan?
-            const updatePlan = plan_store.updatePlan;
-            updatePlan(bestPlan, bestPlan.uuid);
+            plan_store.updatePlan(bestPlan, bestPlan.uuid);
           }}
         >
           Find Best Schedule
         </Button>
-        <Text ta={"center"} color="red">
+        <Text ta={"center"} c="red">
           {input.error}
         </Text>
       </div>
