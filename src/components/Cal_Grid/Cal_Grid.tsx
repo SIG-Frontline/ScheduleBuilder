@@ -65,6 +65,8 @@ const Cal_Grid = () => {
             instructor: section.instructor,
             location: meetingTime.building + " " + meetingTime.room,
             credits: item.credits,
+            maxSeats: section.maxEnrollment,
+            currentSeats: section.currentEnrollment,
           },
           startTime:
             new Date(meetingTime.startTime)
@@ -145,6 +147,7 @@ const Cal_Grid = () => {
                 <br />
               </>
             );
+
             return (
               <HoverCard
                 // color={eventContent.backgroundColor}
@@ -219,6 +222,8 @@ const Cal_Grid = () => {
                 ["crn", info.event.extendedProps.crn],
                 ["instructor", info.event.extendedProps.instructor],
                 ["location", info.event.extendedProps.location],
+                ["maxSeats", info.event.extendedProps.maxSeats],
+                ["currentSeats", info.event.extendedProps.currentSeats],
               ])
             );
           }}

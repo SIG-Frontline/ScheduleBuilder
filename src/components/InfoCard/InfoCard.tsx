@@ -163,6 +163,13 @@ function InfoCard(props: InfoCardProps) {
           <Icon>tag</Icon>
           <p>CRN: {courseInfo.get("crn")}</p>
         </div>
+        <div className="flex flex-row items-center space-x-2 pl-2">
+          <Icon>chair</Icon>
+          <p>
+            Seats: {courseInfo.get("currentSeats")}/{" "}
+            {courseInfo.get("maxSeats")}
+          </p>
+        </div>
       </Stack>
     </Paper>
   );

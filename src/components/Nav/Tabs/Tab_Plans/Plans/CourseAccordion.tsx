@@ -101,7 +101,7 @@ const CourseAccordion = ({ course }: { course: Course }) => {
                           radius="xl"
                           placeholder="Input placeholder"
                           value={course.color?.replaceAll(/\s/g, "") ?? "#f0f"}
-                          format="rgba"
+                          format="hsla"
                           onChange={(val) => {
                             updateCourseColor(course, val);
                           }}

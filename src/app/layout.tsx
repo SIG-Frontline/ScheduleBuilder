@@ -12,7 +12,7 @@ import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/nprogress/styles.css";
 import { Notifications } from "@mantine/notifications";
-
+import { WelcomeAlert } from "@/components/Shell/Shell";
 
 import {
   ColorSchemeScript,
@@ -66,6 +66,7 @@ export default async function RootLayout({
       <body>
           <MantineProvider>
             <Notifications />
+            <WelcomeAlert/>
             {backendStatus ? (
               <div style={{ overflow: "auto" }}>
                 <Shell>{children}</Shell>
