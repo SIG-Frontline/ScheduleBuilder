@@ -25,14 +25,18 @@ const Tab_Organizer = () => {
     eventPriority: false,
     error: "",
   });
-  const plan_store = planStore();
   const [selectedLockedCourses, setSelectedLockedCourses] = useState<string[]>(
     []
   );
   const [selectedInstructors, setSelectedInstructors] = useState<
-    Record<string, string>
+  Record<string, string>
+  >({});
+  const [selectedInstructionMethods, setSelectedInstructionMethods] = useState<
+  Record<string, string>
   >({});
   const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
+  const plan_store = planStore();
+  const hasShownNotification = useRef(false)
   // Creates the new plan based on the term of the currently selected plan
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
@@ -70,10 +74,6 @@ const Tab_Organizer = () => {
         })
     : [];
 
-  const hasShownNotification = useRef(false);
-  const [selectedInstructionMethods, setSelectedInstructionMethods] = useState<
-    Record<string, string>
-  >({});
 
   const handleInstructionMethodSelect = (
     method: string,
@@ -199,9 +199,14 @@ const Tab_Organizer = () => {
     } as organizerSettings;
 
     if (!selectedPlan || !selectedPlanuuid) return;
-
     plan_store.updatePlanSettings(settings, selectedPlanuuid);
-    const organizedPlan = await organizePlan(selectedPlan);
+
+    const newPlan = {
+      ...structuredClone(selectedPlan),
+      organizerSettings: settings,
+    };
+    
+    const organizedPlan = await organizePlan(newPlan);
 
     if ("error" in organizedPlan) {
       console.error(organizedPlan);
