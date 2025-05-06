@@ -248,7 +248,14 @@ const Tab_Organizer = () => {
     const organizedPlan = await organizePlan(newPlan);
 
     if ("error" in organizedPlan) {
-      console.error(organizedPlan);
+      notifications.show({
+        title: "Unable to Organize",
+        message:
+          "We were unable to generate a schedule based on your current selections. Please adjust your preferences and try again.",
+        color: "red",
+        autoClose: 5000,
+        position: "top-right",
+      });
       return;
     }
 
@@ -403,7 +410,7 @@ const Tab_Organizer = () => {
               </Text>
             </Accordion.Panel>
             {Object.entries(instructorsPerCourse).map(
-              ([courseCode, { instructors, instructorToMethods }]) => {
+              ([courseCode, { instructors }]) => {
                 return (
                   <React.Fragment key={courseCode}>
                     <Accordion.Panel className="mt-2">
@@ -513,9 +520,6 @@ const Tab_Organizer = () => {
         >
           Find Best Schedule
         </Button>
-        <Text ta={"center"} c="red">
-          {input.error}
-        </Text>
       </div>
     </ScrollAreaAutosize>
   );
