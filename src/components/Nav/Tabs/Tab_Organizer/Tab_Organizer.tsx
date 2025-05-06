@@ -22,6 +22,7 @@ import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 import { notifications } from "@mantine/notifications";
 
 const Tab_Organizer = () => {
+  // non advanced mode user plan settings input
   const [input, setInput] = useState({
     daysOnCampus: "",
     compactPlan: false,
@@ -38,9 +39,9 @@ const Tab_Organizer = () => {
     Record<string, string>
   >({});
   const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
+  const lastSavedSettingsRef = useRef<organizerSettings | null>(null);
   const hasShownNotification = useRef(false);
   const plan_store = planStore();
-  // Creates the new plan based on the term of the currently selected plan
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
     (plan) => plan.uuid === selectedPlanuuid
@@ -227,55 +228,10 @@ const Tab_Organizer = () => {
     hybrid: instructionType.HYBRID,
   };
 
-  async function organizeClasses(
-    lockedCourses: string[],
-    instructors: Record<string, string>,
-    instructionMethod: Record<string, string>,
-    inputState: typeof input
-  ) {
-    const courseFilters = [
-      ...lockedCourses.map((locked) => {
-        const [courseCode, section] = locked.split("-");
-        return { courseCode, section };
-      }),
-      ...Object.entries(instructors)
-        .filter(
-          ([_, instructor]) =>
-            instructor !== "" &&
-            instructor !== "No Preference" &&
-            instructor !== "Instructor Not Listed"
-        )
-        .map(([courseCode, instructor]) => ({
-          courseCode,
-          instructor,
-        })),
-      ...Object.entries(instructionMethod)
-        .filter(([_, method]) => method !== "")
-        .map(([courseCode, method]) => ({
-          courseCode,
-          online: methodToEnum[method.toLowerCase()] ?? instructionType.ANY,
-        })),
-    ];
-    const settings = {
-      daysOnCampus: inputState.daysOnCampus
-        ? isNaN(parseInt(inputState.daysOnCampus))
-          ? 2
-          : parseInt(inputState.daysOnCampus)
-        : undefined,
-      compactPlan: inputState.compactPlan,
-      eventPriority: inputState.eventPriority,
-      courseFilters,
-    } as organizerSettings;
-
+  async function organizeClasses() {
     if (!selectedPlan || !selectedPlanuuid) return;
-    plan_store.updatePlanSettings(settings, selectedPlanuuid);
-
-    const newPlan = {
-      ...structuredClone(selectedPlan),
-      organizerSettings: settings,
-    };
-
-    const organizedPlan = await organizePlan(newPlan);
+  
+    const organizedPlan = await organizePlan(selectedPlan);
 
     if ("error" in organizedPlan) {
       notifications.show({
@@ -289,15 +245,64 @@ const Tab_Organizer = () => {
       return;
     }
 
-    const finalPlan = {
-      ...organizedPlan,
-      organizerSettings: settings,
-    };
-
-    plan_store.updatePlan(finalPlan, finalPlan.uuid);
-
-    return finalPlan;
+    return organizedPlan;
   }
+
+  useEffect(() => {
+    if (!selectedPlan || !selectedPlanuuid) return;
+  
+    const courseFilters = [
+      ...selectedLockedCourses.map((locked) => {
+        const [courseCode, section] = locked.split("-");
+        return { courseCode, section };
+      }),
+      ...Object.entries(selectedInstructors)
+        .filter(
+          ([_, instructor]) =>
+            instructor !== "" &&
+            instructor !== "No Preference" &&
+            instructor !== "Instructor Not Listed"
+        )
+        .map(([courseCode, instructor]) => ({
+          courseCode,
+          instructor,
+        })),
+      ...Object.entries(selectedInstructionMethods)
+        .filter(([_, method]) => method && method !== "")
+        .map(([courseCode, method]) => ({
+          courseCode,
+          online: methodToEnum[method.toLowerCase()],
+        })),
+    ];
+  
+    const updatedSettings: organizerSettings = {
+      daysOnCampus: input.daysOnCampus
+        ? isNaN(parseInt(input.daysOnCampus))
+          ? 2
+          : parseInt(input.daysOnCampus)
+        : undefined,
+      compactPlan: input.compactPlan,
+      eventPriority: input.eventPriority,
+      courseFilters,
+    };
+  
+    const lastSaved = JSON.stringify(lastSavedSettingsRef.current);
+    const current = JSON.stringify(updatedSettings);
+  
+    if (lastSaved !== current) {
+      lastSavedSettingsRef.current = updatedSettings;
+      plan_store.updatePlanSettings(updatedSettings, selectedPlanuuid);
+    }
+  }, [
+    input.daysOnCampus,
+    input.compactPlan,
+    input.eventPriority,
+    selectedLockedCourses,
+    selectedInstructors,
+    selectedInstructionMethods,
+    selectedPlanuuid,
+    selectedPlan,
+  ]);
 
   return (
     <ScrollAreaAutosize className="px-4 pt-2 pb-24" type="hover">
@@ -528,12 +533,7 @@ const Tab_Organizer = () => {
         <Button
           variant="filled"
           onClick={async () => {
-            const bestPlan = await organizeClasses(
-              selectedLockedCourses,
-              selectedInstructors,
-              selectedInstructionMethods,
-              input
-            );
+            const bestPlan = await organizeClasses();
             if (!bestPlan) {
               setInput((prev) => ({
                 ...prev,

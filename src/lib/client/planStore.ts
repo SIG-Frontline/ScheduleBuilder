@@ -80,7 +80,7 @@ export interface courseFilter {
 export enum instructionType {
   ONLINE = "online",
   HYBRID = "hybrid",
-  INPERSON = "face-To-face",
+  INPERSON = "face-to-face",
   ANY = "any",
 }
 
