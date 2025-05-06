@@ -21,23 +21,28 @@ import {
 import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 import { notifications } from "@mantine/notifications";
 
+type organizerCourseSettings = {
+  lockedCourses: string[];
+  instructors: Record<string, string>;
+  instructionMethods: Record<string, string>;
+};
+
 const Tab_Organizer = () => {
-  // non advanced mode user plan settings input
+  // non course specific plan settings input
   const [input, setInput] = useState({
     daysOnCampus: "",
     compactPlan: false,
     eventPriority: false,
     error: "",
   });
-  const [selectedLockedCourses, setSelectedLockedCourses] = useState<string[]>(
-    []
+  // course specific settings aka coruseFilters
+  const [courseSettings, setCourseSettings] = useState<organizerCourseSettings>(
+    {
+      lockedCourses: [],
+      instructors: {},
+      instructionMethods: {},
+    }
   );
-  const [selectedInstructors, setSelectedInstructors] = useState<
-    Record<string, string>
-  >({});
-  const [selectedInstructionMethods, setSelectedInstructionMethods] = useState<
-    Record<string, string>
-  >({});
   const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
   const lastSavedSettingsRef = useRef<organizerSettings | null>(null);
   const hasShownNotification = useRef(false);
@@ -66,10 +71,12 @@ const Tab_Organizer = () => {
     return "online";
   };
 
+  // objects that maps course code to instructors and instructional methods
+  // excludes any locked courses
   const instructorsPerCourse = selectedPlan?.courses
     ? selectedPlan.courses
         .filter((course) => {
-          return !selectedLockedCourses.some((locked) =>
+          return !courseSettings.lockedCourses.some((locked) =>
             locked.startsWith(course.code)
           );
         })
@@ -137,12 +144,24 @@ const Tab_Organizer = () => {
     method: string,
     courseCode: string
   ) => {
-    setSelectedInstructionMethods((prev) => ({
+    setCourseSettings((prev) => ({
       ...prev,
-      [courseCode]: prev[courseCode] === method ? "" : method,
+      instructionMethods: {
+        ...prev.instructionMethods,
+        [courseCode]:
+          prev.instructionMethods[courseCode] === method ? "" : method,
+      },
     }));
   };
 
+  const methodToEnum: Record<string, instructionType> = {
+    online: instructionType.ONLINE,
+    "in person": instructionType.INPERSON,
+    hybrid: instructionType.HYBRID,
+  };
+
+  // useEffect hook to pull any saved organizer settings from a plan
+  // notifies users of any saved organizer settings
   useEffect(() => {
     const settings = selectedPlan?.organizerSettings;
 
@@ -166,7 +185,7 @@ const Tab_Organizer = () => {
     }
 
     if (settings) {
-      const lockedCourses: string[] = [];
+      const restoredLockedCourses: string[] = [];
       const restoredInstructors: Record<string, string> = {};
       const restoredMethods: Record<string, string> = {};
 
@@ -180,7 +199,9 @@ const Tab_Organizer = () => {
               )
           );
           if (isValid) {
-            lockedCourses.push(`${filter.courseCode}-${filter.section}`);
+            restoredLockedCourses.push(
+              `${filter.courseCode}-${filter.section}`
+            );
           }
         }
 
@@ -216,21 +237,78 @@ const Tab_Organizer = () => {
         eventPriority: settings.eventPriority ?? false,
       }));
 
-      setSelectedLockedCourses(lockedCourses);
-      setSelectedInstructors(restoredInstructors);
-      setSelectedInstructionMethods(restoredMethods);
+      setCourseSettings((prev) => ({
+        ...prev,
+        lockedCourses: restoredLockedCourses,
+        selectedInstructrs: restoredInstructors,
+        instructionMethods: restoredMethods,
+      }));
     }
   }, [selectedPlanuuid]);
 
-  const methodToEnum: Record<string, instructionType> = {
-    online: instructionType.ONLINE,
-    "in person": instructionType.INPERSON,
-    hybrid: instructionType.HYBRID,
-  };
+  // useEffect hook responsible for automatically saving any changes the user makes to their organizer settings
+  // merges all of the organizerCourseSettings into one courseFilter array to send to the backend
+  useEffect(() => {
+    if (!selectedPlan || !selectedPlanuuid) return;
 
+    const courseFilters = [
+      ...courseSettings.lockedCourses.map((locked) => {
+        const [courseCode, section] = locked.split("-");
+        return { courseCode, section };
+      }),
+      ...Object.entries(courseSettings.instructors)
+        .filter(
+          ([_, instructor]) =>
+            instructor !== "" &&
+            instructor !== "No Preference" &&
+            instructor !== "Instructor Not Listed"
+        )
+        .map(([courseCode, instructor]) => ({
+          courseCode,
+          instructor,
+        })),
+      ...Object.entries(courseSettings.instructionMethods)
+        .filter(([_, method]) => method && method !== "")
+        .map(([courseCode, method]) => ({
+          courseCode,
+          online: methodToEnum[method.toLowerCase()],
+        })),
+    ];
+
+    const updatedSettings: organizerSettings = {
+      daysOnCampus: input.daysOnCampus
+        ? isNaN(parseInt(input.daysOnCampus))
+          ? 2
+          : parseInt(input.daysOnCampus)
+        : undefined,
+      compactPlan: input.compactPlan,
+      eventPriority: input.eventPriority,
+      courseFilters,
+    };
+
+    const lastSaved = JSON.stringify(lastSavedSettingsRef.current);
+    const current = JSON.stringify(updatedSettings);
+
+    if (lastSaved !== current) {
+      lastSavedSettingsRef.current = updatedSettings;
+      plan_store.updatePlanSettings(updatedSettings, selectedPlanuuid);
+    }
+  }, [
+    input.daysOnCampus,
+    input.compactPlan,
+    input.eventPriority,
+    courseSettings.lockedCourses,
+    courseSettings.instructors,
+    courseSettings.instructionMethods,
+    selectedPlanuuid,
+    selectedPlan,
+  ]);
+
+  // since organizer settings are saved in the useEffect above
+  // in this function we just need to send the selected plan to the backend through the organizePlan server action
   async function organizeClasses() {
     if (!selectedPlan || !selectedPlanuuid) return;
-  
+
     const organizedPlan = await organizePlan(selectedPlan);
 
     if ("error" in organizedPlan) {
@@ -247,62 +325,6 @@ const Tab_Organizer = () => {
 
     return organizedPlan;
   }
-
-  useEffect(() => {
-    if (!selectedPlan || !selectedPlanuuid) return;
-  
-    const courseFilters = [
-      ...selectedLockedCourses.map((locked) => {
-        const [courseCode, section] = locked.split("-");
-        return { courseCode, section };
-      }),
-      ...Object.entries(selectedInstructors)
-        .filter(
-          ([_, instructor]) =>
-            instructor !== "" &&
-            instructor !== "No Preference" &&
-            instructor !== "Instructor Not Listed"
-        )
-        .map(([courseCode, instructor]) => ({
-          courseCode,
-          instructor,
-        })),
-      ...Object.entries(selectedInstructionMethods)
-        .filter(([_, method]) => method && method !== "")
-        .map(([courseCode, method]) => ({
-          courseCode,
-          online: methodToEnum[method.toLowerCase()],
-        })),
-    ];
-  
-    const updatedSettings: organizerSettings = {
-      daysOnCampus: input.daysOnCampus
-        ? isNaN(parseInt(input.daysOnCampus))
-          ? 2
-          : parseInt(input.daysOnCampus)
-        : undefined,
-      compactPlan: input.compactPlan,
-      eventPriority: input.eventPriority,
-      courseFilters,
-    };
-  
-    const lastSaved = JSON.stringify(lastSavedSettingsRef.current);
-    const current = JSON.stringify(updatedSettings);
-  
-    if (lastSaved !== current) {
-      lastSavedSettingsRef.current = updatedSettings;
-      plan_store.updatePlanSettings(updatedSettings, selectedPlanuuid);
-    }
-  }, [
-    input.daysOnCampus,
-    input.compactPlan,
-    input.eventPriority,
-    selectedLockedCourses,
-    selectedInstructors,
-    selectedInstructionMethods,
-    selectedPlanuuid,
-    selectedPlan,
-  ]);
 
   return (
     <ScrollAreaAutosize className="px-4 pt-2 pb-24" type="hover">
@@ -327,13 +349,18 @@ const Tab_Organizer = () => {
               </Text>
               <MultiSelect
                 placeholder={
-                  selectedLockedCourses.length === 0
+                  courseSettings.lockedCourses.length === 0
                     ? "Select some sections to keep"
                     : ""
                 }
                 data={selectedCourses}
-                value={selectedLockedCourses}
-                onChange={setSelectedLockedCourses}
+                value={courseSettings.lockedCourses}
+                onChange={(newLocked) =>
+                  setCourseSettings((prev) => ({
+                    ...prev,
+                    lockedCourses: newLocked,
+                  }))
+                }
                 searchable
                 nothingFoundMessage="Nothing found..."
                 checkIconPosition="right"
@@ -462,11 +489,14 @@ const Tab_Organizer = () => {
                             ? []
                             : ["No Preference"]),
                         ]}
-                        value={selectedInstructors[courseCode] || null}
+                        value={courseSettings.instructors[courseCode] || null}
                         onChange={(value) => {
-                          setSelectedInstructors((prev) => ({
+                          setCourseSettings((prev) => ({
                             ...prev,
-                            [courseCode]: value || "",
+                            instructors: {
+                              ...prev.instructors,
+                              [courseCode]: value || "",
+                            },
                           }));
                         }}
                       />
@@ -485,7 +515,7 @@ const Tab_Organizer = () => {
                           { label: "Hybrid", value: "hybrid" },
                         ].map(({ label, value }) => {
                           const selectedInstructor =
-                            selectedInstructors[courseCode]?.trim();
+                            courseSettings.instructors[courseCode]?.trim();
 
                           const { instructorToMethods, allMethods } =
                             instructorsPerCourse[courseCode] || {
@@ -508,7 +538,9 @@ const Tab_Organizer = () => {
                               key={value}
                               label={label}
                               checked={
-                                selectedInstructionMethods[courseCode] === value
+                                courseSettings.instructionMethods[
+                                  courseCode
+                                ] === value
                               }
                               onChange={() =>
                                 handleInstructionMethodSelect(value, courseCode)
