@@ -78,9 +78,9 @@ export interface courseFilter {
   section?: string;
 }
 export enum instructionType {
-  ONLINE = "Online Newark",
-  HYBRID = "Hybrid",
-  INPERSON = "Face-To-Face",
+  ONLINE = "online",
+  HYBRID = "hybrid",
+  INPERSON = "face-To-face",
   ANY = "any",
 }
 

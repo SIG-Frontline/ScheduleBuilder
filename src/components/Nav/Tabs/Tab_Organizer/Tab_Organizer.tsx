@@ -221,6 +221,12 @@ const Tab_Organizer = () => {
     }
   }, [selectedPlanuuid]);
 
+  const methodToEnum: Record<string, instructionType> = {
+    online: instructionType.ONLINE,
+    "in person": instructionType.INPERSON,
+    hybrid: instructionType.HYBRID,
+  };
+
   async function organizeClasses(
     lockedCourses: string[],
     instructors: Record<string, string>,
@@ -247,7 +253,7 @@ const Tab_Organizer = () => {
         .filter(([_, method]) => method !== "")
         .map(([courseCode, method]) => ({
           courseCode,
-          online: method as instructionType,
+          online: methodToEnum[method.toLowerCase()] ?? instructionType.ANY,
         })),
     ];
     const settings = {
@@ -330,17 +336,13 @@ const Tab_Organizer = () => {
             </div>
           </Group>
         </Card>
-        {/* Commuter */}
+        {/* Days On Campus */}
         <Card withBorder={true} radius="md" className="flex flex-col gap-2">
           <Text fw={600} size="lg">
-            Commuter{" "}
+            Number of In-Person Days{" "}
             <Text component="span" c="red" inherit>
               *
             </Text>
-          </Text>
-          <Text size="xs" c="dimmed">
-            When applicable, prioritize schedules with less number of days spent
-            on campus.
           </Text>
           <TextInput
             description="Enter the numbers of days you want to spend on campus"
