@@ -149,19 +149,14 @@ const Cal_Grid = () => {
               </>
             );
             return (
-              <HoverCard
-                // color={eventContent.backgroundColor}
-                position="bottom"
-                // w={220}
-                // label={tooltipContent}
-              >
+              <HoverCard position="bottom">
                 <HoverCard.Target>
                   <Stack
                     gap={"1px"}
-                    className="p-1 leading-tight w-full whitespace-nowrap overflow-hidden"
+                    className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden display-block "
                   >
                     {durationInMinutes < 70 ? (
-                      // Render only the title if duration is less than 100 minutes
+                      // Render only the title if duration is less than 70 minutes
                       <Text fw={600} size="sm" c={textColor}>
                         {eventContent.event.title}
                       </Text>
@@ -176,7 +171,7 @@ const Cal_Grid = () => {
                         </Text>
                       </>
                     ) : (
-                      // Render full details for durations 200 minutes or more
+                      // Render full details for durations 120 minutes or more
                       <>
                         <Text fw={600} size="sm" c={textColor}>
                           {eventContent.event.title}
