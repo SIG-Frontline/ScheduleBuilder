@@ -11,6 +11,7 @@ import {
   Space,
   Text,
   Title,
+  Tooltip,
   useMantineColorScheme,
 } from "@mantine/core";
 import React, { useState } from "react";
@@ -97,7 +98,7 @@ const Header = () => {
 
   useEffect(() => {
     const runSync = async () => {
-      if (alreadyHandledSync) return; 
+      if (alreadyHandledSync) return;
       const navigation = performance.getEntriesByType(
         "navigation"
       )[0] as PerformanceNavigationTiming;
@@ -106,8 +107,11 @@ const Header = () => {
         if (!alreadyHandledSync && shouldNotify) {
           setOpenPlanSyncModal(true);
         } else if (hasLoggedIn) {
-          syncPlans(false);
-        } else {
+          const tempPlan = localStorage.getItem("temporaryPlan");
+          if (tempPlan !== "true") {
+            syncPlans();
+          }
+        } else { 
           await loadLocalPlans();
         }
       }
@@ -121,7 +125,7 @@ const Header = () => {
     setOpenPlanSyncModal(false);
     await syncPlans(saveLocal);
     setOpenConfirmPlanSyncModal(false);
-  }
+  };
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -162,6 +166,7 @@ const Header = () => {
       );
     }
   };
+
   return (
     <>
     <Modal
@@ -217,7 +222,7 @@ const Header = () => {
                 },
               }}
               onClick={() => {
-                setOpenConfirmPlanSyncModal(true)
+                setOpenConfirmPlanSyncModal(true);
                 setOpenPlanSyncModal(false);
               }}
             >

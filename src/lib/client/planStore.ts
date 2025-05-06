@@ -21,6 +21,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
+  isTemporary?: boolean;
   organizerSettings?: organizerSettings;
 };
 
@@ -111,13 +112,26 @@ export const planStore = create<PlanStoreState>()(
     (set, get) => ({
       plans: [],
       currentSelectedPlan: null,
-      setPlans: (plans) => set({ plans }),
+      setPlans: (plans) => {
+        set({
+          plans: plans.map((plan) => ({
+            ...plan,
+            isTemporary: plan.isTemporary ?? false,
+          })),
+        });
+      },
       addPlan: (newPlan) => {
         const { plans } = get();
         if (plans.length === 0) {
           newPlan.selected = true;
         }
-        set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
+        set({
+          plans: [
+            ...plans,
+            { ...newPlan, isTemporary: newPlan.isTemporary ?? false },
+          ],
+          currentSelectedPlan: newPlan.uuid,
+        });
       },
       selectPlan: (uuid) => {
         const { plans } = get();
@@ -276,6 +290,10 @@ export const planStore = create<PlanStoreState>()(
     }),
     {
       name: "plan-store",
+      partialize: (state) => ({
+        ...state,
+        plans: state.plans.filter((plan) => !plan.isTemporary),
+      }),
     }
   )
 );
@@ -289,9 +307,19 @@ planStore.subscribe(
     const json_user = await user.json();
     const currentPlanUUID = planStore.getState().currentSelectedPlan;
     const userId = json_user.sub;
+    const persistentPlans = planStore
+      .getState()
+      .plans.filter((plan) => !plan.isTemporary);
+
+    console.log(`Persistent Plans are:`);
+    console.log(persistentPlans);
     if (userId && currentPlanUUID) {
-      const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-      uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
+      const currentPlan = persistentPlans.find(
+        (plan) => plan.uuid === currentPlanUUID
+      );
+      //planStore.getState().getPlan(currentPlanUUID);
+      if (currentPlan)
+        uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
     } else {
       console.log("User is not authenticated");
     }
@@ -299,7 +327,10 @@ planStore.subscribe(
 );
 
 export async function syncPlans(saveLocal: boolean = true) {
+  // boolean defaults to true so if no argument is passed, local plans are saved.
+  console.log(`Syncing plans! Boolean is: ${saveLocal}`);
   const globalState = globalThis as unknown as { setPlans?: boolean };
+  console.log(globalThis);
   if (globalState.setPlans) return;
   if (!globalThis.location) return;
   let localPlans: Plan[] = [];
@@ -338,10 +369,14 @@ export async function syncPlans(saveLocal: boolean = true) {
         serverPlanMap.delete(localPlan.uuid);
       }
     }
-
+    console.log("Local plans:");
+    console.log(localPlans);
+    console.log("Server Plans:");
     for (const remaining of serverPlanMap.values()) {
       finalPlans.push(remaining);
     }
+    console.log(`Final Plans are:`);
+    console.log(finalPlans);
     for (const plan of finalPlans) {
       planStore.getState().addPlan(plan);
     }
@@ -379,7 +414,10 @@ export async function checkIfModalNeeded(): Promise<boolean> {
 
     for (const localPlan of localPlans) {
       const matchingServerPlan = serverMap.get(localPlan.uuid);
-      if (!matchingServerPlan || !equalPlans(localPlan, matchingServerPlan)) {
+      if (
+        (!matchingServerPlan || !equalPlans(localPlan, matchingServerPlan)) &&
+        localPlan.isTemporary == false
+      ) {
         return true;
       }
     }
