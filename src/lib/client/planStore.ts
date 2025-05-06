@@ -64,8 +64,7 @@ export type Event = {
   color?: string;
 };
 export interface organizerSettings {
-  isCommuter: boolean;
-  commuteDays: number | undefined;
+  daysOnCampus: number | undefined;
   compactPlan: boolean;
   eventPriority: boolean;
   courseFilters: courseFilter[];
@@ -121,7 +120,7 @@ export const planStore = create<PlanStoreState>()(
           ...newPlan,
           organizerSettings: newPlan.organizerSettings ?? {
             isCommuter: false,
-            commuteDays: 0,
+            daysOnCampus: 0,
             compactPlan: false,
             eventPriority: false,
             courseFilters: [],
@@ -306,16 +305,15 @@ export const planStore = create<PlanStoreState>()(
 
         const defaultSettings: organizerSettings = plan.organizerSettings ?? {
           isCommuter: false,
-          commuteDays: 0,
+          daysOnCampus: 0,
           compactPlan: false,
           eventPriority: false,
           courseFilters: [],
         };
 
         const updatedSettings: organizerSettings = {
-          isCommuter: settings.isCommuter ?? defaultSettings.isCommuter,
-          commuteDays:
-            settings.commuteDays ?? defaultSettings.commuteDays,
+          daysOnCampus:
+            settings.daysOnCampus ?? defaultSettings.daysOnCampus,
           compactPlan: settings.compactPlan ?? defaultSettings.compactPlan,
           eventPriority:
             settings.eventPriority ?? defaultSettings.eventPriority,

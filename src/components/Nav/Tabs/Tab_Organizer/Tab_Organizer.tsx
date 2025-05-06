@@ -23,8 +23,7 @@ import { notifications } from "@mantine/notifications";
 
 const Tab_Organizer = () => {
   const [input, setInput] = useState({
-    isCommuter: false,
-    commuteDays: "",
+    daysOnCampus: "",
     compactPlan: false,
     eventPriority: false,
     error: "",
@@ -38,7 +37,6 @@ const Tab_Organizer = () => {
   const [selectedInstructionMethods, setSelectedInstructionMethods] = useState<
     Record<string, string>
   >({});
-  const originalSettingsRef = useRef<organizerSettings | null>(null);
   const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
   const hasShownNotification = useRef(false);
   const plan_store = planStore();
@@ -128,7 +126,7 @@ const Tab_Organizer = () => {
     const shouldNotify =
       settings &&
       !hasShownNotification.current &&
-      (settings.isCommuter ||
+      (settings.daysOnCampus ||
         settings.compactPlan ||
         settings.eventPriority ||
         settings.courseFilters?.length);
@@ -145,14 +143,6 @@ const Tab_Organizer = () => {
     }
 
     if (settings) {
-      originalSettingsRef.current = {
-        isCommuter: settings.isCommuter,
-        commuteDays: settings.commuteDays,
-        compactPlan: settings.compactPlan,
-        eventPriority: settings.eventPriority,
-        courseFilters: settings.courseFilters || [],
-      };
-
       const lockedCourses: string[] = [];
       const restoredInstructors: Record<string, string> = {};
       const restoredMethods: Record<string, string> = {};
@@ -195,10 +185,9 @@ const Tab_Organizer = () => {
 
       setInput((prev) => ({
         ...prev,
-        isCommuter: settings.isCommuter,
-        commuteDays:
-          settings.commuteDays !== undefined
-            ? settings.commuteDays.toString()
+        daysOnCampus:
+          settings.daysOnCampus !== undefined
+            ? settings.daysOnCampus.toString()
             : "",
         compactPlan: settings.compactPlan,
         eventPriority: settings.eventPriority ?? false,
@@ -222,7 +211,10 @@ const Tab_Organizer = () => {
         return { courseCode, section };
       }),
       ...Object.entries(instructors)
-        .filter(([_, instructor]) => instructor !== "")
+        .filter(
+          ([_, instructor]) =>
+            instructor !== "" && instructor !== "No Preference"
+        )
         .map(([courseCode, instructor]) => ({
           courseCode,
           instructor,
@@ -235,11 +227,10 @@ const Tab_Organizer = () => {
         })),
     ];
     const settings = {
-      isCommuter: inputState.isCommuter,
-      commuteDays: inputState.isCommuter
-        ? isNaN(parseInt(inputState.commuteDays))
+      daysOnCampus: inputState.daysOnCampus
+        ? isNaN(parseInt(inputState.daysOnCampus))
           ? 2
-          : parseInt(inputState.commuteDays)
+          : parseInt(inputState.daysOnCampus)
         : undefined,
       compactPlan: inputState.compactPlan,
       eventPriority: inputState.eventPriority,
@@ -310,43 +301,27 @@ const Tab_Organizer = () => {
         </Card>
         {/* Commuter */}
         <Card withBorder={true} radius="md" className="flex flex-col gap-2">
-          <Checkbox
-            checked={input.isCommuter}
-            onChange={(event) => {
-              const isChecked = event.currentTarget.checked;
-              setInput({
-                ...input,
-                isCommuter: isChecked,
-                commuteDays: isChecked ? input.commuteDays : "",
-              });
-            }}
-            size="md"
-            label={
-              <Text fw={600} size="lg">
-                Commuter{" "}
-                <Text component="span" c="red" inherit>
-                  *
-                </Text>
-              </Text>
-            }
-          />
+          <Text fw={600} size="lg">
+            Commuter{" "}
+            <Text component="span" c="red" inherit>
+              *
+            </Text>
+          </Text>
           <Text size="xs" c="dimmed">
             When applicable, prioritize schedules with less number of days spent
             on campus.
           </Text>
-          {input.isCommuter && (
-            <TextInput
-              description="The numbers of days you want to spend on campus"
-              placeholder="2"
-              value={input.commuteDays}
-              onChange={(event) => {
-                setInput({
-                  ...input,
-                  commuteDays: event.currentTarget.value,
-                });
-              }}
-            />
-          )}
+          <TextInput
+            description="Enter the numbers of days you want to spend on campus"
+            placeholder="5"
+            value={input.daysOnCampus}
+            onChange={(event) => {
+              setInput({
+                ...input,
+                daysOnCampus: event.currentTarget.value,
+              });
+            }}
+          />
         </Card>
         {/* Compact */}
         <Card withBorder={true} radius="md" className="flex flex-col gap-2">
@@ -476,9 +451,9 @@ const Tab_Organizer = () => {
                               };
 
                             const allowedMethods = selectedInstructor
-                              ? instructorToMethods[
-                                  selectedInstructor
-                                ]?.map((m) => m.toLowerCase())
+                              ? instructorToMethods[selectedInstructor]?.map(
+                                  (m) => m.toLowerCase()
+                                )
                               : allMethods.map((m) => m.toLowerCase());
 
                             const isDisabled = !allowedMethods?.includes(
