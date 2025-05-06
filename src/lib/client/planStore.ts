@@ -43,7 +43,7 @@ export type Section = {
   status: string;
   is_honors: boolean;
   is_async: boolean;
-  instruction_type: string;
+  instructionType: string;
   sectionNumber: string;
   comments: string;
   selected: boolean;

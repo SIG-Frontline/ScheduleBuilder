@@ -12,7 +12,6 @@ import {
   Title,
   Select,
   Divider,
-  Modal,
 } from "@mantine/core";
 import {
   planStore,
@@ -63,22 +62,55 @@ const Tab_Organizer = () => {
             locked.startsWith(course.code)
           );
         })
-        .map((course) => {
-          const instructors = new Set<string>();
+        .reduce(
+          (acc, course) => {
+            const instructorsSet = new Set<string>();
+            const instructorToMethodsMap: Record<string, Set<string>> = {};
+            const allMethodsSet = new Set<string>();
 
-          course.sections.forEach((section) => {
-            const name = section.instructor?.trim();
-            if (name) {
-              instructors.add(name);
+            for (const section of course.sections) {
+              const rawInstructor = section.instructor?.trim();
+              const rawMethod = section.instructionType?.trim().toLowerCase();
+
+              if (!rawInstructor || rawInstructor === "") continue;
+
+              instructorsSet.add(rawInstructor);
+
+              if (!instructorToMethodsMap[rawInstructor]) {
+                instructorToMethodsMap[rawInstructor] = new Set();
+              }
+
+              if (rawMethod && rawMethod !== "") {
+                instructorToMethodsMap[rawInstructor].add(rawMethod);
+                allMethodsSet.add(rawMethod);
+              }
             }
-          });
 
-          return {
-            courseCode: course.code,
-            instructors: Array.from(instructors),
-          };
-        })
-    : [];
+            acc[course.code] = {
+              instructors: Array.from(instructorsSet),
+              instructorToMethods: Object.fromEntries(
+                Object.entries(instructorToMethodsMap).map(
+                  ([instructor, methodsSet]) => [
+                    instructor,
+                    Array.from(methodsSet),
+                  ]
+                )
+              ),
+              allMethods: Array.from(allMethodsSet),
+            };
+
+            return acc;
+          },
+          {} as Record<
+            string,
+            {
+              instructors: string[];
+              instructorToMethods: Record<string, string[]>;
+              allMethods: string[];
+            }
+          >
+        )
+    : {};
 
   const handleInstructionMethodSelect = (
     method: string,
@@ -88,12 +120,6 @@ const Tab_Organizer = () => {
       ...prev,
       [courseCode]: prev[courseCode] === method ? "" : method,
     }));
-  };
-
-  const methodToEnum: Record<string, instructionType> = {
-    "in person": instructionType.INPERSON,
-    Hybrid: instructionType.HYBRID,
-    online: instructionType.ONLINE,
   };
 
   useEffect(() => {
@@ -401,79 +427,94 @@ const Tab_Organizer = () => {
                 here.
               </Text>
             </Accordion.Panel>
-            {instructorsPerCourse.map(({ courseCode, instructors }) => (
-              <React.Fragment key={courseCode}>
-                <Accordion.Panel className="mt-2">
-                  <Title order={5}>{courseCode}</Title>
-                  <Select
-                    label={
+            {Object.entries(instructorsPerCourse).map(
+              ([courseCode, { instructors, instructorToMethods }]) => {
+                return (
+                  <React.Fragment key={courseCode}>
+                    <Accordion.Panel className="mt-2">
+                      <Title order={5}>{courseCode}</Title>
+                      <Select
+                        label={
+                          <Text size="xs" c="dimmed" mb={8}>
+                            Select one of the following course instructors
+                          </Text>
+                        }
+                        checkIconPosition="right"
+                        placeholder="Pick value"
+                        nothingFoundMessage="Nothing found..."
+                        data={[...instructors, "No Preference"]}
+                        value={selectedInstructors[courseCode] || null}
+                        onChange={(value) => {
+                          setSelectedInstructors((prev) => ({
+                            ...prev,
+                            [courseCode]: value || "",
+                          }));
+                        }}
+                      />
+                    </Accordion.Panel>
+                    <Accordion.Panel>
                       <Text size="xs" c="dimmed" mb={8}>
-                        Select one of the following course instructors
+                        Select one of the following instruction methods
                       </Text>
-                    }
-                    checkIconPosition="right"
-                    placeholder="Pick value"
-                    data={instructors}
-                    value={selectedInstructors[courseCode] || null}
-                    onChange={(value) => {
-                      setSelectedInstructors((prev) => ({
-                        ...prev,
-                        [courseCode]: value || "",
-                      }));
-                    }}
-                  />
-                </Accordion.Panel>
-                <Accordion.Panel>
-                  <Text size="xs" c="dimmed" mb={8}>
-                    Select one of the following instruction methods
-                  </Text>
-                  <Group mt="sm">
-                    <Checkbox
-                      label="In Person"
-                      checked={
-                        selectedInstructionMethods[courseCode] ===
-                        "face-to-face"
-                      }
-                      onChange={() =>
-                        handleInstructionMethodSelect(
-                          instructionType.INPERSON,
-                          courseCode
-                        )
+                      <Group mt="sm">
+                        <Group mt="sm">
+                          {[
+                            {
+                              label: "In Person",
+                              value: instructionType.INPERSON,
+                            },
+                            { label: "Online", value: instructionType.ONLINE },
+                            { label: "Hybrid", value: instructionType.HYBRID },
+                          ].map(({ label, value }) => {
+                            const selectedInstructor =
+                              selectedInstructors[courseCode]?.trim();
+
+                            const { instructorToMethods, allMethods } =
+                              instructorsPerCourse[courseCode] || {
+                                instructorToMethods: {},
+                                allMethods: [],
+                              };
+
+                            const allowedMethods = selectedInstructor
+                              ? instructorToMethods[
+                                  selectedInstructor
+                                ]?.map((m) => m.toLowerCase())
+                              : allMethods.map((m) => m.toLowerCase());
+
+                            const isDisabled = !allowedMethods?.includes(
+                              value.toLowerCase()
+                            );
+
+                            return (
+                              <Checkbox
+                                key={value}
+                                label={label}
+                                checked={
+                                  selectedInstructionMethods[courseCode] ===
+                                  value
+                                }
+                                onChange={() =>
+                                  handleInstructionMethodSelect(
+                                    value,
+                                    courseCode
+                                  )
+                                }
+                                disabled={isDisabled}
+                              />
+                            );
+                          })}
+                        </Group>
+                      </Group>
+                    </Accordion.Panel>
+                    <Divider
+                      className={
+                        accordionOpened === "advanced-mode" ? "block" : "hidden"
                       }
                     />
-                    <Checkbox
-                      label="Online"
-                      checked={
-                        selectedInstructionMethods[courseCode] === "online"
-                      }
-                      onChange={() =>
-                        handleInstructionMethodSelect(
-                          instructionType.ONLINE,
-                          courseCode
-                        )
-                      }
-                    />
-                    <Checkbox
-                      label="Hybrid"
-                      checked={
-                        selectedInstructionMethods[courseCode] === "Hybrid"
-                      }
-                      onChange={() =>
-                        handleInstructionMethodSelect(
-                          instructionType.HYBRID,
-                          courseCode
-                        )
-                      }
-                    />
-                  </Group>
-                </Accordion.Panel>
-                <Divider
-                  className={
-                    accordionOpened === "advanced-mode" ? "block" : "hidden"
-                  }
-                />
-              </React.Fragment>
-            ))}
+                  </React.Fragment>
+                );
+              }
+            )}
           </Accordion.Item>
         </Accordion>
         <Button
