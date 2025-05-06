@@ -53,6 +53,18 @@ const Tab_Organizer = () => {
         })
     : [];
 
+  const formatInstructionalMethod = (instructionMethod: string | null) => {
+    if (!instructionMethod) return "unknown";
+
+    const cleaned = instructionMethod.trim().toLowerCase();
+
+    if (["face-to-face"].includes(cleaned)) return "in person"; // in person
+    if (["hyflex", "hybrid"].includes(cleaned)) return "hybrid"; // two hybrid options
+
+    // default all other to online
+    return "online";
+  };
+
   const instructorsPerCourse = selectedPlan?.courses
     ? selectedPlan.courses
         .filter((course) => {
@@ -65,23 +77,33 @@ const Tab_Organizer = () => {
             const instructorsSet = new Set<string>();
             const instructorToMethodsMap: Record<string, Set<string>> = {};
             const allMethodsSet = new Set<string>();
+            let hasRealInstructor = false;
 
             for (const section of course.sections) {
-              const rawInstructor = section.instructor?.trim();
-              const rawMethod = section.instructionType?.trim().toLowerCase();
+              const Instructor = section.instructor?.trim();
+              const instructionMethod = formatInstructionalMethod(
+                section.instructionType
+              );
 
-              if (!rawInstructor || rawInstructor === "") continue;
+              if (Instructor && Instructor !== "") {
+                instructorsSet.add(Instructor);
+                hasRealInstructor = true;
+                if (!instructorToMethodsMap[Instructor]) {
+                  instructorToMethodsMap[Instructor] = new Set();
+                }
 
-              instructorsSet.add(rawInstructor);
-
-              if (!instructorToMethodsMap[rawInstructor]) {
-                instructorToMethodsMap[rawInstructor] = new Set();
+                if (instructionMethod) {
+                  instructorToMethodsMap[Instructor].add(instructionMethod);
+                  allMethodsSet.add(instructionMethod);
+                }
+              } else if (instructionMethod) {
+                // include method even if instructor is missing
+                allMethodsSet.add(instructionMethod);
               }
+            }
 
-              if (rawMethod && rawMethod !== "") {
-                instructorToMethodsMap[rawInstructor].add(rawMethod);
-                allMethodsSet.add(rawMethod);
-              }
+            if (!hasRealInstructor) {
+              instructorsSet.add("Instructor Not Listed");
             }
 
             acc[course.code] = {
@@ -213,7 +235,9 @@ const Tab_Organizer = () => {
       ...Object.entries(instructors)
         .filter(
           ([_, instructor]) =>
-            instructor !== "" && instructor !== "No Preference"
+            instructor !== "" &&
+            instructor !== "No Preference" &&
+            instructor !== "Instructor Not Listed"
         )
         .map(([courseCode, instructor]) => ({
           courseCode,
@@ -223,7 +247,7 @@ const Tab_Organizer = () => {
         .filter(([_, method]) => method !== "")
         .map(([courseCode, method]) => ({
           courseCode,
-          online: method === "in person" ? "face-to-face" : method,
+          online: method as instructionType,
         })),
     ];
     const settings = {
@@ -424,7 +448,13 @@ const Tab_Organizer = () => {
                         checkIconPosition="right"
                         placeholder="Pick value"
                         nothingFoundMessage="Nothing found..."
-                        data={[...instructors, "No Preference"]}
+                        data={[
+                          ...instructors,
+                          ...(instructors.includes("Instructor Not Listed") ||
+                          instructors.length === 0
+                            ? []
+                            : ["No Preference"]),
+                        ]}
                         value={selectedInstructors[courseCode] || null}
                         onChange={(value) => {
                           setSelectedInstructors((prev) => ({
@@ -439,53 +469,47 @@ const Tab_Organizer = () => {
                         Select one of the following instruction methods
                       </Text>
                       <Group mt="sm">
-                        <Group mt="sm">
-                          {[
-                            {
-                              label: "In Person",
-                              value: instructionType.INPERSON,
-                            },
-                            { label: "Online", value: instructionType.ONLINE },
-                            { label: "Hybrid", value: instructionType.HYBRID },
-                          ].map(({ label, value }) => {
-                            const selectedInstructor =
-                              selectedInstructors[courseCode]?.trim();
+                        {[
+                          {
+                            label: "In Person",
+                            value: "in person",
+                          },
+                          { label: "Online", value: "online" },
+                          { label: "Hybrid", value: "hybrid" },
+                        ].map(({ label, value }) => {
+                          const selectedInstructor =
+                            selectedInstructors[courseCode]?.trim();
 
-                            const { instructorToMethods, allMethods } =
-                              instructorsPerCourse[courseCode] || {
-                                instructorToMethods: {},
-                                allMethods: [],
-                              };
+                          const { instructorToMethods, allMethods } =
+                            instructorsPerCourse[courseCode] || {
+                              instructorToMethods: {},
+                              allMethods: [],
+                            };
 
-                            const allowedMethods = selectedInstructor
-                              ? instructorToMethods[selectedInstructor]?.map(
-                                  (m) => m.toLowerCase()
-                                )
-                              : allMethods.map((m) => m.toLowerCase());
+                          const allowedMethods = selectedInstructor
+                            ? instructorToMethods[selectedInstructor]?.map(
+                                (m) => m.toLowerCase()
+                              )
+                            : allMethods.map((m) => m.toLowerCase());
 
-                            const isDisabled = !allowedMethods?.includes(
-                              value.toLowerCase()
-                            );
+                          const isDisabled = !allowedMethods?.includes(
+                            value.toLowerCase()
+                          );
 
-                            return (
-                              <Checkbox
-                                key={value}
-                                label={label}
-                                checked={
-                                  selectedInstructionMethods[courseCode] ===
-                                  value
-                                }
-                                onChange={() =>
-                                  handleInstructionMethodSelect(
-                                    value,
-                                    courseCode
-                                  )
-                                }
-                                disabled={isDisabled}
-                              />
-                            );
-                          })}
-                        </Group>
+                          return (
+                            <Checkbox
+                              key={value}
+                              label={label}
+                              checked={
+                                selectedInstructionMethods[courseCode] === value
+                              }
+                              onChange={() =>
+                                handleInstructionMethodSelect(value, courseCode)
+                              }
+                              disabled={isDisabled}
+                            />
+                          );
+                        })}
                       </Group>
                     </Accordion.Panel>
                     <Divider
