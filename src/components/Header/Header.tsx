@@ -40,13 +40,13 @@ const Header = () => {
   const { isOpen: isWelcomeModalOpen } = React.useContext(WelcomeModal);
 
   const days = [
-    { label: "Su", value: "0" },
-    { label: "Mo", value: "1" },
-    { label: "Tu", value: "2" },
-    { label: "We", value: "3" },
-    { label: "Th", value: "4" },
-    { label: "Fr", value: "5" },
-    { label: "Sa", value: "6" },
+    { label: "Sunday", value: "0" },
+    { label: "Monday", value: "1" },
+    { label: "Tuesday", value: "2" },
+    { label: "Wednesday", value: "3" },
+    { label: "Thursday", value: "4" },
+    { label: "Friday", value: "5" },
+    { label: "Saturday", value: "6" },
   ];
   const day_store = dayStore();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -343,16 +343,20 @@ const Header = () => {
                     ))}
                   </Stack>
                 </Checkbox.Group>
-                <Text fw={400} size="sm">
-                  Toggle Color Scheme
-                </Text>
-                <Switch
-                  checked={colorScheme === "dark"}
-                  size="md"
-                  offLabel={<Icon className="text-yellow-400">light_mode</Icon>}
-                  onLabel={<Icon>dark_mode</Icon>}
-                  onClick={toggleColorScheme}
-                />
+                <Group>
+                  <Text fw={400} size="sm">
+                    Dark Mode:
+                  </Text>
+                  <Switch
+                    checked={colorScheme === "dark"}
+                    size="md"
+                    offLabel={
+                      <Icon className="text-yellow-400">light_mode</Icon>
+                    }
+                    onLabel={<Icon>dark_mode</Icon>}
+                    onClick={toggleColorScheme}
+                  />
+                </Group>
               </Stack>
               <Flex align="center" gap="sm" my="sm">
                 <Divider w="10%" /> {/* left line: 1/3 width */}
