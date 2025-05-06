@@ -158,7 +158,7 @@ const Cal_Grid = () => {
                 <HoverCard.Target>
                   <Stack
                     gap={"1px"}
-                    className="p-1 leading-tight w-full overflow-ellipsis overflow-x-hidden"
+                    className="p-1 leading-tight w-full whitespace-nowrap overflow-hidden"
                   >
                     {durationInMinutes < 70 ? (
                       // Render only the title if duration is less than 100 minutes
