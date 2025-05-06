@@ -112,7 +112,7 @@ const SectionSelection = ({
               fw={500}
               ta={"center"}
               mx={"auto"}
-              className="overflow-ellipsis overflow-hidden whitespace-nowrap"
+              className="overflow-ellipsis"
             >
               {courseTitle}
             </Title>
