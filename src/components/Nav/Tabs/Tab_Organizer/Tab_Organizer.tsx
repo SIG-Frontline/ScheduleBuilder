@@ -404,7 +404,7 @@ const Tab_Organizer = () => {
               const now = Date.now();
 
               // this is to allow the user to delete their input
-              if (value === "" ) {
+              if (value === "") {
                 setInput({
                   ...input,
                   daysOnCampus: value,
@@ -530,12 +530,25 @@ const Tab_Organizer = () => {
                         placeholder="Pick value"
                         nothingFoundMessage="Nothing found..."
                         data={[
-                          ...instructors,
                           ...(instructors.includes("Instructor Not Listed") ||
                           instructors.length === 0
                             ? []
                             : ["No Preference"]),
+                          ...instructors,
                         ]}
+                        renderOption={({ option }) => (
+                          <div
+                            style={{
+                              fontStyle:
+                                option.value === "No Preference" ||
+                                option.value === "Instructor Not Listed"
+                                  ? "italic"
+                                  : "normal",
+                            }}
+                          >
+                            {option.label}
+                          </div>
+                        )}
                         value={courseSettings.instructors[courseCode] || null}
                         onChange={(value) => {
                           setCourseSettings((prev) => ({
