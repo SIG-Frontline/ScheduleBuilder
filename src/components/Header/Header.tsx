@@ -93,6 +93,7 @@ const Header = () => {
       plan_store.clearPlans();
       localStorage.removeItem("shouldClearPlans");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -202,7 +203,7 @@ const Header = () => {
           onClose={() => {}}
         >
           <p className="text-md mb-4">
-            It looks like you have a plan stored locally that's not stored in
+            It looks like you have a plan stored locally that&apos;s not stored in
             your account, would you like to save this plan to your account or
             discard it?
           </p>

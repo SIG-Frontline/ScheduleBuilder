@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import SectionSelection from "./SectionSelection";
 
 const CourseAccordion = ({ course }: { course: Course }) => {

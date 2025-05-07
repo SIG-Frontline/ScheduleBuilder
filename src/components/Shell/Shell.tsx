@@ -7,13 +7,11 @@ import { useMediaQuery } from "@mantine/hooks";
 import { Button, Modal } from '@mantine/core';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { useUser } from '@auth0/nextjs-auth0/'; 
-import { create } from "domain";
 import React, { createContext } from "react";
 
 export const WelcomeModal =  createContext<{ isOpen: boolean }>({ isOpen: false});
 
-export function WelcomeAlert({ isOpen, onClose}: { isOpen: boolean, onClose:() => void}) {
+export function WelcomeAlert() {
   const [showAlert, setShowAlert] = useState(false);
   
   useEffect(() => {
@@ -25,7 +23,7 @@ export function WelcomeAlert({ isOpen, onClose}: { isOpen: boolean, onClose:() =
     if (!hasSeenWelcome) {
         setShowAlert(true);
     }
-  },); 
+  }, []); 
 
   return (
     <>
