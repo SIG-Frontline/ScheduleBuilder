@@ -5,6 +5,7 @@ on:
     branches:
       - dev
       - main
+      - feat-lint-fix-action # Adding this so I can test by merging into this branch, will remove after testing
 
 jobs:
   lint-and-build:
