@@ -62,8 +62,6 @@ export type Event = {
   endTime: string;
   daysOfWeek: number[];
   color?: string;
-  maxSeats: number;
-  currentSeats: number;
 };
 export interface organizerSettings {
   isCommuter: boolean;
