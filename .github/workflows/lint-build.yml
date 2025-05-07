@@ -5,7 +5,7 @@ on:
     branches:
       - dev
       - main
-      - feat-lint-fix-action # Adding this so I can test by merging into this branch, will remove after testing
+      - feat-lint-fix-action # For testing, remove later
 
 jobs:
   lint-and-build:
@@ -28,14 +28,12 @@ jobs:
 
       - name: Run Linter
         id: lint
-        continue-on-error: true
         run: |
           pnpm lint > lint.txt
           echo "LINT_EXIT_CODE=$?" >> $GITHUB_ENV
 
       - name: Run Build
         id: build
-        continue-on-error: true
         run: |
           pnpm build > build.txt
           echo "BUILD_EXIT_CODE=$?" >> $GITHUB_ENV
