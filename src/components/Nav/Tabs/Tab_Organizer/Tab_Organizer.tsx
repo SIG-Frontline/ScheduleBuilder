@@ -47,6 +47,7 @@ const Tab_Organizer = () => {
   const hasShownMissingPlanNotification = useRef(false);
   const lastSavedSettingsRef = useRef<organizerSettings | null>(null);
   const hasShownNotification = useRef(false);
+  const lastInvalidInputTimeRef = useRef<number | null>(null);
   const plan_store = planStore();
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
@@ -245,6 +246,7 @@ const Tab_Organizer = () => {
         instructionMethods: restoredMethods,
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlanuuid]);
 
   // useEffect hook responsible for automatically saving any changes the user makes to their organizer settings
@@ -272,7 +274,7 @@ const Tab_Organizer = () => {
       }),
       ...Object.entries(courseSettings.instructors)
         .filter(
-          ([_, instructor]) =>
+          ([, instructor]) =>
             instructor !== "" &&
             instructor !== "No Preference" &&
             instructor !== "Instructor Not Listed"
@@ -282,7 +284,7 @@ const Tab_Organizer = () => {
           instructor,
         })),
       ...Object.entries(courseSettings.instructionMethods)
-        .filter(([_, method]) => method && method !== "")
+        .filter(([, method]) => method && method !== "")
         .map(([courseCode, method]) => ({
           courseCode,
           online: methodToEnum[method.toLowerCase()],
@@ -307,6 +309,7 @@ const Tab_Organizer = () => {
       lastSavedSettingsRef.current = updatedSettings;
       plan_store.updatePlanSettings(updatedSettings, selectedPlanuuid);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     input.daysOnCampus,
     input.compactPlan,
@@ -390,14 +393,45 @@ const Tab_Organizer = () => {
             </Text>
           </Text>
           <TextInput
-            description="Enter the numbers of days you want to spend on campus"
-            placeholder="5"
+            description="Enter the numbers of days you want to spend on campus. Must be a number from 1 to 6."
+            min={1}
+            max={6}
+            placeholder="1-6"
             value={input.daysOnCampus}
             onChange={(event) => {
-              setInput({
-                ...input,
-                daysOnCampus: event.currentTarget.value,
-              });
+              const value = event.currentTarget.value;
+              const intValue = parseInt(value);
+              const now = Date.now();
+
+              // this is to allow the user to delete their input
+              if (value === "" ) {
+                setInput({
+                  ...input,
+                  daysOnCampus: value,
+                });
+                return;
+              }
+
+              if (!isNaN(intValue) && intValue >= 1 && intValue <= 6) {
+                setInput({
+                  ...input,
+                  daysOnCampus: value,
+                });
+              } else {
+                const lastShown = lastInvalidInputTimeRef.current;
+                // this is a timer so if a user spams an incorrect input it will only show this notification once every 8 seconds
+                // this is to keep giving user feedback if they continue to enter wrong values while also not spamming them
+                if (!lastShown || now - lastShown > 8000) {
+                  notifications.show({
+                    title: "Invalid Days On Campus Input",
+                    message: "You must enter a number from 1 to 6 ",
+                    color: "red",
+                    autoClose: 5000,
+                    position: "top-right",
+                  });
+                  lastInvalidInputTimeRef.current = now;
+                }
+              }
             }}
           />
         </Card>
