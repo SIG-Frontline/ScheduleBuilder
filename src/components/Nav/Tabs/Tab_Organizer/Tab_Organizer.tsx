@@ -33,7 +33,6 @@ const Tab_Organizer = () => {
     daysOnCampus: "",
     compactPlan: false,
     eventPriority: false,
-    error: "",
   });
   // course specific settings aka coruseFilters
   const [courseSettings, setCourseSettings] = useState<organizerCourseSettings>(
@@ -329,8 +328,7 @@ const Tab_Organizer = () => {
     if ("error" in organizedPlan) {
       notifications.show({
         title: "Unable to Organize",
-        message:
-          "We were unable to generate a schedule based on your current selections. Please adjust your preferences and try again.",
+        message: organizedPlan.error,
         color: "red",
         autoClose: 5000,
         position: "top-right",
@@ -585,7 +583,6 @@ const Tab_Organizer = () => {
             if (!bestPlan) {
               setInput((prev) => ({
                 ...prev,
-                error: "No plan could be generated!",
               }));
               return;
             }
