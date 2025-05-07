@@ -44,6 +44,8 @@ const Tab_Organizer = () => {
     }
   );
   const [accordionOpened, setAccordionOpened] = useState<string | null>(null);
+  const [disableSubmitButton, setDisableSubmitButton] = useState(false);
+  const hasShownMissingPlanNotification = useRef(false);
   const lastSavedSettingsRef = useRef<organizerSettings | null>(null);
   const hasShownNotification = useRef(false);
   const plan_store = planStore();
@@ -249,7 +251,20 @@ const Tab_Organizer = () => {
   // useEffect hook responsible for automatically saving any changes the user makes to their organizer settings
   // merges all of the organizerCourseSettings into one courseFilter array to send to the backend
   useEffect(() => {
-    if (!selectedPlan || !selectedPlanuuid) return;
+    if (!selectedPlan || !selectedPlanuuid) {
+      setDisableSubmitButton(true);
+      if (!hasShownMissingPlanNotification.current) {
+        notifications.show({
+          title: "No Plan Selected",
+          message: "You must select a plan to use the organizer.",
+          color: "red",
+          autoClose: 5000,
+          position: "top-right",
+        });
+        hasShownMissingPlanNotification.current = true;
+      }
+      return;
+    }
 
     const courseFilters = [
       ...courseSettings.lockedCourses.map((locked) => {
@@ -564,6 +579,7 @@ const Tab_Organizer = () => {
         </Accordion>
         <Button
           variant="filled"
+          disabled={disableSubmitButton}
           onClick={async () => {
             const bestPlan = await organizeClasses();
             if (!bestPlan) {
