@@ -628,9 +628,6 @@ const Tab_Organizer = () => {
           onClick={async () => {
             const bestPlan = await organizeClasses();
             if (!bestPlan) {
-              setInput((prev) => ({
-                ...prev,
-              }));
               return;
             }
             plan_store.updatePlan(bestPlan, bestPlan.uuid);

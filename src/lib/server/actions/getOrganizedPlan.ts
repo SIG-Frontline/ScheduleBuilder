@@ -16,8 +16,6 @@ export async function organizePlan(
       error: "No plan provided!",
     };
 
-  console.log(`${currentPlan.uuid} organizer settings: ${currentPlan.organizerSettings}`);
-
   const baseURL = `${process.env.SBCORE_URL}`;
   const URL = `${baseURL}/organizer`;
 
