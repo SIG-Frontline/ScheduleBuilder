@@ -1,4 +1,4 @@
-"use server";
+'use server';
 
 /**
  *
@@ -7,16 +7,15 @@
  */
 export async function getSubjects(term: number) {
   if (!term) {
-    return { error: "term is required" };
+    return { error: 'term is required' };
   }
   const baseURL = `${process.env.SBCORE_URL}`;
   const URL = `${baseURL}/subjects/${term}`;
   const data = fetch(URL)
     .then((res) => res.json())
-    .then((data) => data.subjects)
-    return data
-    .catch((err) => {
-      console.error(err);
-      return [];
-    });
+    .then((data) => data.subjects);
+  return data.catch((err) => {
+    console.error(err);
+    return [];
+  });
 }

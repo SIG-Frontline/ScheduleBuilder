@@ -1,12 +1,12 @@
-"use client";
-import { dayStore } from "@/lib/client/dayStore";
-import InfoCard from "../InfoCard/InfoCard";
-import { Plan, planStore } from "@/lib/client/planStore";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction"; // for selectable
-import { Group, Stack, Text } from "@mantine/core";
-import { useEffect, useState } from "react";
+'use client';
+import { dayStore } from '@/lib/client/dayStore';
+import InfoCard from '../InfoCard/InfoCard';
+import { Plan, planStore } from '@/lib/client/planStore';
+import FullCalendar from '@fullcalendar/react';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction'; // for selectable
+import { Group, Stack, Text } from '@mantine/core';
+import { useEffect, useState } from 'react';
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
@@ -16,7 +16,7 @@ const Cal_Grid = () => {
 
   const [currentSelectedPlanObj, setCurrentSelectedPlan] = useState<
     Plan | undefined
-  >(plan_store.getPlan(plan_store.currentSelectedPlan + "") || undefined);
+  >(plan_store.getPlan(plan_store.currentSelectedPlan + '') || undefined);
   //use effect to log the current selected plan
 
   const [courseInfo, setCourseInfo] = useState<Map<string, string>>();
@@ -28,17 +28,17 @@ const Cal_Grid = () => {
     setCurrentSelectedPlan(
       plan_store.getPlan(
         planStore.getState().currentSelectedPlan ??
-          planStore.getState().plans[0]?.uuid
-      )
+          planStore.getState().plans[0]?.uuid,
+      ),
     );
 
     // Subscribe to store changes
     const unsubscribe = planStore.subscribe(
       ({ currentSelectedPlan, plans }) => {
         setCurrentSelectedPlan(
-          plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid)
+          plan_store.getPlan(currentSelectedPlan ?? plans[0]?.uuid),
         );
-      }
+      },
     );
 
     return () => {
@@ -63,7 +63,7 @@ const Cal_Grid = () => {
             title: courseTitle,
             crn: section.crn,
             instructor: section.instructor,
-            location: meetingTime.building + " " + meetingTime.room,
+            location: meetingTime.building + ' ' + meetingTime.room,
             credits: item.credits,
             maxSeats: section.maxEnrollment,
             currentSeats: section.currentEnrollment,
@@ -71,18 +71,18 @@ const Cal_Grid = () => {
           startTime:
             new Date(meetingTime.startTime)
               .toISOString()
-              .split("T")[1]
-              .split(".")[0] + "+00:00",
+              .split('T')[1]
+              .split('.')[0] + '+00:00',
           endTime:
             new Date(meetingTime.endTime)
               .toISOString()
-              .split("T")[1]
-              .split(".")[0] + "+00:00",
+              .split('T')[1]
+              .split('.')[0] + '+00:00',
           // daysOfWeek: meetingTime.day, // need to convert to the correct format from "M" to [1]
           daysOfWeek: [
-            ["U", "M", "T", "W", "R", "F", "S"].indexOf(meetingTime.day),
+            ['U', 'M', 'T', 'W', 'R', 'F', 'S'].indexOf(meetingTime.day),
           ],
-          backgroundColor: item.color ?? "#00aa00",
+          backgroundColor: item.color ?? '#00aa00',
         };
       });
     });
@@ -94,12 +94,12 @@ const Cal_Grid = () => {
   ];
 
   const calcBgColor = (color: string): string => {
-    if (color.startsWith("hsla")) {
+    if (color.startsWith('hsla')) {
       return `hsla(0,0%,${
-        parseInt(color.split(",").at(2) ?? "0") < 50 ? "100" : "0"
+        parseInt(color.split(',').at(2) ?? '0') < 50 ? '100' : '0'
       }%,1)`;
     }
-    return "#fff";
+    return '#fff';
   };
 
   return (
@@ -107,14 +107,14 @@ const Cal_Grid = () => {
       <Stack className="h-full" gap={0}>
         <FullCalendar
           viewClassNames={`dark:bg-[#242424] bg-white shadow-md !overflow-hidden sm:my-4 sm:mx-6`}
-          height={"100%"}
+          height={'100%'}
           expandRows={true}
           plugins={[timeGridPlugin, interactionPlugin]}
           slotLabelClassNames={`transform -translate-y-1/2 dark:bg-[#242424] bg-white data-[time="06:00:00"]:opacity-0`}
           viewDidMount={(e) => {
             setTimeout(() => {
-              e.el.querySelectorAll(".fc-scroller").forEach((el) => {
-                el.classList.add("no-scrollbar");
+              e.el.querySelectorAll('.fc-scroller').forEach((el) => {
+                el.classList.add('no-scrollbar');
               });
             }, 0);
           }}
@@ -123,7 +123,7 @@ const Cal_Grid = () => {
           headerToolbar={false}
           stickyHeaderDates={true}
           dayHeaderFormat={{
-            weekday: "long",
+            weekday: 'long',
           }}
           hiddenDays={day_store.days}
           events={events_and_classes}
@@ -134,7 +134,7 @@ const Cal_Grid = () => {
             return (
               // eventContent.backgroundColor
               <Group
-                gap={"1px"}
+                gap={'1px'}
                 className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
               >
                 <Text fw={600} size="sm" c={textColor}>
@@ -157,69 +157,65 @@ const Cal_Grid = () => {
             );
           }}
           eventClick={(info) => {
+            const startTime = info.event.start?.getTime()?.toString() ?? '';
+            const endTime = info.event.end?.getTime()?.toString() ?? '';
             console.log(info);
             setCardVisibility(true);
             setCourseInfo(
               new Map([
-                [
-                  "startTime",
-                  info.event._def.recurringDef?.typeData.startTime.milliseconds,
-                ],
-                [
-                  "endTime",
-                  info.event._def.recurringDef?.typeData.endTime.milliseconds,
-                ],
-                ["title", info.event.extendedProps.title],
-                ["crn", info.event.extendedProps.crn],
-                ["instructor", info.event.extendedProps.instructor],
-                ["location", info.event.extendedProps.location],
-                ["maxSeats", info.event.extendedProps.maxSeats],
-                ["currentSeats", info.event.extendedProps.currentSeats],
-              ])
+                ['startTime', startTime],
+                ['endTime', endTime],
+                ['title', info.event.extendedProps.title],
+                ['crn', info.event.extendedProps.crn],
+                ['instructor', info.event.extendedProps.instructor],
+                ['location', info.event.extendedProps.location],
+                ['maxSeats', info.event.extendedProps.maxSeats],
+                ['currentSeats', info.event.extendedProps.currentSeats],
+              ]),
             );
           }}
           dateClick={() => {
             setCardVisibility(false);
           }}
           eventMouseEnter={(info) => {
-            info.el.style.cursor = "pointer";
+            info.el.style.cursor = 'pointer';
           }}
           slotEventOverlap={false}
           eventTimeFormat={{
-            hour: "numeric",
-            minute: "2-digit",
+            hour: 'numeric',
+            minute: '2-digit',
             omitZeroMinute: false,
-            meridiem: "short",
+            meridiem: 'short',
           }}
           businessHours={[
             {
               daysOfWeek: [0, 1, 2, 4, 6],
-              startTime: "06:00:00",
-              endTime: "22:00:00",
+              startTime: '06:00:00',
+              endTime: '22:00:00',
             },
             {
               daysOfWeek: [3],
-              startTime: "06:00:00",
-              endTime: "14:30:00",
+              startTime: '06:00:00',
+              endTime: '14:30:00',
             },
             {
               daysOfWeek: [3],
-              startTime: "18:00:00",
-              endTime: "22:00:00",
+              startTime: '18:00:00',
+              endTime: '22:00:00',
             },
             {
               daysOfWeek: [5],
-              startTime: "06:00:00",
-              endTime: "11:30:00",
+              startTime: '06:00:00',
+              endTime: '11:30:00',
             },
             {
               daysOfWeek: [5],
-              startTime: "13:00:00",
-              endTime: "22:00:00",
+              startTime: '13:00:00',
+              endTime: '22:00:00',
             },
           ]}
-          slotMinTime={"06:00:00"}
-          slotMaxTime={"22:00:00"}
+          slotMinTime={'06:00:00'}
+          slotMaxTime={'22:00:00'}
           // eventClassNames="!bg-green-500"
         />
         <InfoCard
@@ -236,7 +232,7 @@ const Cal_Grid = () => {
               const courseTitle = item.title;
               const onlineSections = sections.filter(
                 (section) =>
-                  section.selected && section.meetingTimes.length === 0
+                  section.selected && section.meetingTimes.length === 0,
               );
 
               return onlineSections.map((section) => {
@@ -250,16 +246,18 @@ const Cal_Grid = () => {
 
                       setCourseInfo(
                         new Map([
-                          ["title", item.title],
-                          ["crn", item.code],
-                          ["instructor", section.instructor],
-                          ["location", "Online"],
-                        ])
+                          ['title', item.title],
+                          ['crn', item.code],
+                          ['instructor', section.instructor],
+                          ['location', 'Online'],
+                        ]),
                       );
                     }}
                   >
                     <div
-                      style={{ backgroundColor: item.color ?? "#0aa00" }}
+                      style={{
+                        backgroundColor: item.color ?? '#0aa00',
+                      }}
                       className="w-4 h-4 rounded-full"
                     ></div>
                     <div>
@@ -267,7 +265,7 @@ const Cal_Grid = () => {
                         className="overflow-ellipsis overflow-x-hidden whitespace-nowrap max-w-52"
                         size="md"
                       >
-                        {courseCode + " " + courseTitle}
+                        {courseCode + ' ' + courseTitle}
                       </Text>
                       <Group justify="space-between">
                         <Text size="sm">{section.instructor}</Text>

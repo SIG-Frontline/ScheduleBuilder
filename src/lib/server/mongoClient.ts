@@ -1,11 +1,11 @@
-import { Collection, MongoClient } from "mongodb";
-import { Plan } from "../client/planStore";
+import { Collection, MongoClient } from 'mongodb';
+import { Plan } from '../client/planStore';
 // import { SCHEDULEBUILDER_DB_URI, BUILDER_NS } from '$env/static/private';
 const SCHEDULEBUILDER_DB_URI = process.env.SCHEDULEBUILDER_DB_URI;
 if (!SCHEDULEBUILDER_DB_URI) {
-  throw new Error("Missing env variable SCHEDULEBUILDER_DB_URI");
+  throw new Error('Missing env variable SCHEDULEBUILDER_DB_URI');
 }
-const BUILDER_NS = process.env.BUILDER_NS ?? "Schedule_Builder";
+const BUILDER_NS = process.env.BUILDER_NS ?? 'Schedule_Builder';
 
 export const client = new MongoClient(SCHEDULEBUILDER_DB_URI);
 await client.connect(); //top level await
@@ -210,7 +210,7 @@ export interface SectionDocument {
  * Each node can be either a string (course code or operator) or an array of `TreeNode`.
  */
 export interface ReqTree extends Array<string | ReqTree> {
-  0: "&" | "|"; // The first element is always one of these values, to denote how the requirements should be evaluated
+  0: '&' | '|'; // The first element is always one of these values, to denote how the requirements should be evaluated
 }
 
 /**
@@ -255,13 +255,13 @@ export interface UserPlan {
 }
 export const sectionsCollection = client
   .db(BUILDER_NS)
-  .collection<SectionDocument>("Sections");
+  .collection<SectionDocument>('Sections');
 export const coursesCollection = client
   .db(BUILDER_NS)
-  .collection<CourseDocument>("Course_Static");
+  .collection<CourseDocument>('Course_Static');
 export const userPlanCollection = client
   .db(BUILDER_NS)
-  .collection<UserPlan>("User_Plans");
+  .collection<UserPlan>('User_Plans');
 class CourseCache {
   private courses: CourseDocument[] = [];
   private lastRetrieved: Date | null = null;

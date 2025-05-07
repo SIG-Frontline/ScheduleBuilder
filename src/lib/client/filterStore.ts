@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 export type Filters = {
   honors: boolean;
@@ -17,11 +17,11 @@ interface FilterStoreState {
 export const filterStore = create<FilterStoreState>((set) => ({
   filters: {
     honors: false,
-    modality: "",
+    modality: '',
     graduate: false,
     undergraduate: false,
     creditRange: [0, 6],
-    dayOfWeek: "",
+    dayOfWeek: '',
   },
   setFilters: (filters) => set({ filters }),
 }));

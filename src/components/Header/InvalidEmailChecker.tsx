@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function InvalidEmailChecker({
   onDetected,
@@ -11,13 +11,13 @@ export default function InvalidEmailChecker({
   const searchparams = useSearchParams();
 
   useEffect(() => {
-    const errorParam = searchparams.get("error");
+    const errorParam = searchparams.get('error');
     if (
-      errorParam === "invalid_email" ||
-      sessionStorage.getItem("invalidLogin") === "true"
+      errorParam === 'invalid_email' ||
+      sessionStorage.getItem('invalidLogin') === 'true'
     ) {
       onDetected();
-      sessionStorage.setItem("invalidLogin", "true");
+      sessionStorage.setItem('invalidLogin', 'true');
     }
   }, [searchparams, onDetected]);
 

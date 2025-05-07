@@ -1,15 +1,15 @@
 const seasonMap: { [key: string]: string } = {
-  "10": "Spring",
-  "50": "Summer",
-  "90": "Fall",
-  "95": "Winter",
+  '10': 'Spring',
+  '50': 'Summer',
+  '90': 'Fall',
+  '95': 'Winter',
 };
 export function prettyTermText(
   term: string | number,
-  char_len: number = -1
+  char_len: number = -1,
 ): string {
   //verify that term is a string
-  if (typeof term === "number") {
+  if (typeof term === 'number') {
     term = term.toString();
   }
   //validate the term is in the correct format

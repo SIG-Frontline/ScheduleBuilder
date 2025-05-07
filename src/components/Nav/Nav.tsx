@@ -1,50 +1,50 @@
-"use client";
+'use client';
 
-import { ScrollAreaAutosize, Tabs, Transition } from "@mantine/core";
-import Icon from "../Icon/Icon";
-import Tab_Events from "./Tabs/Tab_Events/Tab_Events";
-import Tab_Insights from "./Tabs/Tab_Insights/Tab_Insights";
-import Tab_Organizer from "./Tabs/Tab_Organizer/Tab_Organizer";
-import Tab_Plans from "./Tabs/Tab_Plans/Tab_Plans";
-import classes from "./Nav.module.css";
-import Search from "./Search/Search";
-import { createRef, useState } from "react";
-import { useMediaQuery } from "@mantine/hooks";
-import FiltersDrawer from "./FiltersDrawer/FiltersDrawer";
+import { ScrollAreaAutosize, Tabs, Transition } from '@mantine/core';
+import Icon from '../Icon/Icon';
+import Tab_Events from './Tabs/Tab_Events/Tab_Events';
+import Tab_Insights from './Tabs/Tab_Insights/Tab_Insights';
+import Tab_Organizer from './Tabs/Tab_Organizer/Tab_Organizer';
+import Tab_Plans from './Tabs/Tab_Plans/Tab_Plans';
+import classes from './Nav.module.css';
+import Search from './Search/Search';
+import { createRef, useState } from 'react';
+import { useMediaQuery } from '@mantine/hooks';
+import FiltersDrawer from './FiltersDrawer/FiltersDrawer';
 
 const tabData = [
   //this array contains the data for each tab
   //to add a new tab, add a new object to this array in the same format as the others
   //make sure the component you want to render is imported at the top of this file
   {
-    value: "plans",
-    label: "plans",
-    icon: "list",
+    value: 'plans',
+    label: 'plans',
+    icon: 'list',
     component: Tab_Plans,
   },
   {
-    value: "events",
-    label: "events",
-    icon: "calendar_add_on",
+    value: 'events',
+    label: 'events',
+    icon: 'calendar_add_on',
     component: Tab_Events,
   },
   {
-    value: "insights",
-    label: "insights",
-    icon: "lightbulb",
+    value: 'insights',
+    label: 'insights',
+    icon: 'lightbulb',
     component: Tab_Insights,
   },
   {
-    value: "organizer",
-    label: "organizer",
-    icon: "instant_mix",
+    value: 'organizer',
+    label: 'organizer',
+    icon: 'instant_mix',
     component: Tab_Organizer,
   },
 ];
 
 export default function Nav() {
   const matches = useMediaQuery(
-    "only screen and (orientation: landscape) and (min-width: 1201px)" //same as in Shell.tsx
+    'only screen and (orientation: landscape) and (min-width: 1201px)', //same as in Shell.tsx
   );
   const tabRef = createRef<HTMLDivElement>();
   const [tabsHidden, setTabsHidden] = useState(false);
@@ -57,14 +57,14 @@ export default function Nav() {
             onFocused={() => {
               //deselct the tab on mobile when search is focused
               if (matches || tabsHidden) return;
-              localStorage.setItem("lastTab", activeTab || tabData[0].value);
+              localStorage.setItem('lastTab', activeTab || tabData[0].value);
               setActiveTab(null);
               setTabsHidden(true);
             }}
             onBlurred={() => {
               //reselect the last tab on mobile when search is out of focus
               if (matches || activeTab || !tabsHidden) return;
-              setActiveTab(localStorage.getItem("lastTab") ?? tabData[0].value);
+              setActiveTab(localStorage.getItem('lastTab') ?? tabData[0].value);
               setTabsHidden(false);
             }}
           />
@@ -78,7 +78,7 @@ export default function Nav() {
           onChange={(value) => {
             // console.log(value);
             if (value === activeTab) {
-              localStorage.setItem("lastTab", value || tabData[0].value);
+              localStorage.setItem('lastTab', value || tabData[0].value);
               setActiveTab(null);
               return;
             }
@@ -88,7 +88,7 @@ export default function Nav() {
           <Tabs.List
             justify="start"
             grow
-            className={"no-scrollbar"}
+            className={'no-scrollbar'}
             classNames={{ list: classes.list }}
             ref={tabRef}
             onWheel={(e) => {
@@ -122,7 +122,7 @@ export default function Nav() {
                 <Tabs.Panel value={tab.value} pb="xs" style={styles}>
                   <ScrollAreaAutosize
                     scrollbars="y"
-                    mah={matches ? "90dvh" : "48dvh"}
+                    mah={matches ? '90dvh' : '48dvh'}
                   >
                     {/* using dvh unit above to factor in the mobile browser address bar*/}
                     <tab.component />

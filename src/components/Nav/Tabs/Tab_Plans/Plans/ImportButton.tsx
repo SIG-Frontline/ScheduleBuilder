@@ -1,8 +1,8 @@
-import Icon from "@/components/Icon/Icon";
-import { planStore } from "@/lib/client/planStore";
-import { uuidv4 } from "@/lib/uuidv4";
-import { Button, FileButton } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import Icon from '@/components/Icon/Icon';
+import { planStore } from '@/lib/client/planStore';
+import { uuidv4 } from '@/lib/uuidv4';
+import { Button, FileButton } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
 
 const ImportButton = () => {
   const plan_store = planStore();
@@ -21,16 +21,16 @@ const ImportButton = () => {
           plan.selected = false;
           plan.uuid = uuidv4();
           //validate the plan
-          const plan_keys = ["name", "description", "term", "courses"];
+          const plan_keys = ['name', 'description', 'term', 'courses'];
           for (const key of plan_keys) {
             if (!(key in plan)) {
-              alert("The plan is missing the key: " + key);
+              alert('The plan is missing the key: ' + key);
               return;
             }
           }
           //validate the term
-          if (typeof plan.term !== "number") {
-            alert("The term must be a number");
+          if (typeof plan.term !== 'number') {
+            alert('The term must be a number');
             return;
           }
           addPlan(plan);

@@ -1,5 +1,5 @@
-import Icon from "@/components/Icon/Icon";
-import { planStore, Course } from "@/lib/client/planStore";
+import Icon from '@/components/Icon/Icon';
+import { planStore, Course } from '@/lib/client/planStore';
 import {
   Accordion,
   ActionIcon,
@@ -9,11 +9,11 @@ import {
   Popover,
   Tooltip,
   Text,
-} from "@mantine/core";
+} from '@mantine/core';
 
-import Link from "next/link";
-import React from "react";
-import SectionSelection from "./SectionSelection";
+import Link from 'next/link';
+import React from 'react';
+import SectionSelection from './SectionSelection';
 
 const CourseAccordion = ({ course }: { course: Course }) => {
   //   const [open, setOpen] = useState<string | null>(null);
@@ -47,7 +47,7 @@ const CourseAccordion = ({ course }: { course: Course }) => {
                       deleteCourseFromPlan(courseCode);
                     }}
                     onKeyDown={(e) => {
-                      if (e.key === "Space" || e.key === "Enter") {
+                      if (e.key === 'Space' || e.key === 'Enter') {
                         deleteCourseFromPlan(courseCode);
                       }
                     }}
@@ -70,7 +70,7 @@ const CourseAccordion = ({ course }: { course: Course }) => {
                         href="#"
                         onClick={(e) => e.preventDefault()}
                         aria-label="change color"
-                        color={course.color ?? "#00aa00"}
+                        color={course.color ?? '#00aa00'}
                       />
                     </Popover.Target>
                     <Popover.Dropdown>
@@ -80,33 +80,33 @@ const CourseAccordion = ({ course }: { course: Course }) => {
                             withinPortal: false,
                           }}
                           swatches={[
-                            "#2e2e2e",
-                            "#868e96",
-                            "#fa5252",
-                            "#e64980",
-                            "#be4bdb",
-                            "#7950f2",
-                            "#4c6ef5",
-                            "#228be6",
-                            "#15aabf",
-                            "#12b886",
-                            "#40c057",
-                            "#82c91e",
-                            "#fab005",
-                            "#fd7e14",
+                            '#2e2e2e',
+                            '#868e96',
+                            '#fa5252',
+                            '#e64980',
+                            '#be4bdb',
+                            '#7950f2',
+                            '#4c6ef5',
+                            '#228be6',
+                            '#15aabf',
+                            '#12b886',
+                            '#40c057',
+                            '#82c91e',
+                            '#fab005',
+                            '#fd7e14',
                           ]}
                           data-autofocus
                           variant="unstyled"
                           size="xs"
                           radius="xl"
                           placeholder="Input placeholder"
-                          value={course.color?.replaceAll(/\s/g, "") ?? "#f0f"}
+                          value={course.color?.replaceAll(/\s/g, '') ?? '#f0f'}
                           format="hsla"
                           onChange={(val) => {
                             updateCourseColor(course, val);
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") {
+                            if (e.key === 'Enter') {
                               //close the popover
                               e.currentTarget.blur();
                             }

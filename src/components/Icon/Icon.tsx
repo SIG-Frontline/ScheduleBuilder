@@ -5,7 +5,7 @@
  */
 export default function Icon({
   children,
-  className = "",
+  className = '',
 }: {
   children?: React.ReactNode;
   className?: string;

@@ -48,14 +48,3 @@ jobs:
           path: |
             lint.txt
             build.txt
-
-      - name: Create PR comment
-        if: always()
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ## 🔍 Lint and Build Results
-            **Lint:** ${{ env.LINT_EXIT_CODE == '0' && '✅ Passed' || '❌ Failed' }}  
-            **Build:** ${{ env.BUILD_EXIT_CODE == '0' && '✅ Passed' || '❌ Failed' }}

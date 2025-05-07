@@ -1,12 +1,12 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import {
   decryptArr,
   encryptArr,
   getTakenCourses,
   setTakenCourses,
-} from "../server/actions/getTakenCourses";
-import { getAccessToken } from "@auth0/nextjs-auth0";
+} from '../server/actions/getTakenCourses';
+import { getAccessToken } from '@auth0/nextjs-auth0';
 
 interface SettingsStoreState {
   encryptedTakenCourses: string; // Encrypted string[]
@@ -20,7 +20,7 @@ interface SettingsStoreState {
 export const settingsStore = create<SettingsStoreState>()(
   persist(
     (set, get) => ({
-      encryptedTakenCourses: "",
+      encryptedTakenCourses: '',
       getCourses: async () => {
         const { encryptedTakenCourses: takenCourses } = get();
         return await decryptArr(takenCourses);
@@ -51,20 +51,20 @@ export const settingsStore = create<SettingsStoreState>()(
 
         updateDB(encryptedArr);
       },
-      clearCourses: () => set({ encryptedTakenCourses: "" }),
+      clearCourses: () => set({ encryptedTakenCourses: '' }),
       setCourses: (courses) => set({ encryptedTakenCourses: courses }),
     }),
     {
-      name: "settings-store",
+      name: 'settings-store',
     },
   ),
 );
 
 // Helper function to update the database
 async function updateDB(encryptedArr: string) {
-  const user = await fetch("/auth/profile");
+  const user = await fetch('/auth/profile');
   if (!(user.status === 200)) {
-    console.log("User is not authenticated");
+    console.log('User is not authenticated');
     return;
   }
 
@@ -75,8 +75,8 @@ async function updateDB(encryptedArr: string) {
 // Right now it runs on reload, which might not always work
 (async function syncCourses() {
   try {
-    console.log("Syncing courses...");
-    const user = await fetch("/auth/profile");
+    console.log('Syncing courses...');
+    const user = await fetch('/auth/profile');
     if (user.status !== 200) return;
 
     const data = await getTakenCourses(await getAccessToken());
@@ -85,6 +85,6 @@ async function updateDB(encryptedArr: string) {
     settingsStore.getState().clearCourses();
     settingsStore.getState().setCourses(data);
   } catch (error) {
-    console.error("Failed to sync settings:", error);
+    console.error('Failed to sync settings:', error);
   }
 })();

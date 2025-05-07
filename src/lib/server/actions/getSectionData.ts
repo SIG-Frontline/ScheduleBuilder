@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { SectionDocument, Time } from "../mongoClient";
+import { SectionDocument, Time } from '../mongoClient';
 
 /**
  *
@@ -12,18 +12,20 @@ import { SectionDocument, Time } from "../mongoClient";
 export async function getSectionData(
   term: number,
   subject: string,
-  courseCode: string
+  courseCode: string,
 ) {
   try {
     const baseURL = `${process.env.SBCORE_URL}`;
 
-    const queryParam = encodeURIComponent(subject && courseCode ? `${subject} ${courseCode}`.trim() : subject);
-    
+    const queryParam = encodeURIComponent(
+      subject && courseCode ? `${subject} ${courseCode}`.trim() : subject,
+    );
+
     const URL = `${baseURL}/sections?term=${term}&course=${queryParam}`;
-    const response = await fetch(URL, { method: "GET" });
-    
+    const response = await fetch(URL, { method: 'GET' });
+
     if (!response.ok) {
-      console.error("API URL: ", URL);
+      console.error('API URL: ', URL);
       throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
 
@@ -40,33 +42,31 @@ export async function getSectionData(
     delete course._id;
 
     // Format sections
-    course.sections = course.sections.map(
-      (section: SectionDocument) => ({
-        instructor: section.INSTRUCTOR ?? "",
-        sectionNumber: section.SECTION ?? "",
-        status: section.STATUS ?? "Unknown",
-        currentEnrollment: section.NOW ?? 0,
-        maxEnrollment: section.MAX ?? 0,
-        is_honors: section.IS_HONORS ?? false,
-        is_async: section.IS_ASYNC ?? false,
-        crn: section.CRN ?? "",
-        comments: section.COMMENTS ?? "",
-		  instructionType: section.INSTRUCTION_METHOD ?? "",
-         
-        meetingTimes: (section.TIMES || []).map((time: Time) => ({
-          day: time.day,
-          startTime: time.start,
-          endTime: time.end,
-          building: time.building,
-          room: time.room,
-        })),
-		  selected: false,
-      })
-    );
+    course.sections = course.sections.map((section: SectionDocument) => ({
+      instructor: section.INSTRUCTOR ?? '',
+      sectionNumber: section.SECTION ?? '',
+      status: section.STATUS ?? 'Unknown',
+      currentEnrollment: section.NOW ?? 0,
+      maxEnrollment: section.MAX ?? 0,
+      is_honors: section.IS_HONORS ?? false,
+      is_async: section.IS_ASYNC ?? false,
+      crn: section.CRN ?? '',
+      comments: section.COMMENTS ?? '',
+      instructionType: section.INSTRUCTION_METHOD ?? '',
+
+      meetingTimes: (section.TIMES || []).map((time: Time) => ({
+        day: time.day,
+        startTime: time.start,
+        endTime: time.end,
+        building: time.building,
+        room: time.room,
+      })),
+      selected: false,
+    }));
 
     return course;
   } catch (err) {
-    console.error("Error fetching section data:", err);
+    console.error('Error fetching section data:', err);
     return [];
   }
 }

@@ -1,5 +1,5 @@
-import { planStore, Section } from "@/lib/client/planStore";
-import convertTime from "@/lib/client/processDate";
+import { planStore, Section } from '@/lib/client/planStore';
+import convertTime from '@/lib/client/processDate';
 import {
   Badge,
   Group,
@@ -8,9 +8,9 @@ import {
   Stack,
   Title,
   ScrollAreaAutosize,
-} from "@mantine/core";
+} from '@mantine/core';
 // import { useMediaQuery } from "@mantine/hooks";
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const SectionSelection = ({
   courseCode,
@@ -27,19 +27,19 @@ const SectionSelection = ({
   const selectSection = planStore((state) => state.selectSection);
 
   const [value, setValue] = useState<string | null>(
-    sections.find((item) => item.selected)?.crn || null
+    sections.find((item) => item.selected)?.crn || null,
   );
   const options = sections.map((item) => (
     <Radio.Card
       radius="md"
-      p={"sm"}
+      p={'sm'}
       value={item.crn}
       key={item.crn}
-      hidden={item.status.toLowerCase() == "cancelled" && item.crn != value}
+      hidden={item.status.toLowerCase() == 'cancelled' && item.crn != value}
     >
       <Group gap="sm" align="start">
         <Radio.Indicator className="hover:cursor-pointer" />
-        <Group gap={2} align="start" ms={"auto"}>
+        <Group gap={2} align="start" ms={'auto'}>
           {item.meetingTimes.map((time) => (
             <Badge variant="light" key={time.day + time.startTime}>
               {time.day}
@@ -48,14 +48,14 @@ const SectionSelection = ({
         </Group>
       </Group>
       <Stack gap={0} align="flex-start">
-        <Group align="start" w={"100%"} mt={3}>
+        <Group align="start" w={'100%'} mt={3}>
           <Text size="md" fw={600}>
             {courseCode}-{item.sectionNumber}
           </Text>
           {item.meetingTimes.length > 0 && (
-            <Badge variant="light" ms={"auto"}>
+            <Badge variant="light" ms={'auto'}>
               <Text size="xs" c="blue">
-                {convertTime(item.meetingTimes[0].startTime)} -{" "}
+                {convertTime(item.meetingTimes[0].startTime)} -{' '}
                 {convertTime(item.meetingTimes[0].endTime, false)}
               </Text>
             </Badge>
@@ -69,10 +69,10 @@ const SectionSelection = ({
           variant="light"
           color={
             item.currentEnrollment / item.maxEnrollment === 1
-              ? "red"
+              ? 'red'
               : item.currentEnrollment / item.maxEnrollment > 0.75
-              ? "orange"
-              : "blue"
+                ? 'orange'
+                : 'blue'
           }
         >
           {item.currentEnrollment} / {item.maxEnrollment}
@@ -82,19 +82,19 @@ const SectionSelection = ({
         {item.meetingTimes.length > 0 ? (
           [
             ...new Set(
-              item.meetingTimes.map((time) => `${time.building} ${time.room}`)
+              item.meetingTimes.map((time) => `${time.building} ${time.room}`),
             ),
           ].map((location) => (
-            <Badge variant="light" mt={"5"} key={location}>
+            <Badge variant="light" mt={'5'} key={location}>
               <Text size="xs" key={location} c="blue">
                 {location}
               </Text>
             </Badge>
           ))
         ) : (
-          <Badge variant="light" mt={"5"}>
+          <Badge variant="light" mt={'5'}>
             <Text size="xs" c="blue">
-              {"Online"}
+              {'Online'}
             </Text>
           </Badge>
         )}
@@ -103,15 +103,15 @@ const SectionSelection = ({
   ));
   return (
     <>
-      <Group justify="start" align="start" mt={"sm"}>
+      <Group justify="start" align="start" mt={'sm'}>
         <div className="flex-grow">
-          <Group mb={"sm"} pos={"relative"}>
+          <Group mb={'sm'} pos={'relative'}>
             <Title
               order={3}
               size="md"
               fw={500}
-              ta={"center"}
-              mx={"auto"}
+              ta={'center'}
+              mx={'auto'}
               className="overflow-ellipsis"
             >
               {courseTitle}

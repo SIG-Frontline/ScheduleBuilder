@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import Icon from "../Icon/Icon";
-import { Paper, Stack } from "@mantine/core";
+import React, { useState, useEffect } from 'react';
+import Icon from '../Icon/Icon';
+import { Paper, Stack } from '@mantine/core';
 
-import { useViewportSize } from "@mantine/hooks";
-import { ActionIcon } from "@mantine/core";
+import { useViewportSize } from '@mantine/hooks';
+import { ActionIcon } from '@mantine/core';
 
 type InfoCardProps = {
   cardVisible: boolean;
@@ -18,7 +18,7 @@ function msToTime(duration: number): string {
   const hours12 = hours24 > 12 ? hours24 - 12 : hours24 === 0 ? 12 : hours24;
   const minutesStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
 
-  const period = hours24 >= 12 ? "pm" : "am";
+  const period = hours24 >= 12 ? 'pm' : 'am';
   const timeOfDay = `${hours12}:${minutesStr}${period}`;
 
   return timeOfDay;
@@ -33,7 +33,7 @@ function InfoCard(props: InfoCardProps) {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    console.log("Width changed");
+    console.log('Width changed');
     if (width < 640) {
       setPosition({ x: 0, y: 0 });
     } else setPosition({ x: position.x, y: position.y });
@@ -79,13 +79,13 @@ function InfoCard(props: InfoCardProps) {
     };
 
     // Listen to mousemove and mouseup on window
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
 
     // Clean up event listeners on unmount or when isDragging changes
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, offset, width]);
 
@@ -102,8 +102,10 @@ function InfoCard(props: InfoCardProps) {
     });
     // Calculate the offset between card's current position and the cursor
   };
-  const startTime: string = msToTime(parseInt(courseInfo.get("startTime") ?? "0"));
-  const endTime: string = msToTime(parseInt(courseInfo.get("endTime") ?? "0"));
+  const startTime: string = msToTime(
+    parseInt(courseInfo.get('startTime') ?? '0'),
+  );
+  const endTime: string = msToTime(parseInt(courseInfo.get('endTime') ?? '0'));
 
   // If not visible, render nothing
   if (!cardVisible) return null;
@@ -128,7 +130,7 @@ function InfoCard(props: InfoCardProps) {
       >
         <div className="flex justify-between items-center w-full p-3 pr-4 pl-5">
           <p className="font-bold text-center pr-1">
-            {courseInfo.get("title")}
+            {courseInfo.get('title')}
           </p>
           <ActionIcon
             variant="transparent"
@@ -144,7 +146,7 @@ function InfoCard(props: InfoCardProps) {
       </Paper>
 
       <Stack align="flex-start">
-        {courseInfo.get("location") == "Online" || (
+        {courseInfo.get('location') == 'Online' || (
           <div className="flex flex-row items-left space-x-2 pl-2 ">
             <Icon>schedule</Icon>
             <p>{`${startTime} - ${endTime}`}</p>
@@ -152,22 +154,22 @@ function InfoCard(props: InfoCardProps) {
         )}
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>person</Icon>
-          <p>{courseInfo.get("instructor")}</p>
+          <p>{courseInfo.get('instructor')}</p>
         </div>
 
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>location_on</Icon>
-          <p>{courseInfo.get("location")}</p>
+          <p>{courseInfo.get('location')}</p>
         </div>
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>tag</Icon>
-          <p>CRN: {courseInfo.get("crn")}</p>
+          <p>CRN: {courseInfo.get('crn')}</p>
         </div>
         <div className="flex flex-row items-center space-x-2 pl-2">
           <Icon>chair</Icon>
           <p>
-            Seats: {courseInfo.get("currentSeats")}/{" "}
-            {courseInfo.get("maxSeats")}
+            Seats: {courseInfo.get('currentSeats')}/{' '}
+            {courseInfo.get('maxSeats')}
           </p>
         </div>
       </Stack>
