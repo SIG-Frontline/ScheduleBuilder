@@ -230,8 +230,8 @@ export function escapeRegex(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function addRegexSearch(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   query: Record<string, any>,
   key: string,
   value: string,

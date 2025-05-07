@@ -100,14 +100,14 @@ const Header = () => {
         if (!alreadyHandledSync && shouldNotify) {
           setOpenPlanSyncModal(true);
         } else if (hasLoggedIn) {
-          syncPlans(false);
+          await syncPlans(false);
         } else {
           await loadLocalPlans();
         }
       }
     };
 
-    runSync();
+    void runSync();
   }, [hasLoggedIn, alreadyHandledSync]);
 
   const handleModalClick = async (saveLocal: boolean) => {
