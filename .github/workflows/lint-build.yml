@@ -1,0 +1,61 @@
+name: Lint & Build
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: "pnpm"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Linter
+        id: lint
+        continue-on-error: true
+        run: |
+          pnpm lint > lint.txt
+          echo "LINT_EXIT_CODE=$?" >> $GITHUB_ENV
+
+      - name: Run Build
+        id: build
+        continue-on-error: true
+        run: |
+          pnpm build > build.txt
+          echo "BUILD_EXIT_CODE=$?" >> $GITHUB_ENV
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-and-build-logs
+          path: |
+            lint.txt
+            build.txt
+
+      - name: Create PR comment
+        if: always()
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🔍 Lint and Build Results
+            **Lint:** ${{ env.LINT_EXIT_CODE == '0' && '✅ Passed' || '❌ Failed' }}  
+            **Build:** ${{ env.BUILD_EXIT_CODE == '0' && '✅ Passed' || '❌ Failed' }}
