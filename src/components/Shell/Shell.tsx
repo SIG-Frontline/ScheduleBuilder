@@ -94,7 +94,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     <>
       <AppShell
         aside={{ width: 350, breakpoint: "lg" }}
-        header={{ height: 60 }}
+        header={{ height: 90 }}
       >
         <AppShell.Header>
           <Header />

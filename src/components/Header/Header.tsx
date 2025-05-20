@@ -29,6 +29,26 @@ import { useMediaQuery } from "@mantine/hooks";
 import { bugReportLink, feedbackForm } from "@/lib/forms";
 import { WelcomeModal } from "@/components/Shell/Shell";
 import { getTimestamp } from "@/lib/server/actions/getTimestamp";
+import { Tooltip } from "@mantine/core";
+
+const LastUpdated = ({ timestamp }: { timestamp: string | null }) => {
+  if (!timestamp) return null;
+  const date = new Date(Number(timestamp) * 1000);
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const shortTime = `${mm}/${dd}/${yyyy}`;
+  return (
+    <Tooltip label={date.toISOString()} withArrow position="right">
+      <div className="flex items-center mt-1 text-base text-gray-400 italic font-light gap-1">
+        <span> 
+          last updated:&nbsp;
+          <span className="font-medium">{shortTime}</span>
+        </span>
+      </div>
+    </Tooltip>
+  );
+};
 
 const Header = () => {
   const plan_store = planStore();
@@ -301,12 +321,8 @@ const Header = () => {
             order={1}
           >
             Schedule Builder
-          </Title>
-          {timestamp && (
-            <p className="text-sm italic text-gray-600 dark:text-gray-400 mt-1">
-              last updated: {new Date(timestamp).toLocaleDateString("en-US")}
-            </p>
-          )}
+          </Title>  
+          <LastUpdated timestamp={timestamp} />
         </div>
         <Group wrap="nowrap">
           <ActionIcon
