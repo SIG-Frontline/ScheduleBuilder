@@ -18,8 +18,3 @@ export async function getTimestamp(timestamp?: string) {
       return [];
     });
 }
-
-//  if no plan
-// getTimestamp()
-// // if planselected
-// getTimestamp(planSelected term) 
