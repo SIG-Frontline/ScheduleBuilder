@@ -44,7 +44,7 @@ const Cal_Grid = () => {
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [plan_store]);
 
   const day_store = dayStore();
 
