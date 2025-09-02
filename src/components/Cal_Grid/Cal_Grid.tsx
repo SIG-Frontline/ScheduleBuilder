@@ -151,46 +151,48 @@ const Cal_Grid = () => {
             return (
               <HoverCard position="bottom">
                 <HoverCard.Target>
-                  <Stack
-                    gap={"1px"}
-                    className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden display-block "
-                  >
-                    {durationInMinutes < 70 ? (
-                      // Render only the title if duration is less than 70 minutes
-                      <Text fw={600} size="sm" c={textColor}>
-                        {eventContent.event.title}
-                      </Text>
-                    ) : durationInMinutes < 120 ? (
-                      // Render title and subtitle if duration is less than 120 minutes
-                      <>
+                  <div className="w-full h-full relative">
+                    <Stack
+                      gap={"1px"}
+                      className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden display-block "
+                    >
+                      {durationInMinutes < 70 ? (
+                        // Render only the title if duration is less than 70 minutes
                         <Text fw={600} size="sm" c={textColor}>
                           {eventContent.event.title}
                         </Text>
-                        <Text size="xs" c={textColor}>
-                          {eventContent.event.extendedProps.title}
-                        </Text>
-                      </>
-                    ) : (
-                      // Render full details for durations 120 minutes or more
-                      <>
-                        <Text fw={600} size="sm" c={textColor}>
-                          {eventContent.event.title}
-                        </Text>
-                        <Text size="xs" c={textColor}>
-                          {eventContent.event.extendedProps.title}
-                        </Text>
-                        <Text size="xs" c={textColor}>
-                          {eventContent.timeText}
-                        </Text>
-                        <Text size="xs" c={textColor}>
-                          {eventContent.event.extendedProps.location}
-                        </Text>
-                        <Text size="xs" c={textColor}>
-                          {eventContent.event.extendedProps.instructor}
-                        </Text>
-                      </>
-                    )}
-                  </Stack>
+                      ) : durationInMinutes < 120 ? (
+                        // Render title and subtitle if duration is less than 120 minutes
+                        <>
+                          <Text fw={600} size="sm" c={textColor}>
+                            {eventContent.event.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.title}
+                          </Text>
+                        </>
+                      ) : (
+                        // Render full details for durations 120 minutes or more
+                        <>
+                          <Text fw={600} size="sm" c={textColor}>
+                            {eventContent.event.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.timeText}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.location}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.instructor}
+                          </Text>
+                        </>
+                      )}
+                    </Stack>
+                  </div>
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
                   <Stack color={eventContent.backgroundColor}>
