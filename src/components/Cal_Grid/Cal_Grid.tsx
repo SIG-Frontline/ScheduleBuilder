@@ -149,6 +149,11 @@ const Cal_Grid = () => {
               </>
             );
             return (
+              /*
+              TODO:
+              "It appears that the hover card is associated with the text inside the event and not the entire event itself. So for a 3 hour class if u hover over the button of the class on the calendar, the pop up wont appear.But making the hover area that big may cause other issues where classes next to each other both trigger maybe? Can you try to make it appear over the entire event and not just the text, if it causes the issue above just let me know and we can keep it as is."
+              https://github.com/SIG-Frontline/ScheduleBuilder/pull/179#pullrequestreview-2820250471
+              */
               <HoverCard position="bottom">
                 <HoverCard.Target>
                   <div className="w-full h-full relative">
