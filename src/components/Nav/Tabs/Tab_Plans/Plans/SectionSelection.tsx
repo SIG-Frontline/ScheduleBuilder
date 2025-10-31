@@ -35,7 +35,11 @@ const SectionSelection = ({
       p={"sm"}
       value={item.crn}
       key={item.crn}
-      hidden={item.status.toLowerCase() == "cancelled" && item.crn != value}
+      hidden={
+        (item.status.toLowerCase() == "cancelled" ||
+          item.comments.toLowerCase().includes("cancelled")) &&
+        item.crn != value
+      }
     >
       <Group gap="sm" align="start">
         <Radio.Indicator className="hover:cursor-pointer" />
@@ -82,7 +86,11 @@ const SectionSelection = ({
         {item.meetingTimes.length > 0 ? (
           [
             ...new Set(
-              item.meetingTimes.map((time) => `${time.building} ${time.room}`)
+              item.meetingTimes.map((time) => {
+                if (time.building == null || time.room == null)
+                  return "Unknown";
+                return `${time.building} ${time.room}`;
+              }),
             ),
           ].map((location) => (
             <Badge variant="light" mt={"5"} key={location}>
