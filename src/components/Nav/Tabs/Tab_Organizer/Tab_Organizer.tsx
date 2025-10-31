@@ -300,6 +300,9 @@ const Tab_Organizer = () => {
       compactPlan: input.compactPlan,
       eventPriority: input.eventPriority,
       courseFilters,
+      // TODO: update to also encompass user data
+      isCommuter: false,
+      commuteTimeHours: 0,
     };
 
     const lastSaved = JSON.stringify(lastSavedSettingsRef.current);

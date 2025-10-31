@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { uuidv4 } from '@/lib/uuidv4';
-import { planStore } from '@/lib/client/planStore';
+import { organizerSettings, planStore } from '@/lib/client/planStore';
 import { prettyTermText } from '@/lib/client/prettyTermText';
 
 const ValidatePlanName = (name: string): boolean => {
@@ -87,7 +87,9 @@ const NewPlanButton = () => {
         commuteTimeHours: 0,
         compactPlan: false,
         courseFilters: [],
-      },
+        daysOnCampus: 0,
+        eventPriority: false,
+      } as organizerSettings,
     });
   }
   return (
