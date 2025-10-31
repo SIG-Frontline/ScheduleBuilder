@@ -48,7 +48,7 @@ const Header = () => {
   const largerThanSm = useMediaQuery("(min-width: 768px)");
   const router = useRouter();
   const searchparams = useSearchParams();
-  const [openInvalidEmail, setopenInvalidEmail] = useState(false)
+  const [openInvalidEmail, setopenInvalidEmail] = useState(false);
   const { user } = useUser();
   const isLoggedIn = Boolean(user);
   const [hasLoggedIn, setHasLoggedIn] = useState(false);
@@ -57,15 +57,18 @@ const Header = () => {
   const [alreadyHandledSync, setAlreadyHandledSync] = useState(false);
   const [openConfirmPlanSyncModal, setOpenConfirmPlanSyncModal] =
     useState(false);
-  
+
   useEffect(() => {
     const errorParam = searchparams.get("error");
-    if(errorParam === "invalid_email" || sessionStorage.getItem("invalidLogin") == "true"){
+    if (
+      errorParam === "invalid_email" ||
+      sessionStorage.getItem("invalidLogin") == "true"
+    ) {
       setopenInvalidEmail(true);
       sessionStorage.setItem("invalidLogin", "true");
     }
     return;
-  }, [searchparams])
+  }, [searchparams]);
 
   // Notification when user logs in
   useEffect(() => {
@@ -93,11 +96,11 @@ const Header = () => {
       plan_store.clearPlans();
       localStorage.removeItem("shouldClearPlans");
     }
-  }, []);
+  }, [plan_store]);
 
   useEffect(() => {
     const runSync = async () => {
-      if (alreadyHandledSync) return; 
+      if (alreadyHandledSync) return;
       const navigation = performance.getEntriesByType(
         "navigation"
       )[0] as PerformanceNavigationTiming;
@@ -121,7 +124,7 @@ const Header = () => {
     setOpenPlanSyncModal(false);
     await syncPlans(saveLocal);
     setOpenConfirmPlanSyncModal(false);
-  }
+  };
 
   // Notification when user logs out
   const handleLogout = (e: React.MouseEvent) => {
@@ -147,7 +150,6 @@ const Header = () => {
     // By clearing plans after page reload, the transition appears smoother to the user.
     // The plan clear logic occurs in Cal_Grid component when this flag is set
     localStorage.setItem("shouldClearPlans", "true");
-
   };
 
   const icon = () => {
@@ -164,7 +166,7 @@ const Header = () => {
   };
   return (
     <>
-    <Modal
+      <Modal
         title="Invalid Email Address"
         opened={openInvalidEmail}
         withCloseButton={false}
@@ -174,7 +176,8 @@ const Header = () => {
         onClose={() => {}}
       >
         <p className="text-sm mb-4">
-          Invalid email was not used. Please start the log out process below and try logging back in with an @njit.edu email.
+          Invalid email was not used. Please start the log out process below and
+          try logging back in with an @njit.edu email.
         </p>
         <div className="flex items-center justify-center gap-8">
           <Button
@@ -202,8 +205,8 @@ const Header = () => {
           onClose={() => {}}
         >
           <p className="text-md mb-4">
-            It looks like you have a plan stored locally that's not stored in
-            your account, would you like to save this plan to your account or
+            It looks like you have a plan stored locally that&apos;s not stored
+            in your account, would you like to save this plan to your account or
             discard it?
           </p>
           <div className="flex items-center justify-center gap-8">
@@ -217,7 +220,7 @@ const Header = () => {
                 },
               }}
               onClick={() => {
-                setOpenConfirmPlanSyncModal(true)
+                setOpenConfirmPlanSyncModal(true);
                 setOpenPlanSyncModal(false);
               }}
             >
@@ -345,23 +348,30 @@ const Header = () => {
                 leftSection={<Icon> error </Icon>}
                 onClick={() => {
                   const userAgent = encodeURIComponent(navigator.userAgent);
-                  const screenInfo = encodeURIComponent(`${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`);
-                  const timestamp = encodeURIComponent(new Date().toISOString());
+                  const screenInfo = encodeURIComponent(
+                    `${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`
+                  );
+                  const timestamp = encodeURIComponent(
+                    new Date().toISOString()
+                  );
 
-                  const formUrl = `${bugReportLink}?usp=pp_url` + 
-                  `&entry.798766012=${userAgent}` + 
-                  `&entry.1633347189=${screenInfo}` +
-                  `&entry.1561839137=${timestamp}` + 
-                  `&entry.1425119412=${user?.sub?user.sub: "unauth"}`;
+                  const formUrl =
+                    `${bugReportLink}?usp=pp_url` +
+                    `&entry.798766012=${userAgent}` +
+                    `&entry.1633347189=${screenInfo}` +
+                    `&entry.1561839137=${timestamp}` +
+                    `&entry.1425119412=${user?.sub ? user.sub : "unauth"}`;
 
-                  window.open(formUrl)}}
+                  window.open(formUrl);
+                }}
               >
                 Bug Report
               </Menu.Item>
               <Menu.Item
                 leftSection={<Icon> question_answer </Icon>}
                 onClick={() => {
-                  window.open(feedbackForm)}}
+                  window.open(feedbackForm);
+                }}
               >
                 Feedback Form
               </Menu.Item>
