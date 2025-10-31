@@ -71,8 +71,8 @@ const SectionSelection = ({
             item.currentEnrollment / item.maxEnrollment === 1
               ? "red"
               : item.currentEnrollment / item.maxEnrollment > 0.75
-              ? "orange"
-              : "blue"
+                ? "orange"
+                : "blue"
           }
         >
           {item.currentEnrollment} / {item.maxEnrollment}
@@ -121,8 +121,9 @@ const SectionSelection = ({
           <Radio.Group
             value={value}
             onChange={(val) => {
-              setValue(val);
-              selectSection(courseCode, val);
+              const newValue = val === value ? "" : val;
+              setValue(newValue);
+              selectSection(courseCode, newValue);
             }}
           >
             <ScrollAreaAutosize mah="20em" scrollbars="y">
