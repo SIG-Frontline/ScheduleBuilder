@@ -13,13 +13,12 @@ import {
   Title,
   useMantineColorScheme,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "../Icon/Icon";
 import { useUser } from "@auth0/nextjs-auth0";
 import { dayStore } from "@/lib/client/dayStore";
 import { notifications } from "@mantine/notifications";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import {
   checkIfModalNeeded,
   loadLocalPlans,
@@ -29,6 +28,27 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import { bugReportLink, feedbackForm } from "@/lib/forms";
 import { WelcomeModal } from "@/components/Shell/Shell";
+import { getTimestamp } from "@/lib/server/actions/getTimestamp";
+import { Tooltip } from "@mantine/core";
+
+const LastUpdated = ({ timestamp }: { timestamp: string | null }) => {
+  if (!timestamp) return null;
+  const date = new Date(Number(timestamp) * 1000);
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const shortTime = `${mm}/${dd}/${yyyy}`;
+  return (
+    <Tooltip label={date.toISOString()} withArrow position="right">
+      <div className="flex items-center mt-1 text-base text-gray-400 italic font-light gap-1">
+        <span> 
+          last updated:&nbsp;
+          <span className="font-medium">{shortTime}</span>
+        </span>
+      </div>
+    </Tooltip>
+  );
+};
 
 const Header = () => {
   const plan_store = planStore();
@@ -162,6 +182,20 @@ const Header = () => {
       );
     }
   };
+  const [timestamp, setTimestamp] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchTimestamp() {
+      try {
+        const ts = await getTimestamp();
+        setTimestamp(ts || null);
+      } catch (error) {
+        console.error("Failed to fetch timestamp", error);
+      }
+    }
+    fetchTimestamp();
+  }, []);
+
   return (
     <>
     <Modal
@@ -281,12 +315,15 @@ const Header = () => {
         </Modal>
       </Modal.Stack>
       <Flex justify="space-between" align={"center"} py={10} px={20}>
-        <Title
-          className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap "
-          order={1}
-        >
-          Schedule Builder
-        </Title>
+        <div>
+          <Title
+            className="overflow-hidden whitespace-nowrap my-auto text-ellipsis !text-nowrap"
+            order={1}
+          >
+            Schedule Builder
+          </Title>  
+          <LastUpdated timestamp={timestamp} />
+        </div>
         <Group wrap="nowrap">
           <ActionIcon
             // className="m-1"
@@ -347,13 +384,13 @@ const Header = () => {
                   const userAgent = encodeURIComponent(navigator.userAgent);
                   const screenInfo = encodeURIComponent(`${window.innerWidth}x${window.innerHeight}, DPR: ${window.devicePixelRatio}`);
                   const timestamp = encodeURIComponent(new Date().toISOString());
-
-                  const formUrl = `${bugReportLink}?usp=pp_url` + 
-                  `&entry.798766012=${userAgent}` + 
+    
+                  const formUrl = `${bugReportLink}?usp=pp_url` +
+                  `&entry.798766012=${userAgent}` +
                   `&entry.1633347189=${screenInfo}` +
-                  `&entry.1561839137=${timestamp}` + 
+                  `&entry.1561839137=${timestamp}` +
                   `&entry.1425119412=${user?.sub?user.sub: "unauth"}`;
-
+    
                   window.open(formUrl)}}
               >
                 Bug Report
