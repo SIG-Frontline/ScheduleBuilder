@@ -8,6 +8,7 @@ import { Button, Modal } from '@mantine/core';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import React, { createContext } from 'react';
+import BackendOfflineMessage from '../BackendOffline/BackendOfflineMessage';
 
 export const WelcomeModal = createContext<{ isOpen: boolean }>({
   isOpen: false,
@@ -88,12 +89,18 @@ export function WelcomeAlert() {
   );
 }
 
-export default function Shell({ children }: { children: React.ReactNode }) {
+type ShellProps = {
+  children: React.ReactNode;
+  backendStatus: boolean;
+};
+
+export default function Shell({ children, backendStatus }: ShellProps) {
   const matches = useMediaQuery(
     'only screen and (orientation: landscape) and (min-width: 1201px)',
   );
   return (
     <>
+    {backendStatus?(
       <AppShell
         aside={{ width: 350, breakpoint: 'lg' }}
         header={{ height: 60 }}
@@ -123,6 +130,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </AppShell.Main>
       </AppShell>
+    ) : (
+      <BackendOfflineMessage />
+    )}
     </>
   );
 }
