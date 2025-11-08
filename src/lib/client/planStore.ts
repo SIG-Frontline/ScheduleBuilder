@@ -1,5 +1,9 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { uploadPlan } from '../server/actions/uploadPlan';
+import { getPlans } from '../server/actions/getPlans';
+import { deletePlan } from '../server/actions/deletePlan';
+import { getAccessToken } from '@auth0/nextjs-auth0';
 
 function debounce(callback: () => void, delay: number) {
   let timeout: NodeJS.Timeout;
@@ -17,6 +21,7 @@ export type Plan = {
   courses?: Course[];
   events?: Event[];
   selected: boolean;
+  organizerSettings?: organizerSettings;
 };
 
 export type Course = {
@@ -38,6 +43,7 @@ export type Section = {
   status: string;
   is_honors: boolean;
   is_async: boolean;
+  instructionType: string;
   sectionNumber: string;
   comments: string;
   selected: boolean;
@@ -57,10 +63,33 @@ export type Event = {
   daysOfWeek: number[];
   color?: string;
 };
+export interface organizerSettings {
+  isCommuter: boolean;
+  commuteTimeHours: number;
+  daysOnCampus: number | undefined;
+  compactPlan: boolean;
+  eventPriority: boolean;
+  courseFilters: courseFilter[];
+}
+
+export interface courseFilter {
+  courseCode: string;
+  instructor?: string;
+  honors?: boolean;
+  online?: instructionType;
+  section?: string;
+}
+export enum instructionType {
+  ONLINE = 'online',
+  HYBRID = 'hybrid',
+  INPERSON = 'face-to-face',
+  ANY = 'any',
+}
 
 interface PlanStoreState {
   plans: Plan[];
   currentSelectedPlan: string | null;
+  openCourseId: string | null;
   setPlans: (plans: Plan[]) => void;
   addPlan: (newPlan: Plan) => void;
   updatePlan: (updatedPlan: Plan, uuid: string) => void;
@@ -69,10 +98,16 @@ interface PlanStoreState {
   selectPlan: (uuid: string) => void;
   addCourseToPlan: (course: Course) => void;
   selectSection: (course: string, crn: string) => void;
+  findSelectedSections: (
+    plan: Plan
+  ) => { courseCode: string; section: Section }[];
   deleteCourseFromPlan: (course: string) => void;
   addEventToPlan: (event: Event) => void;
   removeEventFromPlan: (event: Event) => void;
   updateCourseColor: (course: Course, color: string) => void;
+  clearPlans: () => void;
+  setOpenCourseId: (id: string | null) => void;
+  updatePlanSettings: (settings: organizerSettings, planUUID: string) => void;
 }
 
 export const planStore = create<PlanStoreState>()(
@@ -83,10 +118,24 @@ export const planStore = create<PlanStoreState>()(
       setPlans: (plans) => set({ plans }),
       addPlan: (newPlan) => {
         const { plans } = get();
+        const initializedPlan: Plan = {
+          ...newPlan,
+          organizerSettings: newPlan.organizerSettings ?? {
+            isCommuter: false,
+            commuteTimeHours: 0,
+            daysOnCampus: 0,
+            compactPlan: false,
+            eventPriority: false,
+            courseFilters: [],
+          },
+        };
         if (plans.length === 0) {
-          newPlan.selected = true;
+          initializedPlan.selected = true;
         }
-        set({ plans: [...plans, newPlan], currentSelectedPlan: newPlan.uuid });
+        set({
+          plans: [...plans, initializedPlan],
+          currentSelectedPlan: initializedPlan.uuid,
+        });
       },
       selectPlan: (uuid) => {
         const { plans } = get();
@@ -94,6 +143,7 @@ export const planStore = create<PlanStoreState>()(
           ...plan,
           selected: plan.uuid === uuid,
         }));
+        localStorage.setItem('lastSelectedPlanUUID', uuid);
         set({
           plans: newplans,
           currentSelectedPlan: uuid,
@@ -101,11 +151,12 @@ export const planStore = create<PlanStoreState>()(
       },
       updatePlan: (updatedPlan, uuid) => {
         const { plans } = get();
-        set({
-          plans: plans.map((plan) => (plan.uuid === uuid ? updatedPlan : plan)),
-        });
+        const newPlans = plans.map((plan) =>
+          plan.uuid === uuid ? structuredClone(updatedPlan) : plan
+        );
+        set({ plans: newPlans });
       },
-      removePlan: (uuid) => {
+      removePlan: async (uuid) => {
         const { plans, currentSelectedPlan } = get();
         let newSelectedPlan = currentSelectedPlan;
         if (currentSelectedPlan === uuid && plans.length > 1) {
@@ -117,6 +168,13 @@ export const planStore = create<PlanStoreState>()(
           plans: plans.filter((plan) => plan.uuid !== uuid),
           currentSelectedPlan: newSelectedPlan,
         });
+        const user = await fetch('/auth/profile');
+        if (!(user.status === 200)) {
+          console.log('User is not authenticated');
+          return;
+        }
+
+        deletePlan(await getAccessToken(), uuid);
       },
       getPlan: (uuid) => {
         const { plans } = get();
@@ -125,13 +183,13 @@ export const planStore = create<PlanStoreState>()(
       addCourseToPlan: (course) => {
         const { plans, currentSelectedPlan } = get();
         const currentPlan = plans.find(
-          (plan) => plan.uuid === currentSelectedPlan
+          (plan) => plan.uuid === currentSelectedPlan,
         );
         const currentPlanHasCourse = currentPlan?.courses?.find(
-          (c) => c.code === course.code
+          (c) => c.code === course.code,
         );
         if (currentPlanHasCourse) {
-          alert("Course already in plan");
+          alert('Course already in plan');
           return;
         }
         set({
@@ -139,12 +197,11 @@ export const planStore = create<PlanStoreState>()(
             plan.uuid === currentSelectedPlan
               ? {
                   ...plan,
-                  courses: plan.courses
-                    ? plan.courses.concat(course)
-                    : [course],
+                  courses: plan.courses ? [course, ...plan.courses] : [course],
                 }
-              : plan
+              : plan,
           ),
+          openCourseId: course.code,
         });
       },
       selectSection: (course, crn) => {
@@ -160,15 +217,26 @@ export const planStore = create<PlanStoreState>()(
                         sections: c.sections.map((s) =>
                           s.crn === crn
                             ? { ...s, selected: true }
-                            : { ...s, selected: false }
+                            : { ...s, selected: false },
                         ),
                       }
-                    : c
+                    : c,
                 ),
               }
-            : plan
+            : plan,
         );
         set({ plans: newPlans });
+      },
+      findSelectedSections: (plan: Plan) => {
+        if (!plan.courses) return [];
+        return plan.courses.flatMap((course) =>
+          course.sections
+            .filter((section) => section.selected)
+            .map((section) => ({
+              courseCode: course.code,
+              section,
+            }))
+        );
       },
       addEventToPlan: (event) => {
         const { plans, currentSelectedPlan } = get();
@@ -178,7 +246,7 @@ export const planStore = create<PlanStoreState>()(
                 ...plan,
                 events: plan.events ? plan.events.concat(event) : [event],
               }
-            : plan
+            : plan,
         );
         set({ plans: newPlans });
       },
@@ -194,10 +262,10 @@ export const planStore = create<PlanStoreState>()(
                     e.startTime !== event.startTime &&
                     e.endTime !== event.endTime &&
                     e.daysOfWeek !== event.daysOfWeek &&
-                    e.description !== event.description
+                    e.description !== event.description,
                 ),
               }
-            : plan
+            : plan,
         );
         set({ plans: newPlans });
       },
@@ -209,7 +277,7 @@ export const planStore = create<PlanStoreState>()(
                 ...plan,
                 courses: plan.courses?.filter((c) => c.code !== course),
               }
-            : plan
+            : plan,
         );
         set({ plans: newPlans });
       },
@@ -220,84 +288,181 @@ export const planStore = create<PlanStoreState>()(
             ? {
                 ...plan,
                 courses: plan.courses?.map((c) =>
-                  c.code === course.code ? { ...c, color } : c
+                  c.code === course.code ? { ...c, color } : c,
                 ),
               }
-            : plan
+            : plan,
         );
         set({ plans: newPlans });
       },
+      clearPlans: () => {
+        set({
+          plans: [],
+          currentSelectedPlan: null,
+        });
+      },
+      updatePlanSettings: (settings, uuid) => {
+        const { getPlan, updatePlan } = get();
+        const plan = getPlan(uuid);
+        if (!plan) return;
+        const defaultSettings: organizerSettings = plan.organizerSettings ?? {
+          isCommuter: false,
+          commuteTimeHours: 0,
+          daysOnCampus: 0,
+          compactPlan: false,
+          eventPriority: false,
+          courseFilters: [],
+        };
+
+        const updatedSettings: organizerSettings = {
+          isCommuter: settings.isCommuter ?? defaultSettings.isCommuter,
+          commuteTimeHours:
+            (settings as Partial<organizerSettings>).commuteTimeHours ??
+            defaultSettings.commuteTimeHours,
+          daysOnCampus:
+            settings.daysOnCampus ?? defaultSettings.daysOnCampus,
+          compactPlan: settings.compactPlan ?? defaultSettings.compactPlan,
+          eventPriority:
+            settings.eventPriority ?? defaultSettings.eventPriority,
+          courseFilters:
+            settings.courseFilters ?? defaultSettings.courseFilters,
+        };
+
+        updatePlan({ ...plan, organizerSettings: updatedSettings }, uuid);
+      },
+      openCourseId: null,
+      setOpenCourseId: (id) => set({ openCourseId: id }),
     }),
     {
-      name: "plan-store",
-    }
-  )
+      name: 'plan-store',
+    },
+  ),
 );
 
 //run code on plan update
 planStore.subscribe(
   debounce(async () => {
     if (!globalThis.location) return;
-    const user = await fetch("/api/auth/me");
+    const user = await fetch('/auth/profile');
     if (!(user.status === 200)) return;
     const json_user = await user.json();
-    if (json_user?.sub) {
-      uploadPlan();
+    const currentPlanUUID = planStore.getState().currentSelectedPlan;
+    const userId = json_user.sub;
+    if (userId && currentPlanUUID) {
+      const currentPlan = planStore.getState().getPlan(currentPlanUUID);
+      uploadPlan(currentPlanUUID, currentPlan, await getAccessToken());
     } else {
-      console.log("User is not authenticated");
+      console.log('User is not authenticated');
     }
-  }, 2500)
+  }, 2500),
 );
 
-async function uploadPlan() {
-  const currentPlanUUID = planStore.getState().currentSelectedPlan;
-  if (currentPlanUUID) {
-    const currentPlan = planStore.getState().getPlan(currentPlanUUID);
-    if (currentPlan && JSON.stringify(currentPlan) !== "{}") {
-      await fetch("/api/user_plans", {
-        method: "POST",
-        body: JSON.stringify(currentPlan),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-        });
+export async function syncPlans(saveLocal: boolean = true) {
+  const globalState = globalThis as unknown as { setPlans?: boolean };
+  if (globalState.setPlans) return;
+  if (!globalThis.location) return;
+  let localPlans: Plan[] = [];
+  try {
+    const user = await fetch('/auth/profile');
+    if (user.status !== 200) return;
+
+    if (!saveLocal) {
+      planStore.getState().clearPlans();
+    } else {
+      localPlans = [...planStore.getState().plans]; // variable of local plans to be added
+      const localSelected = planStore.getState().currentSelectedPlan; // if a local plan is selected
+      if (localSelected) {
+        localStorage.setItem('lastSelectedPlanUUID', localSelected);
+      }
+
+      for (const plan of localPlans) {
+        await uploadPlan(plan.uuid, plan, await getAccessToken());
+      }
     }
+    const serverPlans = await getPlans(await getAccessToken());
+    if (!serverPlans) return;
+
+    const serverPlanMap = new Map<string, Plan>();
+    for (const { planData } of serverPlans) {
+      if (planData?.uuid) {
+        serverPlanMap.set(planData.uuid, planData);
+      }
+    }
+    planStore.getState().clearPlans();
+    const finalPlans: Plan[] = [];
+    if (saveLocal) {
+      for (const localPlan of localPlans) {
+        const synced = serverPlanMap.get(localPlan.uuid);
+        finalPlans.push(synced ?? localPlan);
+        serverPlanMap.delete(localPlan.uuid);
+      }
+    }
+
+    for (const remaining of serverPlanMap.values()) {
+      finalPlans.push(remaining);
+    }
+    for (const plan of finalPlans) {
+      planStore.getState().addPlan(plan);
+    }
+    const rememberedUUID = localStorage.getItem('lastSelectedPlanUUID');
+    if (rememberedUUID) {
+      planStore.getState().selectPlan(rememberedUUID);
+    }
+  } catch (error) {
+    console.error('Failed to sync plans:', error);
+  } finally {
+    globalState.setPlans = true;
   }
 }
 
-(async function syncPlans() {
-  if (
-    (
-      globalThis as unknown as {
-        setPlans: boolean;
+function equalPlans(a: Plan, b: Plan): boolean {
+  return a.uuid === b.uuid;
+}
+
+export async function checkIfModalNeeded(): Promise<boolean> {
+  const localPlans = planStore.getState().plans;
+
+  if (localPlans.length === 0) return false;
+  try {
+    const user = await fetch('/auth/profile');
+    if (user.status !== 200) return false;
+
+    const serverPlansRaw: { planData: Plan | null }[] = await getPlans(
+      await getAccessToken(),
+    );
+    const serverPlans: Plan[] = serverPlansRaw
+      .map(({ planData }) => planData)
+      .filter((p): p is Plan => !!p);
+
+    const serverMap = new Map(serverPlans.map((p) => [p.uuid, p]));
+
+    for (const localPlan of localPlans) {
+      const matchingServerPlan = serverMap.get(localPlan.uuid);
+      if (!matchingServerPlan || !equalPlans(localPlan, matchingServerPlan)) {
+        return true;
       }
-    ).setPlans
-  )
-    return;
-  if (!globalThis.location) return;
-  const user = await fetch("/api/auth/me");
-  if (!(user.status === 200)) return;
-  const json_user = await user.json();
-  if (json_user?.sub) {
-    //clear the plans
-    planStore.getState().setPlans([]);
-    await fetch("/api/user_plans")
-      .then((res) => res.json())
-      .then((data) => {
-        let i = 0;
-        for (const plan of data) {
-          data.selected = i === 0;
-          planStore.getState().addPlan(plan.plandata);
-          i++;
-        }
-      })
-      .finally(() => {
-        (
-          globalThis as unknown as {
-            setPlans: boolean;
-          }
-        ).setPlans = true;
-      });
+    }
+
+    return false;
+  } catch (err) {
+    console.error('Failed to check sync status:', err);
+    return false;
   }
-})();
+}
+
+export async function loadLocalPlans() {
+  const plans = planStore.getState().plans;
+
+  if (plans.length === 0) {
+    console.log('No local plans found');
+    return;
+  }
+
+  const rememberedUUID = localStorage.getItem('lastSelectedPlanUUID');
+
+  if (rememberedUUID) {
+    planStore.getState().selectPlan(rememberedUUID);
+  } else {
+    planStore.getState().selectPlan(plans[0].uuid);
+  }
+}

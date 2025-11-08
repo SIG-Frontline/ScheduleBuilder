@@ -8,10 +8,10 @@ import {
   Text,
   Textarea,
   TextInput,
-} from "@mantine/core";
-import React, { useState } from "react";
-import { TimeInput } from "@mantine/dates";
-import { planStore } from "@/lib/client/planStore";
+} from '@mantine/core';
+import React, { useState } from 'react';
+import { TimeInput } from '@mantine/dates';
+import { planStore } from '@/lib/client/planStore';
 const Tab_Events = () => {
   /**
    *   title: string;
@@ -23,43 +23,43 @@ const Tab_Events = () => {
    */
   const plan_store = planStore();
   const [event, setEvent] = useState({
-    title: "",
-    description: "",
-    startTime: "",
-    endTime: "",
+    title: '',
+    description: '',
+    startTime: '',
+    endTime: '',
     daysOfWeek: [] as number[],
-    color: "#00aa00", //default color
+    color: '#00aa00', //default color
   });
 
   function addEvent() {
-    if (event.title === "") {
-      alert("Please enter a title");
+    if (event.title === '') {
+      alert('Please enter a title');
       return;
     }
-    if (event.startTime === "") {
-      alert("Please enter a start time");
+    if (event.startTime === '') {
+      alert('Please enter a start time');
       return;
     }
-    if (event.endTime === "") {
-      alert("Please enter an end time");
+    if (event.endTime === '') {
+      alert('Please enter an end time');
       return;
     }
     if (event.daysOfWeek.length === 0) {
-      alert("Please select at least one day of the week");
+      alert('Please select at least one day of the week');
       return;
     }
     if (event.startTime >= event.endTime) {
-      alert("Start time must be before end time");
+      alert('Start time must be before end time');
       return;
     }
-    if (event.color === "") {
-      alert("Please select a color");
+    if (event.color === '') {
+      alert('Please select a color');
       return;
     }
 
     plan_store.addEventToPlan(event);
   }
-  const cur_plan = plan_store.getPlan(plan_store.currentSelectedPlan + "");
+  const cur_plan = plan_store.getPlan(plan_store.currentSelectedPlan + '');
   return (
     <>
       <div className="flex flex-col mx-6 ">
@@ -88,7 +88,10 @@ const Tab_Events = () => {
           description="Event Description"
           placeholder="Event Description"
           onChange={(e) =>
-            setEvent({ ...event, description: e.currentTarget.value })
+            setEvent({
+              ...event,
+              description: e.currentTarget.value,
+            })
           }
         />
         <MultiSelect
@@ -97,42 +100,45 @@ const Tab_Events = () => {
           className="pb-4"
           data={[
             {
-              label: "Sunday",
-              value: "0",
+              label: 'Sunday',
+              value: '0',
             },
             {
-              label: "Monday",
-              value: "1",
+              label: 'Monday',
+              value: '1',
             },
             {
-              label: "Tuesday",
-              value: "2",
+              label: 'Tuesday',
+              value: '2',
             },
             {
-              label: "Wednesday",
-              value: "3",
+              label: 'Wednesday',
+              value: '3',
             },
             {
-              label: "Thursday",
-              value: "4",
+              label: 'Thursday',
+              value: '4',
             },
             {
-              label: "Friday",
-              value: "5",
+              label: 'Friday',
+              value: '5',
             },
             {
-              label: "Saturday",
-              value: "6",
+              label: 'Saturday',
+              value: '6',
             },
           ]}
           onChange={(days) =>
-            setEvent({ ...event, daysOfWeek: days.map((day) => parseInt(day)) })
+            setEvent({
+              ...event,
+              daysOfWeek: days.map((day) => parseInt(day)),
+            })
           }
         />
         <div onClick={(e) => e.stopPropagation()}>
           <Popover width={300} position="bottom" withArrow shadow="md">
             <Popover.Target>
-              <Group my={"sm"}>
+              <Group my={'sm'}>
                 <Text>Color:</Text>
                 {/* <ColorSwatch component="button" color={event.color} /> */}
                 <ColorInput
@@ -141,7 +147,7 @@ const Tab_Events = () => {
                   radius="xl"
                   placeholder="Input placeholder"
                   value={event.color}
-                  format="rgba"
+                  format="hsla"
                   onChange={(val) => {
                     setEvent({ ...event, color: val });
                   }}
@@ -151,7 +157,7 @@ const Tab_Events = () => {
             <Popover.Dropdown>
               <div>
                 <ColorPicker
-                  format="rgba"
+                  format="hsla"
                   onChange={(val) => {
                     setEvent({ ...event, color: val });
                   }}

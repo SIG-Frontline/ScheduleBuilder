@@ -5,13 +5,15 @@
  */
 export default function Icon({
   children,
-  className = "",
+  className = '',
 }: {
   children?: React.ReactNode;
   className?: string;
 }) {
   if (!children) return null;
   return (
-    <span className={`material-symbols-rounded ${className}`}>{children}</span>
+    <span className={`user-select-none material-symbols-rounded ${className}`}>
+      {children}
+    </span>
   );
 }

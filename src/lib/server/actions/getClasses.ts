@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { Filters } from "@/lib/client/filterStore";
+import { Filters } from '@/lib/client/filterStore';
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -11,26 +11,35 @@ import { Filters } from "@/lib/client/filterStore";
 export async function getClasses(
   term: number,
   subject: string,
-  filters: Filters
+  title: string,
+  filters: Filters,
 ) {
-  //assuming that there is a term and subject, if there isn't we should throw an error
-  if (!term || !subject) {
+  //assuming that there is a term and subject or a term and title, if there isn't we should throw an error
+  if (!term || (!subject && !title)) {
     return {
-      error: "term and subject are required",
+      error: 'term and subject are required',
     };
   }
-  const baseURL = `http://0.0.0.0:${process.env.PORT}`;
-  let URL = `${baseURL}/api/course-search?term=${term}&subject=${subject}`;
+  const baseURL = `${process.env.SBCORE_URL}`;
+
+  let URL = `${baseURL}/courseSearch?term=${term}`;
+
+  if (subject) {
+    URL += `&subject=${subject}`;
+  }
+  if (title) {
+    URL += `&title=${title}`;
+  }
 
   //adding url parameters based on the filters
   if (filters.honors) {
-    URL += "&honors=true";
+    URL += '&honors=true';
   }
   if (filters.graduate) {
-    URL += "&level=g";
+    URL += '&level=g';
   }
   if (filters.undergraduate) {
-    URL += "&level=u";
+    URL += '&level=u';
   }
   if (filters.creditRange[0] !== 0 || filters.creditRange[1] !== 6) {
     URL += `&credits=${filters.creditRange[0]}|${filters.creditRange[1]}`;
@@ -41,8 +50,15 @@ export async function getClasses(
     .then((res) => res.json())
     .then((data) => data.courses)
     .then((courses) => {
-      const courseIds = courses.map((course: { _id: string }) => course._id); // this is how we get the course ids from the data
-      return courseIds;
+      const courseData = courses.map(
+        (course: { _id: string; title: string; subject: string }) => ({
+          // retrieves both course id and course title
+          id: course._id,
+          title: course.title,
+          subject: course.subject,
+        }),
+      );
+      return courseData;
     })
     .catch((err) => {
       console.error(err);

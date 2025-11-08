@@ -1,17 +1,47 @@
-import { courseCache, type ReqTree } from "./mongoClient";
+import { courseCache, type ReqTree } from './mongoClient';
+
+export type ClassRecommendation = ClassRec | ClassBranch | ClassWild;
+
+export type ClassRec = {
+  name?: string; // the name of the class
+  type: 'class'; // the type of this recommendation
+  course: string; // the course code (CS 100)
+  legacy?: boolean; // whether this is legacy (no longer available)
+};
+
+export type ClassWild = {
+  name?: string; // the name of the class
+  type: 'wildcard'; // the type of this recommendation
+  course: string; // the course code (CS 100)
+  legacy?: boolean; // whether this is legacy (no longer available)
+  credits: number; // how many credits this wildcard has satisfied (used for parsing)
+  courses: number; // how many courses this wildcard has satisfied (used for parsing)
+};
+
+export type ClassBranch = {
+  name: string; // name of the branch/section/group
+  type: 'branch'; // the type of this recommendation
+  numCredits?: number; // how many credits are required
+  numClasses?: number; // how many classes are required
+  operator: '&' | '|'; // group operator
+  classes: ClassRecommendation[]; // the recommendations that belong to this group
+};
+
+// FIX: EVERYTHING BELOW THIS IS UNUSED (for the most part)
+// Not removing for legacy purposes, once the routes are removed, these can also be removed
 
 export function check_tree(tree: ReqTree, requisites: string[]) {
   if (tree === null || tree === undefined || tree.length <= 0) {
     return true;
   }
 
-  if (typeof tree === "string") return requisites.includes(tree as string);
+  if (typeof tree === 'string') return requisites.includes(tree as string);
 
-  const is_and = tree[0] === "&";
+  const is_and = tree[0] === '&';
 
   for (let i = 1; i < tree.length; i++) {
     let is_condition_valid = undefined;
-    if (typeof tree[i] === "string") {
+    if (typeof tree[i] === 'string') {
       is_condition_valid = requisites.includes(tree[i] as string);
     } else {
       is_condition_valid = check_tree(tree[i] as ReqTree, requisites);
@@ -36,24 +66,24 @@ export function check_tree(tree: ReqTree, requisites: string[]) {
 }
 
 export function convertString(
-  input: string
+  input: string,
 ): number | boolean | null | undefined | string {
   // Check for undefined
-  if (input === "undefined") {
+  if (input === 'undefined') {
     return undefined;
   }
 
   // Check for null
-  if (input === "null") {
+  if (input === 'null') {
     return null;
   }
 
   // Check for boolean true/false
-  if (input.toLowerCase() === "true") {
+  if (input.toLowerCase() === 'true') {
     return true;
   }
 
-  if (input.toLowerCase() === "false") {
+  if (input.toLowerCase() === 'false') {
     return false;
   }
 
@@ -82,7 +112,7 @@ export function addQuery(
   },
   key: string,
   value: string,
-  preserveType?: boolean
+  preserveType?: boolean,
 ) {
   // Queries have a special format to allow for different operations
   // These are split by an '!' character, in the following format: operation!value
@@ -102,40 +132,40 @@ export function addQuery(
   //
   // api?n!CS 450,in!CS 288|CS 280|CS 114
 
-  if (!value.includes("!")) {
+  if (!value.includes('!')) {
     // Equivalent to str!X
     query[key] = { $eq: preserveType ? value : convertString(value) };
     return;
   }
 
-  const split = value.split("!");
+  const split = value.split('!');
   const operation = split[0];
-  const operand = split.slice(1).join("!"); // Reconstruct the operand after splitting
+  const operand = split.slice(1).join('!'); // Reconstruct the operand after splitting
 
   let operands: string[] = [];
-  if (operand.includes("|")) {
-    operands = operand.split("|");
+  if (operand.includes('|')) {
+    operands = operand.split('|');
   } else {
     operands = [operand];
   }
 
   switch (operation) {
-    case "str":
+    case 'str':
       query[key] = { $eq: operand };
       break;
-    case "nstr":
+    case 'nstr':
       query[key] = { $ne: operand };
       break;
-    case "n":
+    case 'n':
       query[key] = { $ne: convertString(operand) };
       break;
-    case "range":
+    case 'range':
       query[key] = {
         $gte: convertString(operands[0]),
         $lte: convertString(operands[1]),
       };
       break;
-    case "nrange":
+    case 'nrange':
       query[key] = {
         $not: {
           $gte: convertString(operands[0]),
@@ -143,28 +173,28 @@ export function addQuery(
         },
       };
       break;
-    case "gte":
+    case 'gte':
       query[key] = { $gte: convertString(operand) };
       break;
-    case "lte":
+    case 'lte':
       query[key] = { $lte: convertString(operand) };
       break;
-    case "in":
+    case 'in':
       query[key] = {
         $in: operands.map((op) => convertString(op)),
       };
       break;
-    case "nin":
+    case 'nin':
       query[key] = {
         $nin: operands.map((op) => convertString(op)),
       };
       break;
-    case "sub":
-      query[key] = { $regex: `.*${operand}.*`, $options: "i" };
+    case 'sub':
+      query[key] = { $regex: `.*${operand}.*`, $options: 'i' };
       break;
-    case "nsub":
+    case 'nsub':
       query[key] = {
-        $not: { $regex: `.*${operand}.*`, $options: "i" },
+        $not: { $regex: `.*${operand}.*`, $options: 'i' },
       };
       break;
     default:
@@ -194,4 +224,19 @@ export async function check_prereq(course: string, requisites: string[]) {
   }
 
   return check_tree(staticData.tree, requisites);
+}
+
+export function escapeRegex(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function addRegexSearch(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  query: Record<string, any>,
+  key: string,
+  value: string,
+) {
+  if (value) {
+    query[key] = { $regex: escapeRegex(value), $options: 'i' };
+  }
 }
