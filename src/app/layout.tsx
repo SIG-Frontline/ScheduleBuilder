@@ -13,6 +13,7 @@ import '@mantine/spotlight/styles.css';
 import '@mantine/nprogress/styles.css';
 import { Notifications } from '@mantine/notifications';
 import { WelcomeAlert } from '@/components/Shell/Shell';
+import { Analytics } from '@vercel/analytics/next';
 
 import {
   ColorSchemeScript,
@@ -54,13 +55,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
+        <Analytics />
         <MantineProvider>
           <Notifications />
           <WelcomeAlert />

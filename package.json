@@ -34,6 +34,7 @@
     "@tiptap/pm": "^2.11.3",
     "@tiptap/react": "^2.11.3",
     "@tiptap/starter-kit": "^2.11.3",
+    "@vercel/analytics": "^1.5.0",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
     "html2canvas": "^1.4.1",
