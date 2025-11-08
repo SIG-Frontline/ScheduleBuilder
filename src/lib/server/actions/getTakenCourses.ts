@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 export async function encryptArr(arr: string[]) {
   return encrypt(JSON.stringify(arr));
@@ -8,7 +8,7 @@ export async function encryptArr(arr: string[]) {
 
 export async function decryptArr(cipherText: string): Promise<string[]> {
   const text = await decrypt(cipherText);
-  if(!text) return [];
+  if (!text) return [];
   return JSON.parse(text) as string[];
 }
 
@@ -17,9 +17,9 @@ export async function encrypt(text: string) {
   try {
     const key = process.env.ENCRYPT_KEY;
     if (!key || key.length != 44) {
-		console.error("Encrypt: Invalid encryption key");
-		return
-	}
+      console.error('Encrypt: Invalid encryption key');
+      return;
+    }
 
     const iv = randomBytes(16);
     const cipher = createCipheriv(
@@ -33,8 +33,8 @@ export async function encrypt(text: string) {
 
     return iv.toString('base64') + '.' + encrypted.toString('base64');
   } catch {
-	console.error('Invalid input');
-	return
+    console.error('Invalid input');
+    return;
   }
 }
 
@@ -48,9 +48,9 @@ export async function decrypt(text: string) {
 
     const key = process.env.ENCRYPT_KEY;
     if (!key || key.length != 44) {
-		console.error("Decrypt: Invalid encryption key");
-		return
-	}
+      console.error('Decrypt: Invalid encryption key');
+      return;
+    }
 
     const decipher = createDecipheriv(
       'aes-256-gcm',
@@ -61,21 +61,21 @@ export async function decrypt(text: string) {
 
     return decrypted.toString();
   } catch {
-	console.error('Invalid input');
-	return
+    console.error('Invalid input');
+    return;
   }
 }
 
 export async function getTakenCourses(token: string) {
   const baseURL = `${process.env.SBCORE_URL}`;
   const takenCourses = await fetch(`${baseURL}/settings/courses/`, {
-    method: "GET",
+    method: 'GET',
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   }).then(async (res) => {
     if (res.status !== 200) {
-      console.log("Get: No settings for that user");
+      console.log('Get: No settings for that user');
       return null;
     }
     return res.text();
@@ -86,12 +86,11 @@ export async function getTakenCourses(token: string) {
 export async function setTakenCourses(token: string, courses: string) {
   const baseURL = `${process.env.SBCORE_URL}`;
   await fetch(`${baseURL}/settings/courses/${encodeURI(courses)}`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   }).then(async (res) => {
-	if (res.status !== 201) console.log("Set: Invalid user/course");
+    if (res.status !== 201) console.log('Set: Invalid user/course');
   });
 }
-

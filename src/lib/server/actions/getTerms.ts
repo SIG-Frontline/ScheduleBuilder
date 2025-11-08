@@ -1,4 +1,4 @@
-"use server";
+'use server';
 /**
  *
  * @returns a list of terms
@@ -8,11 +8,10 @@ export async function getTerms() {
   const URL = `${baseURL}/terms`;
   const data = fetch(URL)
     .then((res) => res.json())
-    .then((data) => data.terms)
-    return data
-    .catch((err) => {
-      console.error(err);
-      return [];
-    });
+    .then((data) => data.terms);
+  return data.catch((err) => {
+    console.error(err);
+    return [];
+  });
   return data;
 }

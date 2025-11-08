@@ -1,5 +1,5 @@
-@import "@mantine/core/styles.css";
-@import "@mantine/notifications/styles.css";
+@import '@mantine/core/styles.css';
+@import '@mantine/notifications/styles.css';
 
 @tailwind base;
 @tailwind components;
@@ -10,13 +10,13 @@
   --fc-page-bg-color: transparent;
 }
 
-:root[data-mantine-color-scheme*="dark"] {
+:root[data-mantine-color-scheme*='dark'] {
   --background: #0a0a0a;
   --foreground: #ededed;
 }
 
 :root:is(
-    [data-mantine-color-scheme*="light"],
+    [data-mantine-color-scheme*='light'],
     :not([data-mantine-color-scheme])
   ) {
   --background: #ffffff;

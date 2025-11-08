@@ -51,7 +51,7 @@ const Tab_Organizer = () => {
   const plan_store = planStore();
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
-    (plan) => plan.uuid === selectedPlanuuid
+    (plan) => plan.uuid === selectedPlanuuid,
   );
   const selectedCourses = selectedPlan
     ? plan_store
@@ -300,6 +300,9 @@ const Tab_Organizer = () => {
       compactPlan: input.compactPlan,
       eventPriority: input.eventPriority,
       courseFilters,
+      // TODO: update to also encompass user data
+      isCommuter: false,
+      commuteTimeHours: 0,
     };
 
     const lastSaved = JSON.stringify(lastSavedSettingsRef.current);

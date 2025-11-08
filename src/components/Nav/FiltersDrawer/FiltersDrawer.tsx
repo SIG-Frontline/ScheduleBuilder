@@ -1,18 +1,18 @@
-import Icon from "@/components/Icon/Icon";
+import Icon from '@/components/Icon/Icon';
 import {
   ActionIcon,
   Drawer,
   RangeSlider,
   SegmentedControl,
-} from "@mantine/core";
-import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { Checkbox, Group, Text } from "@mantine/core";
-import { filterStore } from "@/lib/client/filterStore";
+} from '@mantine/core';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { Checkbox, Group, Text } from '@mantine/core';
+import { filterStore } from '@/lib/client/filterStore';
 function FiltersDrawer() {
   const filter_store = filterStore();
   const [filtersOpened, { open, close }] = useDisclosure(false);
   const matches = useMediaQuery(
-    "only screen and (orientation: landscape) and (min-width: 1201px)" //same as in Shell.tsx
+    'only screen and (orientation: landscape) and (min-width: 1201px)', //same as in Shell.tsx
   );
   return (
     <>
@@ -29,7 +29,7 @@ function FiltersDrawer() {
         opened={filtersOpened}
         onClose={close}
         title="Filters"
-        position={matches ? "right" : "bottom"}
+        position={matches ? 'right' : 'bottom'}
       >
         {/* Drawer content */}
         {/* 
@@ -43,7 +43,7 @@ function FiltersDrawer() {
           day of the week
         */}
         <Checkbox.Card
-          p={"sm"}
+          p={'sm'}
           radius="md"
           checked={filter_store.filters.honors}
           onChange={(checked) =>
@@ -66,35 +66,35 @@ function FiltersDrawer() {
         <SegmentedControl
           data={[
             {
-              label: "All Options",
-              value: "all",
+              label: 'All Options',
+              value: 'all',
             },
             {
-              label: "Graduate Only",
-              value: "graduate",
+              label: 'Graduate Only',
+              value: 'graduate',
             },
             {
-              label: "Undergraduate Only",
-              value: "undergraduate",
+              label: 'Undergraduate Only',
+              value: 'undergraduate',
             },
           ]}
           value={(() => {
             if (filter_store.filters.graduate) {
-              return "graduate";
+              return 'graduate';
             } else if (filter_store.filters.undergraduate) {
-              return "undergraduate";
+              return 'undergraduate';
             } else {
-              return "all";
+              return 'all';
             }
           })()}
           onChange={(value) => {
-            if (value === "graduate") {
+            if (value === 'graduate') {
               filter_store.setFilters({
                 ...filter_store.filters,
                 graduate: true,
                 undergraduate: false,
               });
-            } else if (value === "undergraduate") {
+            } else if (value === 'undergraduate') {
               filter_store.setFilters({
                 ...filter_store.filters,
                 graduate: false,
@@ -109,7 +109,7 @@ function FiltersDrawer() {
             }
           }}
         ></SegmentedControl>
-        <Text size="sm" c={"dimmed"}>
+        <Text size="sm" c={'dimmed'}>
           * Architecture 500 courses may be grouped with graduate courses -
           please confirm with your advisor that the course is appropriate for
           your program.
@@ -133,12 +133,12 @@ function FiltersDrawer() {
           }}
           defaultValue={[1, 6]}
           marks={[
-            { value: 1, label: "1cr/less" },
-            { value: 2, label: "2cr" },
-            { value: 3, label: "3cr" },
-            { value: 4, label: "4cr" },
-            { value: 5, label: "5cr" },
-            { value: 6, label: "6cr/more" },
+            { value: 1, label: '1cr/less' },
+            { value: 2, label: '2cr' },
+            { value: 3, label: '3cr' },
+            { value: 4, label: '4cr' },
+            { value: 5, label: '5cr' },
+            { value: 6, label: '6cr/more' },
           ]}
         />
       </Drawer>

@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { Plan } from "@/lib/client/planStore";
+import { Plan } from '@/lib/client/planStore';
 
 /**
  * Accepts a plan to organize. It will then return a plan which is scored to be the "most optimal"

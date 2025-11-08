@@ -1,8 +1,8 @@
-import Icon from "@/components/Icon/Icon";
-import { planStore } from "@/lib/client/planStore";
-import { Button, Menu, Popover, Textarea, TextInput } from "@mantine/core";
-import html2canvas from "html2canvas";
-import React from "react";
+import Icon from '@/components/Icon/Icon';
+import { planStore } from '@/lib/client/planStore';
+import { Button, Menu, Popover, Textarea, TextInput } from '@mantine/core';
+import html2canvas from 'html2canvas';
+import React from 'react';
 
 const PlanMenu = ({
   children,
@@ -16,26 +16,26 @@ const PlanMenu = ({
   function jsonSave() {
     const json = JSON.stringify(plan_store.getPlan(uuid));
     //make it a downloadable file
-    const blob = new Blob([json], { type: "application/json" });
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = "plan.json";
+    a.download = 'plan.json';
     a.click();
     URL.revokeObjectURL(url);
   }
   function imageSave() {
     const elm: HTMLDivElement = document.querySelector(
-      ".fc-timeGridWeek-view.fc-view.fc-timegrid"
+      '.fc-timeGridWeek-view.fc-view.fc-timegrid',
     ) as HTMLDivElement;
     html2canvas(elm).then((canvas) => {
       // Get the data URL for the image
-      const dataURL = canvas.toDataURL("image/png");
+      const dataURL = canvas.toDataURL('image/png');
 
       // Create a temporary download link
-      const downloadLink = document.createElement("a");
+      const downloadLink = document.createElement('a');
       downloadLink.href = dataURL;
-      downloadLink.download = "capture.png";
+      downloadLink.download = 'capture.png';
       downloadLink.click();
     });
   }
@@ -71,7 +71,7 @@ const PlanMenu = ({
               <TextInput
                 placeholder="Plan Name"
                 label="Plan Name"
-                value={plan_store?.getPlan(uuid)?.name ?? ""}
+                value={plan_store?.getPlan(uuid)?.name ?? ''}
                 onChange={(e) => {
                   const plan = plan_store.getPlan(uuid);
                   if (plan) {
@@ -83,7 +83,7 @@ const PlanMenu = ({
               <Textarea
                 placeholder="Plan Description"
                 label="Plan Description"
-                value={plan_store?.getPlan(uuid)?.description ?? ""}
+                value={plan_store?.getPlan(uuid)?.description ?? ''}
                 onChange={(e) => {
                   const plan = plan_store.getPlan(uuid);
                   if (plan) {

@@ -1,6 +1,6 @@
-"use server";
+'use server';
 
-import { Filters } from "@/lib/client/filterStore";
+import { Filters } from '@/lib/client/filterStore';
 /**
  *
  * @param term the term the limit the search to - in the form of a number like 202210
@@ -12,12 +12,12 @@ export async function getClasses(
   term: number,
   subject: string,
   title: string,
-  filters: Filters
+  filters: Filters,
 ) {
   //assuming that there is a term and subject or a term and title, if there isn't we should throw an error
   if (!term || (!subject && !title)) {
     return {
-      error: "term and subject are required",
+      error: 'term and subject are required',
     };
   }
   const baseURL = `${process.env.SBCORE_URL}`;
@@ -33,13 +33,13 @@ export async function getClasses(
 
   //adding url parameters based on the filters
   if (filters.honors) {
-    URL += "&honors=true";
+    URL += '&honors=true';
   }
   if (filters.graduate) {
-    URL += "&level=g";
+    URL += '&level=g';
   }
   if (filters.undergraduate) {
-    URL += "&level=u";
+    URL += '&level=u';
   }
   if (filters.creditRange[0] !== 0 || filters.creditRange[1] !== 6) {
     URL += `&credits=${filters.creditRange[0]}|${filters.creditRange[1]}`;
@@ -51,12 +51,12 @@ export async function getClasses(
     .then((data) => data.courses)
     .then((courses) => {
       const courseData = courses.map(
-        (course: { _id: string; title: string, subject: string, }) => ({
+        (course: { _id: string; title: string; subject: string }) => ({
           // retrieves both course id and course title
           id: course._id,
           title: course.title,
           subject: course.subject,
-        })
+        }),
       );
       return courseData;
     })

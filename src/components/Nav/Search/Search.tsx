@@ -1,39 +1,39 @@
-import { createRef, useEffect, useMemo, useRef, useState } from "react";
+import { createRef, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollArea,
   TextInput,
   UnstyledButton,
   Highlight,
-} from "@mantine/core";
-import { getSubjects } from "@/lib/server/actions/getSubjects";
-import { getClasses } from "@/lib/server/actions/getClasses";
-import { getSectionData } from "@/lib/server/actions/getSectionData";
-import { planStore } from "@/lib/client/planStore";
+} from '@mantine/core';
+import { getSubjects } from '@/lib/server/actions/getSubjects';
+import { getClasses } from '@/lib/server/actions/getClasses';
+import { getSectionData } from '@/lib/server/actions/getSectionData';
+import { planStore } from '@/lib/client/planStore';
 import {
   useClickOutside,
   useThrottledValue,
   useDebouncedValue,
-} from "@mantine/hooks";
-import { subjectStore } from "@/lib/client/subjectStore";
-import { filterStore } from "@/lib/client/filterStore";
+} from '@mantine/hooks';
+import { subjectStore } from '@/lib/client/subjectStore';
+import { filterStore } from '@/lib/client/filterStore';
 // the below subjects are stored in the database as just one subject and no code - so when the subject is selected, just add the course to the plan
 const specialSubjects = [
-  "FYSSEM",
-  "CENEXT",
-  "FRSHSEM",
-  "HUMELEC",
-  "MRBMED",
-  "MREXCH",
-  "MRFRSH",
-  "MRFTF",
-  "MRGLBL",
-  "MRGRAD",
-  "MRINTL",
-  "MRMIL",
-  "MRRBHS",
-  "MRREG",
-  "MRRUTG",
-  "MRUMD",
+  'FYSSEM',
+  'CENEXT',
+  'FRSHSEM',
+  'HUMELEC',
+  'MRBMED',
+  'MREXCH',
+  'MRFRSH',
+  'MRFTF',
+  'MRGLBL',
+  'MRGRAD',
+  'MRINTL',
+  'MRMIL',
+  'MRRBHS',
+  'MRREG',
+  'MRRUTG',
+  'MRUMD',
 ];
 
 export default function Search({
@@ -47,7 +47,7 @@ export default function Search({
     onBlurred();
   });
   const subject_store = subjectStore();
-  const [textBoxValue, setTextBoxValue] = useState<string>("");
+  const [textBoxValue, setTextBoxValue] = useState<string>('');
   // this debounced text box is used to add a delay to API calls
   // if a user is typing it will prevent API calls until 500ms after the value is set
   const [debouncedTextBoxValue] = useDebouncedValue(textBoxValue, 500);
@@ -57,24 +57,26 @@ export default function Search({
   >([]);
   const [searchByTitle, setSearchByTitle] = useState(false);
   const subjectOptions = subject_store.subjects;
-  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [searchBarDisabled, setSearchBarDisabled] = useState(false);
   const searchWithoutSubject = useMemo(() => {
     if (specialSubjects.includes(selectedSubject)) {
       return textBoxValue.trim();
     } else {
-      return textBoxValue.replace(selectedSubject, "").trim();
+      return textBoxValue.replace(selectedSubject, '').trim();
     }
   }, [textBoxValue, selectedSubject]);
   const plan_store = planStore();
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
-    (plan) => plan.uuid === selectedPlanuuid
+    (plan) => plan.uuid === selectedPlanuuid,
   );
   // state to track if enter has been pressed once, resulting in auto completed class title
   const [autoCompletedText, setAutoCompletedText] = useState(false);
   const [textHovered, setTextHovered] = useState(-1);
-  const [searchInputPlaceholder, setSearchInputPlaceholder] = useState<string>("Search for a course");
+  const [searchInputPlaceholder, setSearchInputPlaceholder] = useState<string>(
+    'Search for a course',
+  );
   const scrollAreaRef = createRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -92,18 +94,17 @@ export default function Search({
   useEffect(() => {
     if (selectedPlanuuid) {
       setSearchBarDisabled(false);
-      setSearchInputPlaceholder("Search for a course");
+      setSearchInputPlaceholder('Search for a course');
     } else {
       setSearchBarDisabled(true);
-      setSearchInputPlaceholder("Create or select a plan to start searching");
+      setSearchInputPlaceholder('Create or select a plan to start searching');
     }
-  }, [selectedPlanuuid])
-
+  }, [selectedPlanuuid]);
 
   //filter the class options based on the search value without the subject
   const filteredClassOptions = classOptions.filter((option) => {
-    if (typeof option === "object") {
-      const idTitle = option.id + " " + option.title;
+    if (typeof option === 'object') {
+      const idTitle = option.id + ' ' + option.title;
       if (option.id && option.title) {
         return (
           option.id.includes(searchWithoutSubject) ||
@@ -125,52 +126,52 @@ export default function Search({
   const filter_store = filterStore();
   const throttledfilter_storeValue = useThrottledValue(
     filter_store.filters,
-    1000
+    1000,
   );
   useEffect(() => {
     // when the textbox value is empty reset the selected subject and class options
     if (!debouncedTextBoxValue.trim()) {
-      setSelectedSubject("");
+      setSelectedSubject('');
       setClassOptions([]);
       setSearchByTitle(false);
       return;
     }
 
-    const words = debouncedTextBoxValue.split(" ");
+    const words = debouncedTextBoxValue.split(' ');
     const firstWord = words[0];
     const isSubject =
       subjectOptions.includes(firstWord) ||
       specialSubjects.some((opt) => opt.includes(firstWord));
 
     if (isSubject) {
-      console.log("isSubject");
+      console.log('isSubject');
       setSearchByTitle(false);
       setSelectedSubject(firstWord);
       getClasses(
         selectedPlan?.term ?? 202490,
         firstWord,
-        "",
-        throttledfilter_storeValue
+        '',
+        throttledfilter_storeValue,
       ).then((classes) => {
         //server side fn to get classes for the subject - only called when a subject is selected
         setClassOptions(classes);
-        console.log("classes", classes);
+        console.log('classes', classes);
       });
       //make it so that the selected subject is not reset if the textbox value includes the selected subject and the user is typing
     } else if (isSubject && selectedSubject) {
       setSearchByTitle(false);
       //if the selected subject is not in the textbox
-    } else if (!isSubject && debouncedTextBoxValue.trim() !== "") {
-      console.log("search by title");
+    } else if (!isSubject && debouncedTextBoxValue.trim() !== '') {
+      console.log('search by title');
       getClasses(
         selectedPlan?.term ?? 202490,
-        "",
+        '',
         debouncedTextBoxValue,
-        throttledfilter_storeValue
+        throttledfilter_storeValue,
       ).then((classes) => {
         setClassOptions(classes);
         setSearchByTitle(true);
-        console.log("classes", classes);
+        console.log('classes', classes);
       });
     }
     // I disabled eslint because I need to use subject options in the hook,
@@ -189,30 +190,30 @@ export default function Search({
     getSectionData(
       selectedPlan?.term ?? 202490,
       searchResult.subject,
-      searchResult.id
+      searchResult.id,
     )
       .then((data) => {
         const colorArr = [
-          "#2e2e2e",
-          "#868e96",
-          "#fa5252",
-          "#e64980",
-          "#be4bdb",
-          "#7950f2",
-          "#4c6ef5",
-          "#228be6",
-          "#15aabf",
-          "#12b886",
-          "#40c057",
-          "#82c91e",
-          "#fab005",
-          "#fd7e14",
+          '#2e2e2e',
+          '#868e96',
+          '#fa5252',
+          '#e64980',
+          '#be4bdb',
+          '#7950f2',
+          '#4c6ef5',
+          '#228be6',
+          '#15aabf',
+          '#12b886',
+          '#40c057',
+          '#82c91e',
+          '#fab005',
+          '#fd7e14',
         ];
         data.color = colorArr[Math.floor(Math.random() * colorArr.length)]; //random color for the course
         addCourseToPlan(data);
       })
       .then(() => {
-        setTextBoxValue("");
+        setTextBoxValue('');
 
         // Simulate a click on the navbar element that opens the sections tab
         // This will likely need to be switched when the navbar is changed
@@ -220,7 +221,7 @@ export default function Search({
           const sectionsTab = document.querySelector('button[id*="tab-plans"]');
           if (
             sectionsTab instanceof HTMLElement &&
-            sectionsTab.getAttribute("aria-selected") !== "true" //ensures that the sections tab is only clicked if it is not already selected
+            sectionsTab.getAttribute('aria-selected') !== 'true' //ensures that the sections tab is only clicked if it is not already selected
           ) {
             sectionsTab.click();
           }
@@ -235,7 +236,7 @@ export default function Search({
   // this function will highlight the search result characters that match the users query
   const extractMatchingText = (
     searchResultText: string,
-    searchInput: string
+    searchInput: string,
   ) => {
     if (!searchInput.trim()) return [];
 
@@ -257,7 +258,7 @@ export default function Search({
         if (matchIndex === -1) break;
 
         matchedWords.push(
-          searchResultText.substring(matchIndex, matchIndex + word.length)
+          searchResultText.substring(matchIndex, matchIndex + word.length),
         );
 
         startIndex = matchIndex + word.length;
@@ -274,7 +275,7 @@ export default function Search({
         onFocus={(e) => {
           onFocused();
           //scroll to the elm immediately on focus
-          e.currentTarget.scrollIntoView({ behavior: "smooth" });
+          e.currentTarget.scrollIntoView({ behavior: 'smooth' });
         }}
         onBlur={() => {
           if (textBoxValue.length === 0) {
@@ -291,16 +292,16 @@ export default function Search({
           // Extract subject prefix and number part
           const match = newValue.match(/^([A-Za-z]+)(\d.*)?$/);
           if (match && subjectOptions.includes(match[1])) {
-            newValue = match[1] + (match[2] ? ` ${match[2]}` : ""); // Insert space if subject is valid
+            newValue = match[1] + (match[2] ? ` ${match[2]}` : ''); // Insert space if subject is valid
           }
           if (newValue !== textBoxValue) {
             setTextBoxValue(newValue);
             setTextHovered(-1);
           }
         }}
-        radius={"0"}
+        radius={'0'}
         onKeyDown={(event) => {
-          if (event.key === "Enter") {
+          if (event.key === 'Enter') {
             const firstOption = searchOptions[0];
             const hoveredOption = searchOptions[textHovered] ?? firstOption;
             // Pressing Enter once will autocomplete to the hovered option in search results
@@ -309,19 +310,19 @@ export default function Search({
               setTextHovered(-1);
               if (hoveredOption && textBoxValue.length > 0) {
                 // if a course has subject, id, and title
-                if (typeof hoveredOption === "object") {
+                if (typeof hoveredOption === 'object') {
                   if (hoveredOption.id) {
                     setTextBoxValue(
                       hoveredOption.subject +
-                        " " +
+                        ' ' +
                         hoveredOption.id +
-                        " " +
-                        hoveredOption.title
+                        ' ' +
+                        hoveredOption.title,
                     );
                   } else {
                     // if a course doesn't have an id, mostly special subject courses
                     setTextBoxValue(
-                      hoveredOption.subject + " " + hoveredOption.title
+                      hoveredOption.subject + ' ' + hoveredOption.title,
                     );
                   }
                 }
@@ -330,29 +331,29 @@ export default function Search({
               // Pressing Enter a second time will add the first option in search results to your plan
               setAutoCompletedText(false);
               const hoveredOption = searchOptions[textHovered] ?? firstOption;
-              if (typeof hoveredOption === "object") {
+              if (typeof hoveredOption === 'object') {
                 handleClassSelection(hoveredOption);
               }
             }
           }
-          if (event.key === "ArrowDown") {
+          if (event.key === 'ArrowDown') {
             event.preventDefault();
             setTextHovered((current) => {
               const nextIndex =
                 current + 1 >= searchOptions.length ? current : current + 1;
               scrollAreaRef.current
-                ?.querySelectorAll("[data-list-item")
-                ?.[nextIndex]?.scrollIntoView({ block: "nearest" });
+                ?.querySelectorAll('[data-list-item')
+                ?.[nextIndex]?.scrollIntoView({ block: 'nearest' });
               return nextIndex;
             });
           }
-          if (event.key === "ArrowUp") {
+          if (event.key === 'ArrowUp') {
             event.preventDefault();
             setTextHovered((current) => {
               const nextIndex = current - 1 < 0 ? current : current - 1;
               scrollAreaRef.current
-                ?.querySelectorAll("[data-list-item")
-                ?.[nextIndex]?.scrollIntoView({ block: "nearest" });
+                ?.querySelectorAll('[data-list-item')
+                ?.[nextIndex]?.scrollIntoView({ block: 'nearest' });
               return nextIndex;
             });
           }
@@ -369,7 +370,7 @@ export default function Search({
           data-testid="search-results"
         >
           {searchOptions.map((option, index) => {
-            if (typeof option === "object") {
+            if (typeof option === 'object') {
               return (
                 <UnstyledButton
                   data-list-item
@@ -381,25 +382,25 @@ export default function Search({
                   }}
                   onMouseEnter={() => setTextHovered(index)}
                   onMouseLeave={() => setTextHovered(-1)}
-                  w={"100%"}
+                  w={'100%'}
                   px={12}
                   py={6}
                   bg={
                     index === textHovered
-                      ? "var(--mantine-color-blue-light)"
+                      ? 'var(--mantine-color-blue-light)'
                       : undefined
                   }
                 >
                   <Highlight
                     highlight={extractMatchingText(
-                      `${option.subject} ${option.id ? option.id + " " : ""}${
+                      `${option.subject} ${option.id ? option.id + ' ' : ''}${
                         option.title
                       }`,
-                      textBoxValue
+                      textBoxValue,
                     )}
                     highlightStyles={{
                       fontWeight: 700,
-                      backgroundColor: "rgba(255, 255, 255, 0)", // need to set a bg color but opacity 0 removes the bg
+                      backgroundColor: 'rgba(255, 255, 255, 0)', // need to set a bg color but opacity 0 removes the bg
                     }}
                   >
                     {option.id
@@ -419,12 +420,12 @@ export default function Search({
                   }}
                   onMouseEnter={() => setTextHovered(index)}
                   onMouseLeave={() => setTextHovered(-1)}
-                  w={"100%"}
+                  w={'100%'}
                   px={12}
                   py={6}
                   bg={
                     index === textHovered
-                      ? "var(--mantine-color-blue-light)"
+                      ? 'var(--mantine-color-blue-light)'
                       : undefined
                   }
                 >
@@ -432,7 +433,7 @@ export default function Search({
                     highlight={extractMatchingText(option, textBoxValue)}
                     highlightStyles={{
                       fontWeight: 700,
-                      backgroundColor: "rgba(255, 255, 255, 0)", // need to set a bg color but opacity 0 removes the bg
+                      backgroundColor: 'rgba(255, 255, 255, 0)', // need to set a bg color but opacity 0 removes the bg
                     }}
                   >
                     {option}
