@@ -5,9 +5,8 @@ import { Plan, planStore } from '@/lib/client/planStore';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'; // for selectable
-import { Group, HoverCard, Stack, Text, Tooltip } from '@mantine/core';
+import { Group, HoverCard, Stack, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
-import { text } from 'stream/consumers';
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
  *  See the fullcalendar documentation for more information on how to use the fullcalendar library.
