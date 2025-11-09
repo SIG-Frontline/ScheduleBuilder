@@ -157,7 +157,7 @@ const Cal_Grid = () => {
                 <HoverCard.Target>
                   <div className="w-full h-full relative">
                     <Stack
-                      gap={"1px"}
+                      gap={'1px'}
                       className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden display-block "
                     >
                       {durationInMinutes < 70 ? (

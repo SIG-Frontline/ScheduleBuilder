@@ -100,39 +100,39 @@ export default function Shell({ children, backendStatus }: ShellProps) {
   );
   return (
     <>
-    {backendStatus?(
-      <AppShell
-        aside={{ width: 350, breakpoint: 'lg' }}
-        header={{ height: 60 }}
-      >
-        <AppShell.Header>
-          <Header />
-        </AppShell.Header>
-        {matches === true ? (
-          <AppShell.Aside>
-            <Nav />
-          </AppShell.Aside>
-        ) : null}
-
-        <AppShell.Main
-          style={{
-            maxHeight: '100dvh', // using dvh unit above to factor in the mobile browser address bar
-            minWidth: '50em',
-          }}
+      {backendStatus ? (
+        <AppShell
+          aside={{ width: 350, breakpoint: 'lg' }}
+          header={{ height: 60 }}
         >
-          <div className="flex flex-col h-[calc(100dvh_-_60px)]">
-            {/* using dvh unit above to factor in the mobile browser address bar*/}
-            <div className="flex-grow">{children} </div>
-            <div className="h-max w-screen sticky left-0">
-              {matches === false && <Nav />}{' '}
-              {/* matches === false is intentional, !matches would be true if matches is undefined */}
+          <AppShell.Header>
+            <Header />
+          </AppShell.Header>
+          {matches === true ? (
+            <AppShell.Aside>
+              <Nav />
+            </AppShell.Aside>
+          ) : null}
+
+          <AppShell.Main
+            style={{
+              maxHeight: '100dvh', // using dvh unit above to factor in the mobile browser address bar
+              minWidth: '50em',
+            }}
+          >
+            <div className="flex flex-col h-[calc(100dvh_-_60px)]">
+              {/* using dvh unit above to factor in the mobile browser address bar*/}
+              <div className="flex-grow">{children} </div>
+              <div className="h-max w-screen sticky left-0">
+                {matches === false && <Nav />}{' '}
+                {/* matches === false is intentional, !matches would be true if matches is undefined */}
+              </div>
             </div>
-          </div>
-        </AppShell.Main>
-      </AppShell>
-    ) : (
-      <BackendOfflineMessage />
-    )}
+          </AppShell.Main>
+        </AppShell>
+      ) : (
+        <BackendOfflineMessage />
+      )}
     </>
   );
 }
