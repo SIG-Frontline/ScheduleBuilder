@@ -43,6 +43,7 @@ export async function getSectionData(
 
     // Format sections
     course.sections = course.sections.map((section: SectionDocument) => ({
+      title: section.TITLE ?? '',
       instructor: section.INSTRUCTOR ?? '',
       sectionNumber: section.SECTION ?? '',
       status: section.STATUS ?? 'Unknown',
