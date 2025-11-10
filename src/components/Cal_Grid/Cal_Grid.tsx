@@ -5,7 +5,7 @@ import { Plan, planStore } from '@/lib/client/planStore';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'; // for selectable
-import { Group, Stack, Text } from '@mantine/core';
+import { Group, HoverCard, Stack, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
 /**
  *  Cal_Grid component is mainly responsible for rendering the timegrid view from fullcalendar.
@@ -130,30 +130,74 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => {
+            const durationInMinutes: number =
+              (eventContent.event._def.recurringDef?.duration?.milliseconds ??
+                0) / 60000;
             const textColor = calcBgColor(eventContent.backgroundColor);
-            return (
-              // eventContent.backgroundColor
-              <Group
-                gap={'1px'}
-                className="p-1 leading-tight w-full whitespace-nowrap overflow-ellipsis overflow-x-hidden"
-              >
-                <Text fw={600} size="sm" c={textColor}>
-                  {eventContent.event.title}
-                </Text>
-                <Text size="xs" c={textColor}>
-                  {eventContent.event.extendedProps.title}
-                </Text>
-                <Text size="xs" c={textColor}>
-                  {eventContent.timeText} @
-                </Text>
-                <Text size="xs" c={textColor}>
-                  {eventContent.event.extendedProps.location}
-                </Text>
-                <Text size="xs" c={textColor}>
-                  {eventContent.event.extendedProps.instructor}
-                </Text>
+            const tooltipContent = (
+              <>
+                Title: {eventContent.event.title} <br />
+                {eventContent.event.extendedProps.title}
                 <br />
-              </Group>
+                Location: {eventContent.event.extendedProps.location}
+                <br />
+                Time: {eventContent.timeText} <br />
+                Instructor: {eventContent.event.extendedProps.instructor}
+                <br />
+              </>
+            );
+            return (
+              <HoverCard position="bottom">
+                <HoverCard.Target>
+                  <div className="w-full h-full relative">
+                    <Stack
+                      gap={'1px'}
+                      className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden display-block "
+                    >
+                      {durationInMinutes < 70 ? (
+                        // Show only the title if duration is less than 70 minutes
+                        <Text fw={600} size="sm" c={textColor}>
+                          {eventContent.event.title}
+                        </Text>
+                      ) : durationInMinutes < 120 ? (
+                        // Show title and subtitle if duration is less than 120 minutes
+                        <>
+                          <Text fw={600} size="sm" c={textColor}>
+                            {eventContent.event.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.title}
+                          </Text>
+                        </>
+                      ) : (
+                        // Show full details for durations 120 minutes or more
+                        <>
+                          <Text fw={600} size="sm" c={textColor}>
+                            {eventContent.event.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.timeText}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.location}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.event.extendedProps.instructor}
+                          </Text>
+                        </>
+                      )}
+                    </Stack>
+                  </div>
+                </HoverCard.Target>
+                <HoverCard.Dropdown>
+                  <Stack color={eventContent.backgroundColor}>
+                    <Text>{tooltipContent}</Text>
+                  </Stack>
+                </HoverCard.Dropdown>
+              </HoverCard>
             );
           }}
           eventClick={(info) => {
