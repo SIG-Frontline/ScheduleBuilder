@@ -24,6 +24,12 @@ const CourseAccordion = ({ course }: { course: Course }) => {
   const setOpenCourseId = plan_store.setOpenCourseId;
   const courseCode = course.code;
   const isOpen = openCourseId === course.code;
+  let hasUniqueTitle = false;
+  course.sections.map((section) => {
+    if (section.title !== course.title && section.title !== undefined) {
+      hasUniqueTitle = true;
+    }
+  });
   return (
     <>
       <Accordion
@@ -131,6 +137,7 @@ const CourseAccordion = ({ course }: { course: Course }) => {
               courseCode={courseCode}
               sections={course.sections}
               courseTitle={course.title}
+              hasUniqueTitle={hasUniqueTitle}
             />
           </Accordion.Panel>
         </Accordion.Item>
