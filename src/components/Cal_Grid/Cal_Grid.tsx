@@ -134,7 +134,7 @@ const Cal_Grid = () => {
               (eventContent.event._def.recurringDef?.duration?.milliseconds ??
                 0) / 60000;
             const textColor = calcBgColor(eventContent.backgroundColor);
-            const tooltipContent = (
+            const eventHoverContent = (
               <>
                 Title: {eventContent.event.title} <br />
                 {eventContent.event.extendedProps.title}
@@ -194,7 +194,7 @@ const Cal_Grid = () => {
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
                   <Stack color={eventContent.backgroundColor}>
-                    <Text>{tooltipContent}</Text>
+                    <Text>{eventHoverContent}</Text>
                   </Stack>
                 </HoverCard.Dropdown>
               </HoverCard>
