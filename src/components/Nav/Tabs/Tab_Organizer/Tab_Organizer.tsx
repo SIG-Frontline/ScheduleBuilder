@@ -17,9 +17,12 @@ import {
   planStore,
   organizerSettings,
   instructionType,
+  Plan,
 } from "@/lib/client/planStore";
 import { organizePlan } from "@/lib/server/actions/getOrganizedPlan";
 import { notifications } from "@mantine/notifications";
+import { createHash } from 'crypto';
+import { bestPlansStore } from '@/lib/client/bestPlansStore';
 
 type organizerCourseSettings = {
   lockedCourses: string[];
@@ -48,7 +51,9 @@ const Tab_Organizer = () => {
   const lastSavedSettingsRef = useRef<organizerSettings | null>(null);
   const hasShownNotification = useRef(false);
   const lastInvalidInputTimeRef = useRef<number | null>(null);
+  const planAndSettingsHash = useRef<string>(null);
   const plan_store = planStore();
+  const best_plan_store = bestPlansStore();
   const selectedPlanuuid = plan_store.currentSelectedPlan;
   const selectedPlan = plan_store.plans.find(
     (plan) => plan.uuid === selectedPlanuuid,
@@ -160,6 +165,24 @@ const Tab_Organizer = () => {
     online: instructionType.ONLINE,
     "in person": instructionType.INPERSON,
     hybrid: instructionType.HYBRID,
+  };
+
+  // Function to hash the user's plan to make sure nothing has changed
+  const hashUserPlan = (plan: Plan) => {
+    // Remove the 'selected' value from 'Section', because if we cycle it will change only these values and perform a useless optimization
+
+    const sanitizedPlan = {
+      ...plan,
+      courses: plan.courses?.map((course) => ({
+        ...course,
+        // 'selected' is the removed field, so we won't be using it
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        sections: course.sections.map(({ selected, ...rest }) => rest),
+      })),
+    };
+
+    const stringPlan = JSON.stringify(sanitizedPlan);
+    return createHash('sha256').update(stringPlan).digest('hex');
   };
 
   // useEffect hook to pull any saved organizer settings from a plan
@@ -629,14 +652,30 @@ const Tab_Organizer = () => {
           variant="filled"
           disabled={disableSubmitButton}
           onClick={async () => {
-            const bestPlan = await organizeClasses();
-            if (!bestPlan) {
-              return;
+            // Generates a hash of the user's plan to make sure nothing has changed
+            if (!selectedPlan) return;
+            const hash = hashUserPlan(selectedPlan);
+
+            if (hash == planAndSettingsHash.current) {
+              // Nothing has changed, cycle through the options
+              const newPlan = best_plan_store.getNext();
+              plan_store.updatePlan(newPlan, newPlan.uuid);
+            } else {
+              // Something has changed, recompute the best plan and save them to cycle through later
+              planAndSettingsHash.current = hash;
+
+              const computedPlans = await organizeClasses();
+              if (!computedPlans) return;
+
+              // Save all plans and show the first one
+              best_plan_store.setPlans(computedPlans);
+              plan_store.updatePlan(computedPlans[0], computedPlans[0].uuid);
             }
-            plan_store.updatePlan(bestPlan, bestPlan.uuid);
           }}
         >
           Find Best Schedule
+          {best_plan_store.getSize() != 0 &&
+            ` (${best_plan_store.getIndex() + 1} / ${best_plan_store.getSize()})`}
         </Button>
       </div>
     </ScrollAreaAutosize>
