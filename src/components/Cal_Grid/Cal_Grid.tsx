@@ -60,7 +60,7 @@ const Cal_Grid = () => {
         return {
           title: `${courseCode} - ${section.sectionNumber}`,
           extendedProps: {
-            title: courseTitle,
+            title: section.title !== undefined ? section.title : courseTitle,
             crn: section.crn,
             instructor: section.instructor,
             location: meetingTime.building + ' ' + meetingTime.room,

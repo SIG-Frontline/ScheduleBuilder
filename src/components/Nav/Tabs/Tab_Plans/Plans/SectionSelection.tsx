@@ -16,10 +16,12 @@ const SectionSelection = ({
   courseCode,
   sections,
   courseTitle,
+  hasUniqueTitle,
 }: {
   courseCode: string;
   sections: Section[];
   courseTitle: string;
+  hasUniqueTitle: boolean;
 }) => {
   // const matches = useMediaQuery(
   //   "only screen and (orientation: landscape) and (min-width: 1201px)"
@@ -40,18 +42,11 @@ const SectionSelection = ({
       <Group gap="sm" align="start">
         <Radio.Indicator className="hover:cursor-pointer" />
         <Group gap={2} align="start" ms={'auto'}>
-          {item.meetingTimes.map((time) => (
-            <Badge variant="light" key={time.day + time.startTime}>
-              {time.day}
-            </Badge>
-          ))}
-        </Group>
-      </Group>
-      <Stack gap={0} align="flex-start">
-        <Group align="start" w={'100%'} mt={3}>
-          <Text size="md" fw={600}>
-            {courseCode}-{item.sectionNumber}
-          </Text>
+          <Badge variant='light'>
+            {item.meetingTimes.map((time) => (
+                <>{time.day} </>
+            ))}
+          </Badge>
           {item.meetingTimes.length > 0 && (
             <Badge variant="light" ms={'auto'}>
               <Text size="xs" c="blue">
@@ -60,6 +55,15 @@ const SectionSelection = ({
               </Text>
             </Badge>
           )}
+        </Group>
+      </Group>
+      <Stack gap={0} align="flex-start">
+        <Group align="start" w={'100%'} mt={3}>
+          <Text size="md" fw={600}>
+            {hasUniqueTitle
+              ? item.sectionNumber + '-' + item.title
+              : courseCode + '-' + item.sectionNumber}
+          </Text>
         </Group>
 
         <Text size="sm" c="dimmed">
@@ -105,6 +109,7 @@ const SectionSelection = ({
     <>
       <Group justify="start" align="start" mt={'sm'}>
         <div className="flex-grow">
+          {!hasUniqueTitle &&           
           <Group mb={'sm'} pos={'relative'}>
             <Title
               order={3}
@@ -116,7 +121,7 @@ const SectionSelection = ({
             >
               {courseTitle}
             </Title>
-          </Group>
+          </Group>}
 
           <Radio.Group
             value={value}
