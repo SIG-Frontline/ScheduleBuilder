@@ -16,6 +16,7 @@ import {
 } from '@mantine/hooks';
 import { subjectStore } from '@/lib/client/subjectStore';
 import { filterStore } from '@/lib/client/filterStore';
+import { useComputedColorScheme } from '@mantine/core';
 // the below subjects are stored in the database as just one subject and no code - so when the subject is selected, just add the course to the plan
 const specialSubjects = [
   'FYSSEM',
@@ -43,6 +44,9 @@ export default function Search({
   onFocused: () => void;
   onBlurred: () => void;
 }) {
+  const computedColorScheme = useComputedColorScheme();
+  const highLightColor = computedColorScheme === 'dark' ? '#1A71C2' : '#000000';
+
   const ref = useClickOutside(() => {
     onBlurred();
   });
@@ -400,6 +404,7 @@ export default function Search({
                     )}
                     highlightStyles={{
                       fontWeight: 700,
+                      color: highLightColor,
                       backgroundColor: 'rgba(255, 255, 255, 0)', // need to set a bg color but opacity 0 removes the bg
                     }}
                   >
@@ -433,6 +438,7 @@ export default function Search({
                     highlight={extractMatchingText(option, textBoxValue)}
                     highlightStyles={{
                       fontWeight: 700,
+                      color: highLightColor,
                       backgroundColor: 'rgba(255, 255, 255, 0)', // need to set a bg color but opacity 0 removes the bg
                     }}
                   >
