@@ -193,9 +193,7 @@ const Cal_Grid = () => {
                   </div>
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
-                  <Stack color={eventContent.backgroundColor}>
-                    <Text>{eventHoverContent}</Text>
-                  </Stack>
+                  <Stack>{eventHoverContent}</Stack>
                 </HoverCard.Dropdown>
               </HoverCard>
             );
