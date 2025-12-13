@@ -147,7 +147,7 @@ const Cal_Grid = () => {
               </>
             );
             return (
-              <HoverCard position="bottom">
+              <HoverCard position="bottom" closeDelay={375}>
                 <HoverCard.Target>
                   <div className="w-full h-full relative">
                     <Stack
