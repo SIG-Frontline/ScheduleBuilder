@@ -36,6 +36,7 @@ export type Course = {
 
 export type Section = {
   meetingTimes: MeetingTime[];
+  title: string;
   instructor: string;
   crn: string;
   currentEnrollment: number;
@@ -319,8 +320,7 @@ export const planStore = create<PlanStoreState>()(
           commuteTimeHours:
             (settings as Partial<organizerSettings>).commuteTimeHours ??
             defaultSettings.commuteTimeHours,
-          daysOnCampus:
-            settings.daysOnCampus ?? defaultSettings.daysOnCampus,
+          daysOnCampus: settings.daysOnCampus ?? defaultSettings.daysOnCampus,
           compactPlan: settings.compactPlan ?? defaultSettings.compactPlan,
           eventPriority:
             settings.eventPriority ?? defaultSettings.eventPriority,
