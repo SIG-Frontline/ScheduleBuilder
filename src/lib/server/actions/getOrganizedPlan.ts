@@ -10,7 +10,7 @@ import { Plan } from '@/lib/client/planStore';
  */
 export async function organizePlan(
   currentPlan: Plan
-): Promise<Plan | { error: string }> {
+): Promise<Plan[] | { error: string }> {
   if (!currentPlan)
     return {
       error: "No plan provided!",
