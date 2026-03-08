@@ -141,7 +141,7 @@ const Cal_Grid = () => {
                 : 0;
             const textColor = calcBgColor(eventContent.backgroundColor);
             return (
-              <HoverCard position="bottom" closeDelay={375}>
+              <HoverCard position="bottom" closeDelay={100}>
                 <HoverCard.Target>
                   <div className="w-full h-full relative">
                     <Stack
@@ -161,6 +161,10 @@ const Cal_Grid = () => {
                           </Text>
                           <Text size="xs" c={textColor}>
                             {eventContent.event.extendedProps.title}
+                          </Text>
+                          <Text size="xs" c={textColor}>
+                            {eventContent.timeText} @{' '}
+                            {eventContent.event.extendedProps.location}
                           </Text>
                         </>
                       ) : (
@@ -191,10 +195,10 @@ const Cal_Grid = () => {
                     <Text fw={600} size="sm">
                       {eventContent.event.title}
                     </Text>
-                    <Text size="xs">{eventContent.event.extendedProps.title}</Text>
                     <Text size="xs">
-                      {eventContent.timeText}
+                      {eventContent.event.extendedProps.title}
                     </Text>
+                    <Text size="xs">{eventContent.timeText}</Text>
                     <Text size="xs">
                       {eventContent.event.extendedProps.location}
                     </Text>

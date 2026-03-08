@@ -78,6 +78,8 @@ export default function Nav() {
           onChange={(value) => {
             // console.log(value);
             if (value === activeTab) {
+              // on desktop (right sidebar), a tab must always be selected
+              if (matches) return;
               localStorage.setItem('lastTab', value || tabData[0].value);
               setActiveTab(null);
               return;
@@ -119,7 +121,7 @@ export default function Nav() {
               timingFunction="ease"
             >
               {(styles) => (
-                <Tabs.Panel value={tab.value} pb="xs" style={styles}>
+                <Tabs.Panel value={tab.value} pb="xs" style={styles} w={'100%'}>
                   <ScrollAreaAutosize
                     scrollbars="y"
                     mah={matches ? '90dvh' : '48dvh'}
