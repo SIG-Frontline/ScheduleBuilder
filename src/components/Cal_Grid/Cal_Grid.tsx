@@ -130,29 +130,23 @@ const Cal_Grid = () => {
           allDaySlot={false}
           nowIndicator={false}
           eventContent={(eventContent) => {
-            const durationInMinutes: number =
-              (eventContent.event._def.recurringDef?.duration?.milliseconds ??
-                0) / 60000;
+            // Compute duration from the rendered occurrence's start/end times.
+            // Thresholds reflect common class lengths: MWF (~50 min), TTh (~75 min), labs (150+ min).
+            // < 70 min → title only; 70–119 min → title + course name; ≥ 120 min → full details.
+            const durationInMinutes =
+              eventContent.event.start && eventContent.event.end
+                ? (eventContent.event.end.getTime() -
+                    eventContent.event.start.getTime()) /
+                  60000
+                : 0;
             const textColor = calcBgColor(eventContent.backgroundColor);
-            const eventHoverContent = (
-              <>
-                Title: {eventContent.event.title} <br />
-                {eventContent.event.extendedProps.title}
-                <br />
-                Location: {eventContent.event.extendedProps.location}
-                <br />
-                Time: {eventContent.timeText} <br />
-                Instructor: {eventContent.event.extendedProps.instructor}
-                <br />
-              </>
-            );
             return (
               <HoverCard position="bottom" closeDelay={375}>
                 <HoverCard.Target>
                   <div className="w-full h-full relative">
                     <Stack
                       gap={'1px'}
-                      className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden display-block "
+                      className="p-1 leading-tight text-ellipsis w-full whitespace-nowrap overflow-hidden"
                     >
                       {durationInMinutes < 70 ? (
                         // Show only the title if duration is less than 70 minutes
@@ -193,7 +187,21 @@ const Cal_Grid = () => {
                   </div>
                 </HoverCard.Target>
                 <HoverCard.Dropdown>
-                  <Stack>{eventHoverContent}</Stack>
+                  <Stack gap={4}>
+                    <Text fw={600} size="sm">
+                      {eventContent.event.title}
+                    </Text>
+                    <Text size="xs">{eventContent.event.extendedProps.title}</Text>
+                    <Text size="xs">
+                      {eventContent.timeText}
+                    </Text>
+                    <Text size="xs">
+                      {eventContent.event.extendedProps.location}
+                    </Text>
+                    <Text size="xs">
+                      {eventContent.event.extendedProps.instructor}
+                    </Text>
+                  </Stack>
                 </HoverCard.Dropdown>
               </HoverCard>
             );
