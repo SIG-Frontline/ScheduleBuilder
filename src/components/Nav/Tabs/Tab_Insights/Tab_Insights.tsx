@@ -186,7 +186,7 @@ const Tab_Insights = () => {
     ? checkForOverlappingCourses(cur_plan).overlappingCourses
     : [];
   return (
-    <Box pb="xs" w={'85%'}>
+    <Box pb="xs">
       <Card
         withBorder
         shadow="sm"
