@@ -119,7 +119,7 @@ export default function Nav() {
               timingFunction="ease"
             >
               {(styles) => (
-                <Tabs.Panel value={tab.value} pb="xs" style={styles}>
+                <Tabs.Panel value={tab.value} pb="xs" style={styles} w={'100%'}>
                   <ScrollAreaAutosize
                     scrollbars="y"
                     mah={matches ? '90dvh' : '48dvh'}
