@@ -78,6 +78,8 @@ export default function Nav() {
           onChange={(value) => {
             // console.log(value);
             if (value === activeTab) {
+              // on desktop (right sidebar), a tab must always be selected
+              if (matches) return;
               localStorage.setItem('lastTab', value || tabData[0].value);
               setActiveTab(null);
               return;
