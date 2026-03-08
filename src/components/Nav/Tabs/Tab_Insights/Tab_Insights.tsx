@@ -10,7 +10,6 @@ import {
   Title,
 } from '@mantine/core';
 import Link from 'next/link';
-import React from 'react';
 
 const Tab_Insights = () => {
   const plan_store = planStore();
@@ -187,7 +186,7 @@ const Tab_Insights = () => {
     ? checkForOverlappingCourses(cur_plan).overlappingCourses
     : [];
   return (
-    <Box pb="6rem" h="100%" style={{ overflowY: 'auto' }}>
+    <Box pb="xs" w={'85%'}>
       <Card
         withBorder
         shadow="sm"
