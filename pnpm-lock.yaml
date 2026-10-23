@@ -6,7 +6,6 @@ settings:
 
 overrides:
   '@babel/runtime@<7.26.10': '>=7.26.10'
-  '@auth0/nextjs-auth0@>=4.0.1 <=4.6.0': '>=4.6.1'
   brace-expansion@>=2.0.0 <3.0.0: '>=2.0.2'
   '@eslint/plugin-kit@<0.3.4': '>=0.3.4'
   linkifyjs@<4.3.2: '>=4.3.2'
@@ -22,7 +21,6 @@ overrides:
   flatted@<3.4.2: '>=3.4.2'
   brace-expansion@<2.0.0: '>=1.1.21'
   brace-expansion@>=3.0.0 <5.0.12: '>=5.0.12'
-  picomatch@<2.3.2: '>=2.3.2'
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
   '@auth0/nextjs-auth0@>=4.12.0 <=4.17.0': '>=4.18.0'
   postcss@<=8.5.22: '>=8.5.23'
@@ -46,8 +44,8 @@ importers:
   .:
     dependencies:
       '@auth0/nextjs-auth0':
-        specifier: '>=4.6.1'
-        version: 4.13.3(next@16.4.3(@playwright/test@1.57.0)(@types/node@20.19.26)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: '>=4.18.0'
+        version: 4.33.0(next@16.4.3(@playwright/test@1.57.0)(@types/node@20.19.26)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@fullcalendar/core':
         specifier: ^6.1.15
         version: 6.1.19
@@ -206,8 +204,8 @@ packages:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
 
-  '@auth0/nextjs-auth0@4.13.3':
-    resolution: {integrity: sha512-RG3wwOY/ALG4pQc1wCXdqaAkoIW4EEygcDnV+a4epm1GNlmai+Q9xQUAuDN89grBjN77+m2kXmI/W0mMpZ5IBA==}
+  '@auth0/nextjs-auth0@4.33.0':
+    resolution: {integrity: sha512-GU0hWDgBuDQrLZCj7P/0JgDy9m1/nbwFeHOOcCA/cg/kmUakuEe/p4uGFnrdNADzgXZA6bJKFCyczMMEkojAQA==}
     peerDependencies:
       next: '>=16.4.1'
       react: ^18.0.0 || ~19.0.1 ||  ~19.1.2 || ^19.2.1
@@ -2306,9 +2304,9 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
-    engines: {node: '>=12'}
+  picomatch@2.3.2:
+    resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
+    engines: {node: '>=8.6'}
 
   picomatch@4.0.7:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
@@ -3033,7 +3031,7 @@ snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
 
-  '@auth0/nextjs-auth0@4.13.3(next@16.4.3(@playwright/test@1.57.0)(@types/node@20.19.26)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@auth0/nextjs-auth0@4.33.0(next@16.4.3(@playwright/test@1.57.0)(@types/node@20.19.26)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
       '@edge-runtime/cookies': 5.0.2
       '@panva/hkdf': 1.2.1
@@ -3991,7 +3989,7 @@ snapshots:
   anymatch@3.1.3:
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 4.0.3
+      picomatch: 2.3.2
 
   arg@5.0.2: {}
 
@@ -5040,7 +5038,7 @@ snapshots:
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
-      picomatch: 4.0.7
+      picomatch: 2.3.2
 
   minimatch@10.2.4:
     dependencies:
@@ -5199,7 +5197,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  picomatch@4.0.3: {}
+  picomatch@2.3.2: {}
 
   picomatch@4.0.7: {}
 
@@ -5492,7 +5490,7 @@ snapshots:
 
   readdirp@3.6.0:
     dependencies:
-      picomatch: 4.0.3
+      picomatch: 2.3.2
 
   recharts-scale@0.4.5:
     dependencies:
